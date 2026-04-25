@@ -1,0 +1,5 @@
+{
+  "appId": "org.inventoryflow.app",
+  "appName": "InventoryFlow",
+  "webDir": "dist"
+}

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-dim": "#dcd8e5",
+                    "on-tertiary-fixed": "#351000",
+                    "primary-container": "#4f46e5",
+                    "on-error-container": "#93000a",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "on-primary-fixed": "#0f0069",
+                    "surface-container": "#f0ecf9",
+                    "on-tertiary-container": "#ffd2be",
+                    "inverse-on-surface": "#f3effc",
+                    "surface-container-high": "#eae6f4",
+                    "tertiary-container": "#a44100",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "on-primary-container": "#dad7ff",
+                    "on-secondary-container": "#004666",
+                    "tertiary": "#7e3000",
+                    "secondary-fixed-dim": "#89ceff",
+                    "error": "#ba1a1a",
+                    "background": "#fcf8ff",
+                    "on-secondary-fixed": "#001e2f",
+                    "surface-variant": "#e4e1ee",
+                    "surface-tint": "#4d44e3",
+                    "on-background": "#1b1b24",
+                    "primary-fixed": "#e2dfff",
+                    "outline": "#777587",
+                    "on-surface": "#1b1b24",
+                    "surface-container-low": "#f5f2ff",
+                    "secondary": "#006591",
+                    "surface-container-highest": "#e4e1ee",
+                    "error-container": "#ffdad6",
+                    "inverse-surface": "#302f39",
+                    "tertiary-fixed-dim": "#ffb695",
+                    "secondary-fixed": "#c9e6ff",
+                    "on-error": "#ffffff",
+                    "on-surface-variant": "#464555",
+                    "tertiary-fixed": "#ffdbcc",
+                    "surface-bright": "#fcf8ff",
+                    "on-secondary-fixed-variant": "#004c6e",
+                    "inverse-primary": "#c3c0ff",
+                    "on-primary": "#ffffff",
+                    "primary": "#3525cd",
+                    "surface-container-lowest": "#ffffff",
+                    "outline-variant": "#c7c4d8",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#7b2f00",
+                    "secondary-container": "#39b8fd",
+                    "surface": "#fcf8ff",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "2xl": "48px",
+                    "3xl": "64px",
+                    "md": "16px",
+                    "xs": "4px",
+                    "lg": "24px",
+                    "xl": "32px",
+                    "sm": "8px"
+            },
+            "fontFamily": {
+                    "body-sm": ["Inter"],
+                    "label-md": ["Inter"],
+                    "h3": ["Inter"],
+                    "display": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "h2": ["Inter"],
+                    "h1": ["Inter"]
+            },
+            "fontSize": {
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "h3": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "display": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "h2": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "h1": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .scanner-frame {
+            position: relative;
+            width: 280px;
+            height: 200px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+        }
+        .scanner-corner {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-color: #4f46e5;
+            border-width: 4px;
+        }
+        .scanner-corner-tl { top: -2px; left: -2px; border-right: 0; border-bottom: 0; border-top-left-radius: 12px; }
+        .scanner-corner-tr { top: -2px; right: -2px; border-left: 0; border-bottom: 0; border-top-right-radius: 12px; }
+        .scanner-corner-bl { bottom: -2px; left: -2px; border-right: 0; border-top: 0; border-bottom-left-radius: 12px; }
+        .scanner-corner-br { bottom: -2px; right: -2px; border-left: 0; border-top: 0; border-bottom-right-radius: 12px; }
+        
+        .scan-line {
+            height: 2px;
+            width: 100%;
+            background: #4f46e5;
+            box-shadow: 0 0 15px 2px rgba(79, 70, 229, 0.8);
+            position: absolute;
+            top: 50%;
+            left: 0;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body-md text-on-surface antialiased overflow-hidden h-screen flex flex-col">
+<!-- Header / Top Bar (Manual Mapping of TopNavBar concepts to mobile context) -->
+<header class="flex justify-between items-center px-lg py-md bg-white/10 backdrop-blur-xl fixed top-0 w-full z-50">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div class="text-center">
+<h1 class="font-h3 text-white">Scan Product</h1>
+<p class="font-label-sm text-white/70 uppercase tracking-widest">InventoryFlow</p>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white">
+<span class="material-symbols-outlined">flashlight_on</span>
+</button>
+</header>
+<!-- Camera Viewfinder Section -->
+<main class="flex-grow relative bg-black flex flex-col items-center justify-center">
+<!-- Viewfinder Background Placeholder -->
+<div class="absolute inset-0 z-0">
+<img alt="blurred retail store background" class="w-full h-full object-cover opacity-60" data-alt="Modern high-end retail interior with organized shelving and soft ambient lighting, slightly blurred to represent camera depth of field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMNePAYeFEDmzSgBBlt6-_I6tj2M2HSX6GvIoUcCgbox5YpV9QleRInBgib3TqAJVgRFftOHme5BVGxIprAs3C9plz7QZGwL0W1SHydr-H8gOwkfhXwh9Zk6H5rSODQcIug2AFoI2H7JxmoShLBsA9OOPTbaUfFhCSvus_QEYUWcoi9r9DqjRT2h5ov4fBRjNxUp8ykSSXhs9jx6h5tS531R9_lrlgO5KsQLRaX8hsPy_LH-Dg8aQ3vrAc2LIeLBiIXE_YPFewzSM"/>
+</div>
+<!-- Scanning Overlay -->
+<div class="relative z-10 flex flex-col items-center">
+<div class="scanner-frame">
+<div class="scanner-corner scanner-corner-tl"></div>
+<div class="scanner-corner scanner-corner-tr"></div>
+<div class="scanner-corner scanner-corner-bl"></div>
+<div class="scanner-corner scanner-corner-br"></div>
+<div class="scan-line"></div>
+</div>
+<div class="mt-xl px-lg py-sm bg-black/40 backdrop-blur-md rounded-full border border-white/10">
+<p class="font-label-md text-white">Align barcode within frame</p>
+</div>
+</div>
+<!-- Scanned Product Card (Quick Stats) -->
+<div class="absolute bottom-0 left-0 right-0 p-lg z-20 pb-[100px]">
+<div class="bg-white/90 backdrop-blur-2xl rounded-xl p-lg shadow-xl border border-white/20">
+<div class="flex gap-lg items-start">
+<div class="w-20 h-20 rounded-lg bg-surface-container overflow-hidden flex-shrink-0">
+<img alt="scanned product" class="w-full h-full object-cover" data-alt="Minimalist luxury white wristwatch on a clean aesthetic background with soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAn7XAeVv7mMBnTzVmGSovRtCZmGYM3mArSimOiVcLhiFNPyRDr1hiAoxSPs4AxrcwsSF4gATqbSYAv9i5U5okcZuFnfma0FTjudsHuJMYqdk6Ut-WFdgU8SxdFBJ9-oDhD0U60NySHWQCMNn1-srSAcgIGCXZzI5RzllcwDfRkoYqH8R9OIbrioQ-mELhlzN_JI1c3odm-nE1MO6P3ykMvwMNKGax3eJFzKoXjglqxrDEcuPKeXVO_EIQzp7FmCK6qRiiy-9AuBQo"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<span class="font-label-sm text-primary uppercase">SKU: 88402-B</span>
+<h2 class="font-h2 text-on-surface">Neo-Chrono Watch</h2>
+</div>
+<span class="px-sm py-xs bg-green-100 text-green-700 rounded font-label-sm">IN STOCK</span>
+</div>
+<div class="mt-md grid grid-cols-3 gap-sm">
+<div class="bg-surface-container-low p-sm rounded-lg">
+<p class="font-label-sm text-on-surface-variant">Qty</p>
+<p class="font-h3 text-on-surface">142</p>
+</div>
+<div class="bg-surface-container-low p-sm rounded-lg">
+<p class="font-label-sm text-on-surface-variant">Price</p>
+<p class="font-h3 text-on-surface">$249</p>
+</div>
+<div class="bg-surface-container-low p-sm rounded-lg">
+<p class="font-label-sm text-on-surface-variant">Rack</p>
+<p class="font-h3 text-on-surface">B-04</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-lg flex gap-md">
+<button class="flex-grow bg-primary text-white font-label-md py-md rounded-lg shadow-md hover:opacity-90">
+                        Add to Order
+                    </button>
+<button class="w-12 h-12 flex items-center justify-center border border-outline-variant rounded-lg text-on-surface">
+<span class="material-symbols-outlined">edit</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Navigation Shell (BottomNavBar responsive implementation) -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 h-[80px] bg-white border-t border-surface-container-high flex items-center justify-around px-md z-50">
+<button class="flex flex-col items-center gap-xs text-gray-500">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-label-sm">Dashboard</span>
+</button>
+<button class="flex flex-col items-center gap-xs text-gray-500">
+<span class="material-symbols-outlined">group</span>
+<span class="text-[10px] font-label-sm">Customers</span>
+</button>
+<!-- Active Tab: Products (Scanning context) -->
+<button class="flex flex-col items-center gap-xs text-primary font-semibold">
+<div class="w-12 h-12 bg-primary-container rounded-full flex items-center justify-center -mt-8 shadow-lg border-4 border-white">
+<span class="material-symbols-outlined text-white" data-weight="fill">barcode_scanner</span>
+</div>
+<span class="text-[10px] font-label-sm mt-1">Products</span>
+</button>
+<button class="flex flex-col items-center gap-xs text-gray-500">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="text-[10px] font-label-sm">Inventory</span>
+</button>
+<button class="flex flex-col items-center gap-xs text-gray-500">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px] font-label-sm">Settings</span>
+</button>
+</nav>
+<!-- Web Navigation (SideNav and TopNav) - Hidden on Mobile -->
+<aside class="hidden md:flex fixed left-0 top-0 h-full w-64 flex-col py-6 px-4 border-r border-gray-200 bg-white">
+<div class="mb-xl px-2">
+<h1 class="text-xl font-black tracking-tighter text-indigo-600">InventoryFlow</h1>
+<p class="text-xs text-gray-400 font-medium">Enterprise CRM</p>
+</div>
+<nav class="flex-grow flex flex-col gap-sm">
+<a class="flex items-center gap-md p-sm rounded-lg text-gray-500 hover:bg-gray-50 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md p-sm rounded-lg text-gray-500 hover:bg-gray-50 transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-md">Customers</span>
+</a>
+<a class="flex items-center gap-md p-sm rounded-lg text-indigo-600 font-semibold bg-indigo-50/50 border-r-2 border-indigo-600" href="#">
+<span class="material-symbols-outlined" data-weight="fill">inventory_2</span>
+<span class="font-label-md">Products</span>
+</a>
+<a class="flex items-center gap-md p-sm rounded-lg text-gray-500 hover:bg-gray-50 transition-colors" href="#">
+<span class="material-symbols-outlined">warehouse</span>
+<span class="font-label-md">Inventory</span>
+</a>
+<a class="flex items-center gap-md p-sm rounded-lg text-gray-500 hover:bg-gray-50 transition-colors" href="#">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="font-label-md">Orders</span>
+</a>
+<a class="flex items-center gap-md p-sm rounded-lg text-gray-500 hover:bg-gray-50 transition-colors" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="font-label-md">Analytics</span>
+</a>
+</nav>
+<div class="pt-xl border-t border-gray-100">
+<a class="flex items-center gap-md p-sm rounded-lg text-gray-500 hover:bg-gray-50 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md">Settings</span>
+</a>
+</div>
+</aside>
+<header class="hidden md:flex justify-between items-center px-8 h-16 sticky top-0 z-40 ml-64 bg-white/80 backdrop-blur-md shadow-sm">
+<div class="flex items-center gap-md bg-gray-50 px-md py-xs rounded-full w-96 border border-gray-100">
+<span class="material-symbols-outlined text-gray-400">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm w-full" placeholder="Search products, orders..." type="text"/>
+</div>
+<div class="flex items-center gap-lg">
+<button class="relative text-gray-500">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+</button>
+<button class="text-gray-500">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="flex items-center gap-sm ml-md border-l pl-md border-gray-200">
+<div class="text-right">
+<p class="font-label-sm text-on-surface">Alex Rivera</p>
+<p class="text-[10px] text-on-surface-variant font-medium">Store Manager</p>
+</div>
+<img alt="User Profile" class="w-8 h-8 rounded-full border border-gray-200" data-alt="Professional headshot of a friendly man with a slight beard in a modern office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAP23TEvsb_u5lFA2ZiJvYKEfMwMhJpB8n7exKPGC5GifGkuMyyje9u6nScDzah8LiiWX0WFqgc5Y9HThMx90LecwVUMl_XEPMDLnqQqa_G4YPf82yX21z1fS86Q3029wWNMqL48x3YZZZeUOabqYM132FtZAiB9nIYLO8HKZ2sYp9uTBlW1uE_ckTGJYQjyUw3atohlRmaKIFLRnjseg37adnYFfMVHR68EtE9f3qyVlczO65DJTNf8C2HKS9hI0Y8lSsKe04JRyg"/>
+</div>
+</div>
+</header>
+</body></html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary": "#ffffff",
+                    "surface-container-highest": "#e4e1ee",
+                    "secondary-fixed-dim": "#89ceff",
+                    "surface-variant": "#e4e1ee",
+                    "on-secondary-fixed-variant": "#004c6e",
+                    "surface-tint": "#4d44e3",
+                    "primary-container": "#4f46e5",
+                    "on-secondary-fixed": "#001e2f",
+                    "surface": "#fcf8ff",
+                    "inverse-on-surface": "#f3effc",
+                    "inverse-primary": "#c3c0ff",
+                    "on-secondary-container": "#004666",
+                    "error-container": "#ffdad6",
+                    "secondary": "#006591",
+                    "tertiary-container": "#a44100",
+                    "tertiary-fixed": "#ffdbcc",
+                    "tertiary": "#7e3000",
+                    "outline-variant": "#c7c4d8",
+                    "on-surface-variant": "#464555",
+                    "on-surface": "#1b1b24",
+                    "on-tertiary": "#ffffff",
+                    "surface-dim": "#dcd8e5",
+                    "secondary-fixed": "#c9e6ff",
+                    "on-tertiary-fixed": "#351000",
+                    "on-tertiary-container": "#ffd2be",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed-dim": "#ffb695",
+                    "surface-container": "#f0ecf9",
+                    "surface-bright": "#fcf8ff",
+                    "primary": "#3525cd",
+                    "secondary-container": "#39b8fd",
+                    "inverse-surface": "#302f39",
+                    "on-primary-fixed": "#0f0069",
+                    "on-background": "#1b1b24",
+                    "surface-container-low": "#f5f2ff",
+                    "on-tertiary-fixed-variant": "#7b2f00",
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-container": "#dad7ff",
+                    "background": "#fcf8ff",
+                    "outline": "#777587",
+                    "on-error": "#ffffff",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "error": "#ba1a1a",
+                    "surface-container-high": "#eae6f4",
+                    "primary-fixed": "#e2dfff",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed-variant": "#3323cc"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "sm": "8px",
+                    "md": "16px",
+                    "xl": "32px",
+                    "lg": "24px",
+                    "3xl": "64px",
+                    "2xl": "48px"
+            },
+            "fontFamily": {
+                    "display": ["Inter"],
+                    "body-md": ["Inter"],
+                    "h2": ["Inter"],
+                    "h1": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "h3": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "display": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "h2": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "h1": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "h3": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface antialiased min-h-screen">
+<!-- Top AppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 h-16 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm border-b border-gray-200 dark:border-gray-800 transition-colors duration-200 ease-in-out">
+<div class="flex items-center gap-md">
+<button class="p-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<span class="text-lg font-bold text-indigo-600 dark:text-indigo-400 font-sans antialiased font-semibold tracking-tight">Nexus CRM</span>
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional male executive in a well-lit modern office setting, clean lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZe5VOYEnN9K5514HaCo35fqWpTXYrqPuM2YSXONQTtKqygY7-JK6ITCGy1xi5BMSMmQaqCVZWYAEAl8VIX1cL4FlwXKhn7xEcC5Y6aEq2QYZnLjeb48czYBQSP5o15EjcUFvp3cpsimdVwrni6sCaSey4n68QgA4TLKYHJ4R7vnNarcbbopG5GlJZ8qypbnneF8EZztVmpoo5UQgCrt23c3HD63E1asHT7sNw3pkb1zyLgr9dAQvMzBmnFEu-zbHrvrhbnUCXzj4"/>
+</div>
+</header>
+<main class="pt-24 pb-32 px-md space-y-lg max-w-md mx-auto">
+<!-- Profile Section -->
+<section class="space-y-md">
+<h2 class="font-h2 text-h2 text-on-surface px-xs">Profile Settings</h2>
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-md shadow-sm">
+<div class="flex flex-col items-center gap-md mb-lg">
+<div class="relative">
+<img alt="Avatar" class="w-24 h-24 rounded-full border-2 border-primary-container p-0.5" data-alt="professional headshot of a person with clear focus, soft studio lighting, neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgAajDR7ZP6JuqCTPMNSrWCngfsuq8AjWSbd0YOY6LwAt8VPr_6CuV52h3SxkeDLMwNwIo5w5zDXMOjNen97QenpPEdrtk97XQxSbv1qfSNjM4YF8-zsv8JB1sDSMp8BFhN2kDCLT3m7F8a7aqXkQMeygcp2zSI_ljeklSMssplZ1dfPq2W6-d1sFqi-Jh3wxRto7gj33WimNwXgkvJjBFG6PDTrCrX0AcpXdLQFk-JQAgAAi7_LmbmhtbqxnJBV2K3AtDvPAuvWA"/>
+<button class="absolute bottom-0 right-0 bg-primary-container text-on-primary p-xs rounded-full shadow-lg">
+<span class="material-symbols-outlined text-[18px]" data-icon="edit">edit</span>
+</button>
+</div>
+</div>
+<div class="space-y-md">
+<div>
+<label class="block font-label-sm text-label-sm text-outline mb-xs">FULL NAME</label>
+<input class="w-full bg-surface-container border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all font-body-md text-body-md" type="text" value="Alex Rivera"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-outline mb-xs">EMAIL ADDRESS</label>
+<input class="w-full bg-surface-container border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all font-body-md text-body-md" type="email" value="alex.rivera@nexus-corp.com"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-outline mb-xs">BIO</label>
+<textarea class="w-full bg-surface-container border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all font-body-md text-body-md resize-none" rows="3">Product Lead at Nexus. Focus on operational efficiency and scalable inventory systems.</textarea>
+</div>
+</div>
+</div>
+</section>
+<!-- Organization Section -->
+<section class="space-y-md">
+<h2 class="font-h2 text-h2 text-on-surface px-xs">Organization</h2>
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-md shadow-sm">
+<div class="space-y-md">
+<div>
+<label class="block font-label-sm text-label-sm text-outline mb-xs">BUSINESS NAME</label>
+<input class="w-full bg-surface-container border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary outline-none font-body-md text-body-md" type="text" value="Nexus Enterprise Solutions"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-outline mb-xs">LOGO</label>
+<div class="border-2 border-dashed border-outline-variant rounded-xl p-lg flex flex-col items-center justify-center bg-surface-container-low text-outline group hover:border-primary-container transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-[32px] mb-sm" data-icon="upload_file">upload_file</span>
+<span class="font-label-md text-label-md">Tap to upload business logo</span>
+<span class="text-[10px] uppercase mt-xs opacity-60">PNG, JPG up to 5MB</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Team Management -->
+<section class="space-y-md">
+<div class="flex justify-between items-end px-xs">
+<h2 class="font-h2 text-h2 text-on-surface">Team Management</h2>
+<button class="text-primary font-label-md text-label-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span> Invite
+                </button>
+</div>
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden shadow-sm">
+<div class="divide-y divide-surface-container">
+<!-- Member 1 -->
+<div class="p-md flex items-center justify-between">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center text-primary-container font-bold">JD</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Jordan Davis</p>
+<p class="font-body-sm text-body-sm text-outline">Admin</p>
+</div>
+</div>
+<button class="text-outline hover:text-primary-container transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+<!-- Member 2 -->
+<div class="p-md flex items-center justify-between">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-tertiary-container/10 flex items-center justify-center text-tertiary font-bold">SK</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Sarah King</p>
+<p class="font-body-sm text-body-sm text-outline">Editor</p>
+</div>
+</div>
+<button class="text-outline">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Notifications -->
+<section class="space-y-md">
+<h2 class="font-h2 text-h2 text-on-surface px-xs">Notifications</h2>
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+<div class="divide-y divide-surface-container">
+<div class="p-md flex items-center justify-between">
+<div>
+<p class="font-label-md text-label-md text-on-surface">Security Alerts</p>
+<p class="font-body-sm text-body-sm text-outline">Login attempts and key changes</p>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<div class="w-11 h-6 bg-primary-container rounded-full peer"></div>
+<div class="absolute left-6 top-1 bg-white w-4 h-4 rounded-full transition-all"></div>
+</div>
+</div>
+<div class="p-md flex items-center justify-between">
+<div>
+<p class="font-label-md text-label-md text-on-surface">Inventory Updates</p>
+<p class="font-body-sm text-body-sm text-outline">Low stock and movement alerts</p>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<div class="w-11 h-6 bg-surface-container-highest rounded-full peer"></div>
+<div class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-all"></div>
+</div>
+</div>
+<div class="p-md flex items-center justify-between">
+<div>
+<p class="font-label-md text-label-md text-on-surface">Marketing</p>
+<p class="font-body-sm text-body-sm text-outline">New features and tips</p>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<div class="w-11 h-6 bg-surface-container-highest rounded-full peer"></div>
+<div class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-all"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Danger Zone -->
+<div class="pt-lg pb-md">
+<button class="w-full py-md flex items-center justify-center gap-sm text-error bg-error-container/20 rounded-xl border border-error/20 font-label-md text-label-md hover:bg-error-container/40 transition-colors">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+                Sign Out
+            </button>
+<p class="text-center text-outline font-body-sm text-body-sm mt-md opacity-60">Nexus CRM v2.4.0 — Production Build</p>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 pb-safe bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 shadow-[0_-1px_3px_0_rgba(0,0,0,0.05)] transition-transform duration-150">
+<a class="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 px-3 py-1 hover:text-indigo-500" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="text-[11px] font-medium tracking-wide">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 px-3 py-1 hover:text-indigo-500" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="text-[11px] font-medium tracking-wide">Inventory</span>
+</a>
+<a class="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 px-3 py-1 hover:text-indigo-500" href="#">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+<span class="text-[11px] font-medium tracking-wide">Orders</span>
+</a>
+<a class="flex flex-col items-center justify-center text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl px-3 py-1" href="#">
+<span class="material-symbols-outlined" data-icon="person" data-weight="fill" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="text-[11px] font-medium tracking-wide">Profile</span>
+</a>
+</nav>
+</body></html>

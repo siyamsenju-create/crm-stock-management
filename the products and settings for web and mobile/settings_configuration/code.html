@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#004666",
+                    "tertiary-fixed-dim": "#ffb695",
+                    "on-surface": "#1b1b24",
+                    "secondary-container": "#39b8fd",
+                    "on-tertiary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "surface": "#fcf8ff",
+                    "on-primary-fixed": "#0f0069",
+                    "on-primary": "#ffffff",
+                    "surface-bright": "#fcf8ff",
+                    "error-container": "#ffdad6",
+                    "surface-container": "#f0ecf9",
+                    "on-secondary-fixed": "#001e2f",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-tint": "#4d44e3",
+                    "inverse-on-surface": "#f3effc",
+                    "on-primary-container": "#dad7ff",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-container": "#ffd2be",
+                    "tertiary": "#7e3000",
+                    "surface-container-high": "#eae6f4",
+                    "on-surface-variant": "#464555",
+                    "secondary-fixed-dim": "#89ceff",
+                    "on-tertiary-fixed": "#351000",
+                    "primary-container": "#4f46e5",
+                    "on-background": "#1b1b24",
+                    "on-tertiary-fixed-variant": "#7b2f00",
+                    "tertiary-container": "#a44100",
+                    "surface-dim": "#dcd8e5",
+                    "surface-container-low": "#f5f2ff",
+                    "surface-variant": "#e4e1ee",
+                    "secondary": "#006591",
+                    "background": "#fcf8ff",
+                    "outline": "#777587",
+                    "on-error": "#ffffff",
+                    "on-secondary-fixed-variant": "#004c6e",
+                    "outline-variant": "#c7c4d8",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "inverse-primary": "#c3c0ff",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "primary": "#3525cd",
+                    "primary-fixed": "#e2dfff",
+                    "inverse-surface": "#302f39",
+                    "surface-container-highest": "#e4e1ee",
+                    "error": "#ba1a1a",
+                    "secondary-fixed": "#c9e6ff",
+                    "tertiary-fixed": "#ffdbcc"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "24px",
+                    "sm": "8px",
+                    "3xl": "64px",
+                    "xl": "32px",
+                    "2xl": "48px",
+                    "md": "16px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "display": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "h1": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "h2": ["Inter"],
+                    "h3": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "label-md": ["Inter"]
+            },
+            "fontSize": {
+                    "display": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "h1": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "h2": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "h3": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { background-color: #fcf8ff; }
+    </style>
+</head>
+<body class="font-body-md text-on-surface selection:bg-primary-fixed-dim">
+<!-- TopNavBar -->
+<nav class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md text-slate-500 dark:text-slate-400 font-sans text-sm font-medium tracking-tight border-b z-40 border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between px-6 h-16 w-full sticky top-0">
+<div class="flex items-center gap-xl">
+<span class="text-xl font-bold text-slate-900 dark:text-white tracking-tighter">Nexus CRM</span>
+<div class="hidden md:flex gap-md">
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 duration-200 ease-in-out" href="#">Dashboard</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 duration-200 ease-in-out" href="#">Reports</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 duration-200 ease-in-out" href="#">Analytics</a>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex gap-sm mr-md">
+<button class="p-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors rounded-full text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 bg-slate-50 dark:bg-slate-800/50 text-indigo-600 dark:text-indigo-400 transition-colors rounded-full">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<button class="bg-primary-container text-white px-md py-sm rounded-lg font-label-md hover:opacity-90 transition-opacity">Create New</button>
+<img alt="User Profile" class="h-9 w-9 rounded-full object-cover ring-2 ring-surface-variant" data-alt="Close-up professional headshot of a woman with a friendly expression in a modern office setting with soft natural light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuByi5hxYLRuswGvVXvuzyK5pEsShNtzNjAG612d7MNyUMm9vtLtx7SVKN616QdD54eEwzcYH66GuU2C9GfKtlXHHfGg_tmaKcbUk97Sz63964LR-BA95rRVjhmLWHM5-dwB8COdoggWKvzoDrl474saS309Y_rlFNmm-DdPvofi5mpccMyliyIsvX-WEeOWp71JnDB-MJUBfOOw05mdtQq3Ko6GMMHqqpgoMe4IeZ4lKqI8uEKyFSzfQsTtL6hYQFXeC2yiu2rAFQg"/>
+</div>
+</nav>
+<div class="flex min-h-[calc(100vh-64px)]">
+<!-- SideNavBar - Suppressed as per "Back/Close action implies temporary departure" rule for Settings, but here we use a specialized Settings Sidebar -->
+<aside class="w-64 border-r border-outline-variant bg-surface-container-lowest hidden md:flex flex-col p-md gap-y-xs sticky top-16 h-[calc(100vh-64px)]">
+<div class="px-md py-sm">
+<h3 class="font-h3 text-primary text-sm uppercase tracking-widest opacity-70">General</h3>
+</div>
+<nav class="flex flex-col gap-xs">
+<a class="flex items-center gap-sm px-md py-sm bg-primary-fixed text-primary rounded-lg font-label-md" href="#profile">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+                    Profile
+                </a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg font-label-md transition-colors" href="#organization">
+<span class="material-symbols-outlined" data-icon="corporate_fare">corporate_fare</span>
+                    Organization
+                </a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg font-label-md transition-colors" href="#team">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+                    Team Management
+                </a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg font-label-md transition-colors" href="#integrations">
+<span class="material-symbols-outlined" data-icon="extension">extension</span>
+                    Integrations
+                </a>
+<a class="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-variant rounded-lg font-label-md transition-colors" href="#notifications">
+<span class="material-symbols-outlined" data-icon="notifications_active">notifications_active</span>
+                    Notifications
+                </a>
+</nav>
+<div class="mt-auto px-md py-sm border-t border-outline-variant">
+<button class="flex items-center gap-sm text-error font-label-md w-full py-sm px-md hover:bg-error-container/20 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+                    Sign Out
+                </button>
+</div>
+</aside>
+<!-- Settings Content -->
+<main class="flex-1 p-xl max-w-5xl mx-auto w-full">
+<header class="mb-3xl">
+<h1 class="font-h1 text-on-surface">Account Settings</h1>
+<p class="font-body-md text-on-surface-variant mt-xs">Manage your personal preferences and organization-wide configurations.</p>
+</header>
+<div class="space-y-3xl">
+<!-- Section: Profile Settings -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm" id="profile">
+<div class="p-lg border-b border-outline-variant flex items-center justify-between">
+<div>
+<h2 class="font-h2 text-on-surface">Profile Settings</h2>
+<p class="font-body-sm text-on-surface-variant">Update your personal information and how others see you.</p>
+</div>
+</div>
+<div class="p-lg space-y-lg">
+<div class="flex items-center gap-xl">
+<div class="relative group">
+<img alt="Avatar" class="h-24 w-24 rounded-full object-cover ring-4 ring-surface-variant" data-alt="Close-up professional headshot of a woman with a friendly expression in a modern office setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNImtqgBKhUubBrNkVpKJBasWD0rfGsBUgumh6xXI1nfpCWs8o1Alt_DkZJAeN5tPjHnxeJDi9Csg_mdHEfUJukl1TufrtoDjlFnhymsSjnL_kq2f8YROWsR_uYQpgojSCaVqNGbmJn53NHtcOfzau8iMUXcy0pd1UFQha1yf7-i22VDYdrGzltYGrxA6mDU4CSKB-Z664rhyypCKcq4XRblJilo6wKqRdhelrbAwEYKmiLioPvjr_vD1AYCuPTUOTJW-UttiUDt0"/>
+<button class="absolute bottom-0 right-0 bg-primary text-white p-xs rounded-full shadow-lg hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-sm" data-icon="edit">edit</span>
+</button>
+</div>
+<div class="flex-1 space-y-md">
+<div class="grid md:grid-cols-2 gap-md">
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-on-surface-variant">Full Name</label>
+<input class="rounded-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" type="text" value="Sarah Jenkins"/>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-on-surface-variant">Email Address</label>
+<input class="rounded-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" type="email" value="sarah.jenkins@nexus-core.io"/>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-on-surface-variant">Bio</label>
+<textarea class="rounded-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" rows="2">Head of Global Operations at Nexus CRM. Passionate about logistics and enterprise scale.</textarea>
+</div>
+</div>
+</div>
+</div>
+<div class="p-md bg-surface-container-low flex justify-end gap-md">
+<button class="px-lg py-sm text-on-surface-variant font-label-md hover:bg-surface-variant rounded-lg transition-colors">Cancel</button>
+<button class="px-lg py-sm bg-primary text-white font-label-md rounded-lg shadow-sm hover:opacity-90 transition-opacity">Save Profile</button>
+</div>
+</section>
+<!-- Section: Organization Settings -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm" id="organization">
+<div class="p-lg border-b border-outline-variant">
+<h2 class="font-h2 text-on-surface">Organization Settings</h2>
+<p class="font-body-sm text-on-surface-variant">Configure your workspace and legal business details.</p>
+</div>
+<div class="p-lg grid md:grid-cols-2 gap-xl">
+<div class="space-y-md">
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-on-surface-variant">Business Name</label>
+<input class="rounded-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" type="text" value="Nexus Core Industries"/>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-on-surface-variant">Workspace URL</label>
+<div class="flex">
+<span class="inline-flex items-center px-md rounded-l-lg border border-r-0 border-outline-variant bg-surface-container-high text-on-surface-variant font-body-sm">nexus-crm.io/</span>
+<input class="flex-1 rounded-r-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" type="text" value="nexus-core"/>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-on-surface-variant">Business Address</label>
+<input class="rounded-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" type="text" value="128 Innovation Way, Ste 400"/>
+<input class="mt-xs rounded-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" type="text" value="San Francisco, CA 94105"/>
+</div>
+</div>
+<div class="space-y-md">
+<label class="font-label-sm text-on-surface-variant">Organization Logo</label>
+<div class="border-2 border-dashed border-outline-variant rounded-xl p-xl flex flex-col items-center justify-center text-center hover:border-primary transition-colors cursor-pointer bg-surface-container-low">
+<span class="material-symbols-outlined text-4xl text-outline mb-sm" data-icon="cloud_upload">cloud_upload</span>
+<p class="font-label-md text-on-surface">Click to upload logo</p>
+<p class="font-body-sm text-on-surface-variant">SVG, PNG, or JPG (max. 2MB)</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Team Management -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm" id="team">
+<div class="p-lg border-b border-outline-variant flex items-center justify-between">
+<div>
+<h2 class="font-h2 text-on-surface">Team Management</h2>
+<p class="font-body-sm text-on-surface-variant">Manage members and their permission levels.</p>
+</div>
+<button class="bg-secondary-container text-on-secondary-container px-lg py-sm rounded-lg font-label-md flex items-center gap-xs hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-sm" data-icon="person_add">person_add</span>
+                            Invite Member
+                        </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-container-high border-b border-outline-variant">
+<tr>
+<th class="px-lg py-md font-label-sm text-on-surface-variant uppercase tracking-wider">Member</th>
+<th class="px-lg py-md font-label-sm text-on-surface-variant uppercase tracking-wider">Role</th>
+<th class="px-lg py-md font-label-sm text-on-surface-variant uppercase tracking-wider">Status</th>
+<th class="px-lg py-md font-label-sm text-on-surface-variant uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-lg py-md flex items-center gap-md">
+<div class="h-10 w-10 rounded-full bg-primary-fixed-variant flex items-center justify-center text-white font-bold">JD</div>
+<div>
+<div class="font-label-md text-on-surface">John Doe</div>
+<div class="font-body-sm text-on-surface-variant">john@nexus-core.io</div>
+</div>
+</td>
+<td class="px-lg py-md">
+<span class="px-sm py-xs bg-primary-fixed text-primary text-xs font-bold rounded">Owner</span>
+</td>
+<td class="px-lg py-md">
+<span class="flex items-center gap-xs text-xs font-medium text-on-tertiary-fixed-variant">
+<span class="h-2 w-2 rounded-full bg-tertiary"></span> Active
+                                        </span>
+</td>
+<td class="px-lg py-md text-right">
+<button class="text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-lg py-md flex items-center gap-md">
+<img alt="Marcus" class="h-10 w-10 rounded-full object-cover" data-alt="Portrait of a young professional man in a tech office environment, natural lighting, blurred background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCA42qOqaqSr0zb4Tjm6qonHiMR_T_nWWzYtYvw75wbOb-JFoxMtPTtUFNMb_UB_LcRK9Gc5tKP-odvc8wU5ZdKKwxVvsrLHz8mjU-5RKydm0qt5kvoWBlGINCwRO_XhZUCl91YdHbSlopEOWBjLm4K22aBNeOASekloZ47-JFPRMAhsqh1JWEmYlyk6d7F-QJLVg0MenLB8kC0zDFetbmCTjU7KSbBUqsp_rGvTHusm4H3i1DbdUKWFoRL506n8lFzu60fXH3_N_4"/>
+<div>
+<div class="font-label-md text-on-surface">Marcus Thorne</div>
+<div class="font-body-sm text-on-surface-variant">m.thorne@nexus-core.io</div>
+</div>
+</td>
+<td class="px-lg py-md">
+<span class="px-sm py-xs bg-surface-container-highest text-on-surface-variant text-xs font-bold rounded">Manager</span>
+</td>
+<td class="px-lg py-md">
+<span class="flex items-center gap-xs text-xs font-medium text-on-tertiary-fixed-variant">
+<span class="h-2 w-2 rounded-full bg-tertiary"></span> Active
+                                        </span>
+</td>
+<td class="px-lg py-md text-right">
+<button class="text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-lg py-md flex items-center gap-md">
+<div class="h-10 w-10 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed font-bold">LW</div>
+<div>
+<div class="font-label-md text-on-surface">Lydia West</div>
+<div class="font-body-sm text-on-surface-variant">l.west@nexus-core.io</div>
+</div>
+</td>
+<td class="px-lg py-md">
+<span class="px-sm py-xs bg-surface-container-highest text-on-surface-variant text-xs font-bold rounded">Developer</span>
+</td>
+<td class="px-lg py-md">
+<span class="flex items-center gap-xs text-xs font-medium text-outline">
+<span class="h-2 w-2 rounded-full bg-outline"></span> Pending
+                                        </span>
+</td>
+<td class="px-lg py-md text-right">
+<button class="text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="more_vert">more_vert</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Section: Integrations -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm" id="integrations">
+<div class="p-lg border-b border-outline-variant">
+<h2 class="font-h2 text-on-surface">Integration Settings</h2>
+<p class="font-body-sm text-on-surface-variant">Connect your tools and manage API keys for external applications.</p>
+</div>
+<div class="p-lg space-y-lg">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<div class="p-lg border border-outline-variant rounded-xl flex items-start gap-md hover:shadow-md transition-all">
+<div class="bg-primary-fixed p-sm rounded-lg">
+<span class="material-symbols-outlined text-primary" data-icon="hub">hub</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-center mb-xs">
+<h3 class="font-label-md text-on-surface">REST API</h3>
+<span class="px-xs py-[2px] bg-tertiary-fixed text-tertiary text-[10px] uppercase font-bold rounded">Connected</span>
+</div>
+<p class="font-body-sm text-on-surface-variant mb-md">Manage your production and sandbox API keys.</p>
+<button class="text-primary font-label-sm flex items-center gap-xs hover:underline">
+                                        Configure Keys <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="p-lg border border-outline-variant rounded-xl flex items-start gap-md hover:shadow-md transition-all">
+<div class="bg-secondary-fixed p-sm rounded-lg">
+<span class="material-symbols-outlined text-secondary" data-icon="sync">sync</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-center mb-xs">
+<h3 class="font-label-md text-on-surface">Shopify Sync</h3>
+<span class="px-xs py-[2px] bg-outline-variant text-outline text-[10px] uppercase font-bold rounded">Disconnected</span>
+</div>
+<p class="font-body-sm text-on-surface-variant mb-md">Automate inventory sync with your Shopify store.</p>
+<button class="bg-on-secondary-container text-white px-md py-xs rounded font-label-sm hover:opacity-90 transition-opacity">
+                                        Connect
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Notifications -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm" id="notifications">
+<div class="p-lg border-b border-outline-variant">
+<h2 class="font-h2 text-on-surface">Notification Preferences</h2>
+<p class="font-body-sm text-on-surface-variant">Control which alerts you receive and how they are delivered.</p>
+</div>
+<div class="p-lg divide-y divide-outline-variant">
+<div class="py-lg flex items-center justify-between">
+<div class="max-w-md">
+<h3 class="font-label-md text-on-surface">Security Alerts</h3>
+<p class="font-body-sm text-on-surface-variant">Receive emails for new logins and sensitive setting changes.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="py-lg flex items-center justify-between">
+<div class="max-w-md">
+<h3 class="font-label-md text-on-surface">Inventory Updates</h3>
+<p class="font-body-sm text-on-surface-variant">Daily summary of low-stock items and warehouse transfers.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="py-lg flex items-center justify-between">
+<div class="max-w-md">
+<h3 class="font-label-md text-on-surface">Marketing Communications</h3>
+<p class="font-body-sm text-on-surface-variant">Tips, product updates, and platform newsletter.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</section>
+</div>
+<!-- Footer Spacing -->
+<div class="h-3xl"></div>
+</main>
+</div>
+<!-- Mobile BottomNavBar -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-outline-variant flex justify-around items-center h-16 z-50">
+<button class="flex flex-col items-center justify-center text-on-surface-variant p-2">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[10px] font-label-sm">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant p-2">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="text-[10px] font-label-sm">Reports</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary p-2">
+<span class="material-symbols-outlined" data-icon="settings" data-weight="fill">settings</span>
+<span class="text-[10px] font-label-sm">Settings</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant p-2">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+<span class="text-[10px] font-label-sm">Account</span>
+</button>
+</nav>
+</body></html>

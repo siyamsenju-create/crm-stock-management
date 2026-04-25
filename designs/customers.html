@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>InventoryFlow - Customers CRM</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#dcd8e5",
+                        "on-tertiary-fixed": "#351000",
+                        "primary-container": "#4f46e5",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "on-primary-fixed": "#0f0069",
+                        "surface-container": "#f0ecf9",
+                        "on-tertiary-container": "#ffd2be",
+                        "inverse-on-surface": "#f3effc",
+                        "surface-container-high": "#eae6f4",
+                        "tertiary-container": "#a44100",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "on-primary-container": "#dad7ff",
+                        "on-secondary-container": "#004666",
+                        "tertiary": "#7e3000",
+                        "secondary-fixed-dim": "#89ceff",
+                        "error": "#ba1a1a",
+                        "background": "#fcf8ff",
+                        "on-secondary-fixed": "#001e2f",
+                        "surface-variant": "#e4e1ee",
+                        "surface-tint": "#4d44e3",
+                        "on-background": "#1b1b24",
+                        "primary-fixed": "#e2dfff",
+                        "outline": "#777587",
+                        "on-surface": "#1b1b24",
+                        "surface-container-low": "#f5f2ff",
+                        "secondary": "#006591",
+                        "surface-container-highest": "#e4e1ee",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#302f39",
+                        "tertiary-fixed-dim": "#ffb695",
+                        "secondary-fixed": "#c9e6ff",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#464555",
+                        "tertiary-fixed": "#ffdbcc",
+                        "surface-bright": "#fcf8ff",
+                        "on-secondary-fixed-variant": "#004c6e",
+                        "inverse-primary": "#c3c0ff",
+                        "on-primary": "#ffffff",
+                        "primary": "#3525cd",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#c7c4d8",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#7b2f00",
+                        "secondary-container": "#39b8fd",
+                        "surface": "#fcf8ff",
+                        "on-tertiary": "#ffffff"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "2xl": "48px",
+                        "3xl": "64px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "sm": "8px"
+                    },
+                    fontFamily: {
+                        "body-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "h3": ["Inter"],
+                        "display": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "h2": ["Inter"],
+                        "h1": ["Inter"]
+                    },
+                    fontSize: {
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "h3": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "display": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "h2": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "h1": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid #E5E7EB;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen">
+    <!-- SideNavBar (Shared Component) -->
+    <aside class="fixed left-0 top-0 h-full flex flex-col py-6 px-4 w-64 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 font-['Inter'] text-sm antialiased z-50">
+        <div class="mb-xl px-2">
+            <div class="text-xl font-black tracking-tighter text-indigo-600 dark:text-indigo-400">InventoryFlow</div>
+            <div class="text-xs text-on-surface-variant/70 uppercase font-bold tracking-widest mt-xs">Enterprise CRM</div>
+        </div>
+        <nav class="flex-1 space-y-1">
+            <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-200" href="index.html">
+                <span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                <span class="font-medium">Dashboard</span>
+            </a>
+            <!-- Active State: Customers -->
+            <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50/50 dark:bg-indigo-900/20 border-r-2 border-indigo-600 transition-colors duration-200 scale-98" href="customers.html">
+                <span class="material-symbols-outlined" data-icon="group">group</span>
+                <span class="font-medium">Customers</span>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-200" href="products.html">
+                <span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+                <span class="font-medium">Products</span>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-200" href="inventory.html">
+                <span class="material-symbols-outlined" data-icon="warehouse">warehouse</span>
+                <span class="font-medium">Inventory</span>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-200" href="orders.html">
+                <span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+                <span class="font-medium">Orders</span>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-200" href="#">
+                <span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+                <span class="font-medium">Analytics</span>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-200" href="#">
+                <span class="material-symbols-outlined" data-icon="settings">settings</span>
+                <span class="font-medium">Settings</span>
+            </a>
+        </nav>
+        <div class="mt-auto p-4 glass-card rounded-xl">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary font-bold">JD</div>
+                <div>
+                    <div class="font-label-md text-on-surface">Jane Doe</div>
+                    <div class="text-xs text-on-surface-variant">Admin Access</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- TopNavBar (Shared Component) -->
+    <header class="flex justify-between items-center px-8 sticky top-0 z-40 ml-64 w-[calc(100%-256px)] h-16 border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm">
+        <div class="flex items-center flex-1 max-w-xl">
+            <div class="relative w-full">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+                <input class="w-full bg-surface-container-low border-none rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary outline-none" placeholder="Search customers, orders, or data..." type="text"/>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+                <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+            </button>
+            <button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+                <span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+            </button>
+            <div class="w-px h-6 bg-outline-variant mx-2"></div>
+            <img alt="User Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBq90Hbouv6xSA3J9onAzfUQ9qfNpx2N4nN0naV9Lf-BUfG2xnJrfRtg-pfxMxmNInbHkAXdRgXNNgeRmiDck95ULof4WiUO7B3i3gLAlAAsFeN_PY-I_qcHhuoIsdSBVw1OQ0eyzKnuOtFIXUMAILPP20uHy7U960JxwJ9ZYfPr0ow0Fo_mbpO_ZvUXETdqVzVnIl15PPsfWYpYL53qcqV_3iCG0NZ3T8FHChmKjDqV-dOnLPV2Ob0dc5rGASF3p6otn-0iUUXxqU"/>
+        </div>
+    </header>
+
+    <!-- Main Content Canvas -->
+    <main class="ml-64 p-8 min-h-[calc(100vh-64px)]">
+        <!-- Page Header Section -->
+        <div class="flex justify-between items-end mb-xl">
+            <div>
+                <h1 class="font-h1 text-h1 text-on-surface mb-xs">Customer Directory</h1>
+                <p class="text-body-md text-on-surface-variant">Manage and analyze your customer relationships and order history.</p>
+            </div>
+            <div class="flex gap-3">
+                <button class="flex items-center gap-2 px-4 py-2 bg-white border border-outline-variant rounded-lg text-label-md font-semibold text-on-surface hover:bg-surface-container-low transition-all">
+                    <span class="material-symbols-outlined text-[20px]" data-icon="file_download">file_download</span>
+                    Export
+                </button>
+                <button class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-lg text-label-md font-semibold hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-95">
+                    <span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+                    Add Customer
+                </button>
+            </div>
+        </div>
+
+        <!-- CRM Stats Bento Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-lg mb-xl">
+            <div class="bg-white p-lg rounded-xl border border-gray-200 shadow-sm">
+                <div class="flex justify-between items-start mb-md">
+                    <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                        <span class="material-symbols-outlined" data-icon="group">group</span>
+                    </div>
+                    <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">+12%</span>
+                </div>
+                <div class="text-on-surface-variant text-label-sm uppercase tracking-wider mb-xs">Total Customers</div>
+                <div class="text-h2 font-h2 text-on-surface">12,842</div>
+            </div>
+            <div class="bg-white p-lg rounded-xl border border-gray-200 shadow-sm">
+                <div class="flex justify-between items-start mb-md">
+                    <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                        <span class="material-symbols-outlined" data-icon="shopping_cart_checkout">shopping_cart_checkout</span>
+                    </div>
+                    <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">+5.4%</span>
+                </div>
+                <div class="text-on-surface-variant text-label-sm uppercase tracking-wider mb-xs">Active Orders</div>
+                <div class="text-h2 font-h2 text-on-surface">439</div>
+            </div>
+            <div class="bg-white p-lg rounded-xl border border-gray-200 shadow-sm">
+                <div class="flex justify-between items-start mb-md">
+                    <div class="p-2 bg-purple-50 text-purple-600 rounded-lg">
+                        <span class="material-symbols-outlined" data-icon="payments">payments</span>
+                    </div>
+                    <span class="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-full">-2.1%</span>
+                </div>
+                <div class="text-on-surface-variant text-label-sm uppercase tracking-wider mb-xs">Avg. LTV</div>
+                <div class="text-h2 font-h2 text-on-surface">$2,440</div>
+            </div>
+            <div class="bg-white p-lg rounded-xl border border-gray-200 shadow-sm">
+                <div class="flex justify-between items-start mb-md">
+                    <div class="p-2 bg-orange-50 text-orange-600 rounded-lg">
+                        <span class="material-symbols-outlined" data-icon="star">star</span>
+                    </div>
+                    <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">New</span>
+                </div>
+                <div class="text-on-surface-variant text-label-sm uppercase tracking-wider mb-xs">Retention Rate</div>
+                <div class="text-h2 font-h2 text-on-surface">94.2%</div>
+            </div>
+        </div>
+
+        <!-- Filters and Table Container -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <!-- Table Action Bar -->
+            <div class="p-md border-b border-gray-100 flex flex-wrap items-center justify-between gap-4 bg-gray-50/50">
+                <div class="flex items-center gap-2">
+                    <button class="flex items-center gap-2 px-3 py-1.5 bg-white border border-outline-variant rounded-lg text-body-sm font-medium hover:bg-gray-50 transition-colors">
+                        <span class="material-symbols-outlined text-sm" data-icon="filter_list">filter_list</span>
+                        Filters
+                    </button>
+                    <button class="flex items-center gap-2 px-3 py-1.5 bg-white border border-outline-variant rounded-lg text-body-sm font-medium hover:bg-gray-50 transition-colors">
+                        Status: All
+                        <span class="material-symbols-outlined text-sm" data-icon="expand_more">expand_more</span>
+                    </button>
+                    <div class="w-px h-6 bg-gray-200 mx-1"></div>
+                    <span class="text-body-sm text-on-surface-variant">24 selected</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-body-sm text-on-surface-variant mr-2">Showing 1-10 of 256</span>
+                    <div class="flex border border-outline-variant rounded-lg overflow-hidden">
+                        <button class="p-1.5 bg-white hover:bg-gray-50 border-r border-outline-variant transition-colors disabled:opacity-50" disabled="">
+                            <span class="material-symbols-outlined text-sm" data-icon="chevron_left">chevron_left</span>
+                        </button>
+                        <button class="p-1.5 bg-white hover:bg-gray-50 transition-colors">
+                            <span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 text-on-surface-variant text-[11px] font-bold uppercase tracking-widest border-b border-gray-100">
+                            <th class="px-lg py-4 w-10">
+                                <input class="rounded border-gray-300 text-primary focus:ring-primary" type="checkbox"/>
+                            </th>
+                            <th class="px-lg py-4">Name</th>
+                            <th class="px-lg py-4">Email</th>
+                            <th class="px-lg py-4">Phone</th>
+                            <th class="px-lg py-4">Total Orders</th>
+                            <th class="px-lg py-4">Status</th>
+                            <th class="px-lg py-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        <!-- Row 1 -->
+                        <tr class="hover:bg-gray-50/80 transition-colors group">
+                            <td class="px-lg py-4">
+                                <input class="rounded border-gray-300 text-primary focus:ring-primary" type="checkbox"/>
+                            </td>
+                            <td class="px-lg py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">AM</div>
+                                    <span class="font-semibold text-on-surface">Alex Morgan</span>
+                                </div>
+                            </td>
+                            <td class="px-lg py-4 text-on-surface-variant font-body-sm">alex.morgan@example.com</td>
+                            <td class="px-lg py-4 text-on-surface-variant font-body-sm">+1 (555) 012-3456</td>
+                            <td class="px-lg py-4 text-on-surface font-semibold">42 Orders</td>
+                            <td class="px-lg py-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                                    Active
+                                </span>
+                            </td>
+                            <td class="px-lg py-4 text-right">
+                                <button class="p-2 text-outline hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]" data-icon="more_vert">more_vert</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <!-- Row 2 -->
+                        <tr class="hover:bg-gray-50/80 transition-colors group">
+                            <td class="px-lg py-4">
+                                <input class="rounded border-gray-300 text-primary focus:ring-primary" type="checkbox"/>
+                            </td>
+                            <td class="px-lg py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">SL</div>
+                                    <span class="font-semibold text-on-surface">Sarah Lancaster</span>
+                                </div>
+                            </td>
+                            <td class="px-lg py-4 text-on-surface-variant font-body-sm">sarah.l@designco.net</td>
+                            <td class="px-lg py-4 text-on-surface-variant font-body-sm">+1 (555) 987-6543</td>
+                            <td class="px-lg py-4 text-on-surface font-semibold">12 Orders</td>
+                            <td class="px-lg py-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                                    New
+                                </span>
+                            </td>
+                            <td class="px-lg py-4 text-right">
+                                <button class="p-2 text-outline hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]" data-icon="more_vert">more_vert</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <!-- Row 3 -->
+                        <tr class="hover:bg-gray-50/80 transition-colors group">
+                            <td class="px-lg py-4">
+                                <input class="rounded border-gray-300 text-primary focus:ring-primary" type="checkbox"/>
+                            </td>
+                            <td class="px-lg py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center font-bold text-xs">JH</div>
+                                    <span class="font-semibold text-on-surface">James Harrison</span>
+                                </div>
+                            </td>
+                            <td class="px-lg py-4 text-on-surface-variant font-body-sm">j.harrison@techcloud.io</td>
+                            <td class="px-lg py-4 text-on-surface-variant font-body-sm">+44 20 7946 0958</td>
+                            <td class="px-lg py-4 text-on-surface font-semibold">156 Orders</td>
+                            <td class="px-lg py-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
+                                    Pending
+                                </span>
+                            </td>
+                            <td class="px-lg py-4 text-right">
+                                <button class="p-2 text-outline hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]" data-icon="more_vert">more_vert</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <!-- Row 4 -->
+                        <tr class="hover:bg-gray-50/80 transition-colors group">
+                            <td class="px-lg py-4">
+                                <input class="rounded border-gray-300 text-primary focus:ring-primary" type="checkbox"/>
+                            </td>
+                            <td class="px-lg py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold text-xs">EW</div>
+                                    <span class="font-semibold text-on-surface">Elena Wright</span>
+                                </div>
+                            </td>
+                            <td class="px-lg py-4 text-on-surface-variant font-body-sm">elena@wrightmfg.com</td>
+                            <td class="px-lg py-4 text-on-surface-variant font-body-sm">+1 (555) 234-5678</td>
+                            <td class="px-lg py-4 text-on-surface font-semibold">2 Orders</td>
+                            <td class="px-lg py-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+                                    Inactive
+                                </span>
+                            </td>
+                            <td class="px-lg py-4 text-right">
+                                <button class="p-2 text-outline hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]" data-icon="more_vert">more_vert</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <!-- Row 5 -->
+                        <tr class="hover:bg-gray-50/80 transition-colors group">
+                            <td class="px-lg py-4">
+                                <input class="rounded border-gray-300 text-primary focus:ring-primary" type="checkbox"/>
+                            </td>
+                            <td class="px-lg py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center font-bold text-xs">BK</div>
+                                    <span class="font-semibold text-on-surface">Benjamin Kim</span>
+                                </div>
+                            </td>
+                            <td class="px-lg py-4 text-on-surface-variant font-body-sm">ben.kim@logistics.com</td>
+                            <td class="px-lg py-4 text-on-surface-variant font-body-sm">+82 2-312-3456</td>
+                            <td class="px-lg py-4 text-on-surface font-semibold">89 Orders</td>
+                            <td class="px-lg py-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                                    Active
+                                </span>
+                            </td>
+                            <td class="px-lg py-4 text-right">
+                                <button class="p-2 text-outline hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined text-[20px]" data-icon="more_vert">more_vert</span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State / Skeleton (Visual Interest) -->
+            <div class="px-lg py-6 bg-white border-t border-gray-50">
+                <div class="flex justify-between items-center">
+                    <div class="flex gap-2">
+                        <button class="px-3 py-1 bg-white border border-outline-variant rounded text-body-sm text-on-surface-variant">1</button>
+                        <button class="px-3 py-1 hover:bg-gray-50 rounded text-body-sm text-on-surface-variant">2</button>
+                        <button class="px-3 py-1 hover:bg-gray-50 rounded text-body-sm text-on-surface-variant">3</button>
+                        <span class="px-3 py-1 text-on-surface-variant">...</span>
+                        <button class="px-3 py-1 hover:bg-gray-50 rounded text-body-sm text-on-surface-variant">24</button>
+                    </div>
+                    <div class="flex items-center gap-4 text-body-sm text-on-surface-variant">
+                        <span>Items per page:</span>
+                        <select class="bg-transparent border-none focus:ring-0 cursor-pointer font-semibold text-on-surface">
+                            <option>10</option>
+                            <option>25</option>
+                            <option>50</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Secondary Information Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-lg mt-xl">
+            <div class="lg:col-span-2 glass-card rounded-xl p-lg overflow-hidden relative min-h-[300px] flex flex-col justify-end">
+                <div class="absolute inset-0 z-0">
+                    <img alt="Dashboard Background" class="w-full h-full object-cover opacity-10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFQJK0leMo6koYMGTO5rI1plVQ40CuO-3T4nZ8qPIGVeGAbOhqIHYhKtr6nJJCtFdfLlFGKDcGr1xVnbnsl5hAcECZvz49oDnB27CzQT8pbhxo4W8JTFHgiKH1d1fM0O2_Y3ktt9Y3uHFeIYYW-J1wxvrG_3PSXKjYldKULut3BtTtbudhGYkYItCk-QV992jXx_S0XJMexytnHoectovrI1tJ9B7GpvTGcx0iRPiOa31fwMVWrwj1-bnrTf7lqNtgOSBsT2ioscY"/>
+                </div>
+                <div class="relative z-10">
+                    <h3 class="font-h3 text-h3 text-on-surface mb-sm">Customer Growth Trends</h3>
+                    <p class="text-body-sm text-on-surface-variant mb-md max-w-md">Your customer base has expanded by 12% this quarter. The majority of new acquisitions are coming from Enterprise-level referrals.</p>
+                    <div class="flex gap-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-primary"></div>
+                            <span class="text-label-sm text-on-surface-variant">New Leads</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-secondary"></div>
+                            <span class="text-label-sm text-on-surface-variant">Converted</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white border border-gray-200 rounded-xl p-lg shadow-sm">
+                <h3 class="font-label-md text-on-surface mb-lg flex items-center justify-between">
+                    Recent Activity
+                    <span class="material-symbols-outlined text-outline" data-icon="history">history</span>
+                </h3>
+                <div class="space-y-lg">
+                    <div class="flex gap-3">
+                        <div class="w-8 h-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-[18px]" data-icon="shopping_bag">shopping_bag</span>
+                        </div>
+                        <div>
+                            <p class="text-body-sm font-semibold">Sarah Lancaster placed a new order</p>
+                            <p class="text-[11px] text-on-surface-variant uppercase">2 minutes ago</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-[18px]" data-icon="person_add">person_add</span>
+                        </div>
+                        <div>
+                            <p class="text-body-sm font-semibold">New customer registered: Alex Morgan</p>
+                            <p class="text-[11px] text-on-surface-variant uppercase">1 hour ago</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-3">
+                        <div class="w-8 h-8 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-[18px]" data-icon="support_agent">support_agent</span>
+                        </div>
+                        <div>
+                            <p class="text-body-sm font-semibold">Support ticket resolved #8492</p>
+                            <p class="text-[11px] text-on-surface-variant uppercase">3 hours ago</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="w-full mt-xl py-2 text-body-sm font-bold text-primary hover:bg-primary/5 rounded-lg transition-colors">
+                    View All Activity
+                </button>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

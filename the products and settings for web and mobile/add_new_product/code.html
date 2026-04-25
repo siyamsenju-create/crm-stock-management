@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#004666",
+                    "tertiary-fixed-dim": "#ffb695",
+                    "on-surface": "#1b1b24",
+                    "secondary-container": "#39b8fd",
+                    "on-tertiary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "surface": "#fcf8ff",
+                    "on-primary-fixed": "#0f0069",
+                    "on-primary": "#ffffff",
+                    "surface-bright": "#fcf8ff",
+                    "error-container": "#ffdad6",
+                    "surface-container": "#f0ecf9",
+                    "on-secondary-fixed": "#001e2f",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-tint": "#4d44e3",
+                    "inverse-on-surface": "#f3effc",
+                    "on-primary-container": "#dad7ff",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-container": "#ffd2be",
+                    "tertiary": "#7e3000",
+                    "surface-container-high": "#eae6f4",
+                    "on-surface-variant": "#464555",
+                    "secondary-fixed-dim": "#89ceff",
+                    "on-tertiary-fixed": "#351000",
+                    "primary-container": "#4f46e5",
+                    "on-background": "#1b1b24",
+                    "on-tertiary-fixed-variant": "#7b2f00",
+                    "tertiary-container": "#a44100",
+                    "surface-dim": "#dcd8e5",
+                    "surface-container-low": "#f5f2ff",
+                    "surface-variant": "#e4e1ee",
+                    "secondary": "#006591",
+                    "background": "#fcf8ff",
+                    "outline": "#777587",
+                    "on-error": "#ffffff",
+                    "on-secondary-fixed-variant": "#004c6e",
+                    "outline-variant": "#c7c4d8",
+                    "on-primary-fixed-variant": "#3323cc",
+                    "inverse-primary": "#c3c0ff",
+                    "primary-fixed-dim": "#c3c0ff",
+                    "primary": "#3525cd",
+                    "primary-fixed": "#e2dfff",
+                    "inverse-surface": "#302f39",
+                    "surface-container-highest": "#e4e1ee",
+                    "error": "#ba1a1a",
+                    "secondary-fixed": "#c9e6ff",
+                    "tertiary-fixed": "#ffdbcc"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "24px",
+                    "sm": "8px",
+                    "3xl": "64px",
+                    "xl": "32px",
+                    "2xl": "48px",
+                    "md": "16px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "display": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "h1": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "h2": ["Inter"],
+                    "h3": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "label-md": ["Inter"]
+            },
+            "fontSize": {
+                    "display": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "h1": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "h2": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "h3": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body-md text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed">
+<div class="flex min-h-screen">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 bottom-0 flex flex-col p-4 gap-y-6 bg-slate-50 border-r border-slate-200 w-64 hidden md:flex z-50">
+<div class="flex items-center gap-3 px-2">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg">
+<span class="material-symbols-outlined" data-icon="domain">domain</span>
+</div>
+<div>
+<h2 class="font-black text-indigo-600 text-sm leading-tight">Enterprise Core</h2>
+<p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Global Operations</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1 flex-1">
+<div class="bg-white text-indigo-600 shadow-sm ring-1 ring-slate-200 font-semibold rounded-lg px-3 py-2 flex items-center gap-3">
+<span class="material-symbols-outlined text-lg" data-icon="inventory_2">inventory_2</span>
+                    Inventory
+                </div>
+<a class="text-slate-600 px-3 py-2 flex items-center gap-3 hover:bg-slate-200/50 rounded-lg transition-all duration-150" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="group">group</span>
+                    Customers
+                </a>
+<a class="text-slate-600 px-3 py-2 flex items-center gap-3 hover:bg-slate-200/50 rounded-lg transition-all duration-150" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="receipt_long">receipt_long</span>
+                    Sales Orders
+                </a>
+<a class="text-slate-600 px-3 py-2 flex items-center gap-3 hover:bg-slate-200/50 rounded-lg transition-all duration-150" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="local_shipping">local_shipping</span>
+                    Suppliers
+                </a>
+<a class="text-slate-600 px-3 py-2 flex items-center gap-3 hover:bg-slate-200/50 rounded-lg transition-all duration-150" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="domain">domain</span>
+                    Warehouses
+                </a>
+<a class="text-slate-600 px-3 py-2 flex items-center gap-3 hover:bg-slate-200/50 rounded-lg transition-all duration-150" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="history">history</span>
+                    Audit Logs
+                </a>
+</nav>
+<div class="pt-4 border-t border-slate-200 flex flex-col gap-1">
+<a class="text-slate-600 px-3 py-2 flex items-center gap-3 hover:bg-slate-200/50 rounded-lg transition-all duration-150" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="help">help</span>
+                    Support
+                </a>
+<a class="text-slate-600 px-3 py-2 flex items-center gap-3 hover:bg-slate-200/50 rounded-lg transition-all duration-150" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="description">description</span>
+                    Documentation
+                </a>
+<button class="mt-4 w-full bg-indigo-600 text-white font-semibold py-2.5 rounded-lg shadow-md hover:bg-indigo-700 transition-colors">
+                    Export Data
+                </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 relative flex flex-col">
+<!-- TopNavBar -->
+<header class="flex items-center justify-between px-6 h-16 w-full sticky top-0 bg-white/80 backdrop-blur-md border-b border-slate-200 z-40">
+<div class="flex items-center gap-8">
+<h1 class="text-xl font-bold text-slate-900 tracking-tighter">Nexus CRM</h1>
+<nav class="hidden lg:flex items-center gap-6">
+<a class="font-sans text-sm font-medium tracking-tight text-slate-500 hover:text-slate-900 transition-colors" href="#">Dashboard</a>
+<a class="font-sans text-sm font-medium tracking-tight text-slate-500 hover:text-slate-900 transition-colors" href="#">Reports</a>
+<a class="font-sans text-sm font-medium tracking-tight text-slate-500 hover:text-slate-900 transition-colors" href="#">Analytics</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-slate-200 mx-2"></div>
+<div class="flex items-center gap-3">
+<img alt="User Profile" class="w-8 h-8 rounded-full border border-slate-200" data-alt="professional portrait of a manager in a modern office environment with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQFdAgRrgSGn7APuJk0ldZnAlOv3xVEPl1hTwrQrGIU-NgQ4n2B_vu86_8qH6-HpIGBEY8QttO_KZkroeGvLKxE-V-NwHt2EFXK9L7KQfsfv_bHQN9C7l8S_6axfm__fziAIXfrml0-DyH3xq4LyviKxfsIbbXeZrM7pAThO5ddqRPeeytBXcgqu4NGn3Vs0t2IlfPOaPOVT1HJ1r_Pzp2s0uy48aOqCGaT1fsXl3ajPaidW79dyrEsUZLOXJWIou-_Ajl3bmtGZE"/>
+<button class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-indigo-700 transition-colors">
+                            Create New
+                        </button>
+</div>
+</div>
+</header>
+<!-- Page Header -->
+<div class="px-xl py-lg flex items-center justify-between">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<a class="text-slate-400 hover:text-primary transition-colors flex items-center gap-1 font-label-sm uppercase" href="#">
+<span class="material-symbols-outlined text-[14px]" data-icon="arrow_back">arrow_back</span>
+                            Inventory
+                        </a>
+</div>
+<h2 class="font-h1 text-h1 text-on-surface">Add New Product</h2>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-md py-sm bg-white border border-outline-variant rounded-lg text-body-sm font-label-md hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="upload_file">upload_file</span>
+                        Import from CSV
+                    </button>
+<button class="px-xl py-sm bg-primary text-on-primary rounded-lg text-body-sm font-label-md shadow-lg shadow-primary-container/20 hover:brightness-110 transition-all">
+                        Save Product
+                    </button>
+</div>
+</div>
+<!-- Main Form Content -->
+<div class="px-xl pb-3xl">
+<div class="grid grid-cols-12 gap-lg">
+<!-- Left Column: Main Form -->
+<div class="col-span-12 lg:col-span-8 flex flex-col gap-lg">
+<!-- Section 1: Basic Information -->
+<section class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+<div class="px-xl py-md border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="info">info</span>
+<h3 class="font-h3 text-h3">Basic Information</h3>
+</div>
+<div class="p-xl grid grid-cols-2 gap-md">
+<div class="col-span-2">
+<label class="block font-label-md text-on-surface-variant mb-xs">Product Name</label>
+<input class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 transition-all outline-none" placeholder="e.g. Premium Ergonomic Office Chair" type="text"/>
+</div>
+<div class="col-span-1">
+<label class="block font-label-md text-on-surface-variant mb-xs">SKU (Stock Keeping Unit)</label>
+<div class="relative">
+<input class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 transition-all outline-none" placeholder="FUR-CHR-001" type="text"/>
+<button class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-primary hover:bg-primary-fixed rounded">
+<span class="material-symbols-outlined text-[18px]" data-icon="refresh">refresh</span>
+</button>
+</div>
+</div>
+<div class="col-span-1">
+<label class="block font-label-md text-on-surface-variant mb-xs">Brand</label>
+<select class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 transition-all outline-none bg-white">
+<option>Nexus Manufacturing</option>
+<option>Steelcase</option>
+<option>Herman Miller</option>
+</select>
+</div>
+<div class="col-span-2">
+<label class="block font-label-md text-on-surface-variant mb-xs">Description</label>
+<textarea class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 transition-all outline-none resize-none" placeholder="Enter a detailed product description..." rows="4"></textarea>
+</div>
+</div>
+</section>
+<!-- Section 2: Pricing & Tax -->
+<section class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+<div class="px-xl py-md border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="payments">payments</span>
+<h3 class="font-h3 text-h3">Pricing &amp; Tax</h3>
+</div>
+<div class="p-xl grid grid-cols-3 gap-md">
+<div>
+<label class="block font-label-md text-on-surface-variant mb-xs">Base Price ($)</label>
+<input class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 outline-none" placeholder="0.00" step="0.01" type="number"/>
+</div>
+<div>
+<label class="block font-label-md text-on-surface-variant mb-xs">Discount Price ($)</label>
+<input class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 outline-none" placeholder="0.00" step="0.01" type="number"/>
+</div>
+<div>
+<label class="block font-label-md text-on-surface-variant mb-xs">Tax Class</label>
+<select class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 transition-all outline-none bg-white">
+<option>Standard (15%)</option>
+<option>Reduced (5%)</option>
+<option>Exempt (0%)</option>
+</select>
+</div>
+<div class="col-span-3 mt-sm p-md bg-surface-container-low rounded-lg border border-outline-variant/30 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary border border-outline-variant">
+<span class="material-symbols-outlined" data-icon="calculate">calculate</span>
+</div>
+<div>
+<p class="font-label-md text-on-surface">Calculated Margin</p>
+<p class="text-body-sm text-on-surface-variant">Estimated based on standard overhead</p>
+</div>
+</div>
+<div class="text-right">
+<span class="font-h3 text-primary">0.00%</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: Media Upload -->
+<section class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+<div class="px-xl py-md border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="image">image</span>
+<h3 class="font-h3 text-h3">Media Upload</h3>
+</div>
+<div class="p-xl">
+<div class="grid grid-cols-4 gap-md">
+<!-- Placeholder Upload Target -->
+<div class="col-span-1 aspect-square rounded-xl border-2 border-dashed border-outline-variant bg-surface-container-lowest flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary-fixed transition-all group">
+<span class="material-symbols-outlined text-[32px] text-outline group-hover:text-primary mb-2" data-icon="add_a_photo">add_a_photo</span>
+<span class="text-body-sm font-label-md text-on-surface-variant">Add Media</span>
+</div>
+<!-- Existing Previews -->
+<div class="relative group aspect-square rounded-xl border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional studio shot of high-quality headphones against a clean minimalist background with soft shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBK4iLV6CfEggoBR8wYAJcOS6nAUY_cxfW5naCT-f4EfcizOT4MJf5RHrAYiwilWdCvyxvMW6miuXtftv5GeYq1P97uYmRrhTBg-KjOz6lk9gLl8gX4HChlTw4WL75J3RFGnEQ8PWib8_jzEaGTIEglNsvagnN-0rXW38rKOLBaFCwa_19FfBoZuRQq80x6bXf7-tZbxf2XL_W1dsSkwiL447vdulBAsaqHiVkqm1znFmdWns8O7ctoEkYPwkqf9itYSoN2DsKlw8c"/>
+<button class="absolute top-2 right-2 p-1 bg-white/90 backdrop-blur rounded-full shadow-sm text-error opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[18px]" data-icon="delete">delete</span>
+</button>
+</div>
+<div class="relative group aspect-square rounded-xl border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="close-up detail of a minimalist white ceramic watch on a light grey stone surface with soft ambient lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMDusggRoEu8Nz1KzM35AuZOf5VpLBOgFEVo-5OIlGOh8DR3KS_N7gta2x8xSnHgY5thqmKu4GQFRRGEuqai0rgZ3FRewUmZqucU_D33OHSLB28cazYvgU9ZwA5JZ84oBYbFs9yYjWOjcATkoEYl_7hNS4UsTdBOooY8_eupXTs0PZ8IF1C2oiJ61FudxOlLqH0Bbb1APKuQLqbzGQvB33ry1L4700Iw95Pp-9tEirz15wZNnJrfKy9R4wYGygkygZ9DNTOJ3ldZk"/>
+<button class="absolute top-2 right-2 p-1 bg-white/90 backdrop-blur rounded-full shadow-sm text-error opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[18px]" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+<p class="mt-md text-body-sm text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]" data-icon="info">info</span>
+                                    Upload up to 10 images. Formats: JPG, PNG. Max size: 5MB each.
+                                </p>
+</div>
+</section>
+</div>
+<!-- Right Column: Sidebar Settings -->
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-lg">
+<!-- Section 4: Inventory Details -->
+<section class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+<div class="px-xl py-md border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="inventory">inventory</span>
+<h3 class="font-h3 text-h3">Stock Management</h3>
+</div>
+<div class="p-xl space-y-md">
+<div>
+<label class="block font-label-md text-on-surface-variant mb-xs">Warehouse Location</label>
+<select class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 transition-all outline-none bg-white">
+<option>Main Warehouse (Chicago)</option>
+<option>East Coast Depot (NYC)</option>
+<option>West Coast Hub (LA)</option>
+</select>
+</div>
+<div class="grid grid-cols-2 gap-md">
+<div>
+<label class="block font-label-md text-on-surface-variant mb-xs">Initial Stock</label>
+<input class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 outline-none" placeholder="0" type="number"/>
+</div>
+<div>
+<label class="block font-label-md text-on-surface-variant mb-xs">Low Stock Alert</label>
+<input class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 outline-none" placeholder="10" type="number"/>
+</div>
+</div>
+<div class="pt-sm">
+<div class="flex items-center justify-between mb-2">
+<label class="font-label-md text-on-surface">Enable Stock Tracking</label>
+<button class="w-10 h-6 bg-primary rounded-full relative p-1 transition-all">
+<div class="w-4 h-4 bg-white rounded-full translate-x-4"></div>
+</button>
+</div>
+<div class="flex items-center justify-between">
+<label class="font-label-md text-on-surface">Sell when out of stock</label>
+<button class="w-10 h-6 bg-outline-variant rounded-full relative p-1 transition-all">
+<div class="w-4 h-4 bg-white rounded-full"></div>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 5: Categorization -->
+<section class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+<div class="px-xl py-md border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="category">category</span>
+<h3 class="font-h3 text-h3">Categorization</h3>
+</div>
+<div class="p-xl space-y-md">
+<div>
+<label class="block font-label-md text-on-surface-variant mb-xs">Primary Category</label>
+<select class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 transition-all outline-none bg-white">
+<option>Office Furniture</option>
+<option>Electronics</option>
+<option>Stationery</option>
+<option>IT Accessories</option>
+</select>
+</div>
+<div>
+<label class="block font-label-md text-on-surface-variant mb-xs">Tags</label>
+<div class="p-2 border border-outline-variant rounded-lg flex flex-wrap gap-2 min-h-[44px]">
+<span class="bg-primary-fixed text-on-primary-fixed-variant px-2 py-1 rounded text-body-sm flex items-center gap-1 font-label-md">
+                                            Premium
+                                            <button class="material-symbols-outlined text-[14px]" data-icon="close">close</button>
+</span>
+<span class="bg-primary-fixed text-on-primary-fixed-variant px-2 py-1 rounded text-body-sm flex items-center gap-1 font-label-md">
+                                            Office
+                                            <button class="material-symbols-outlined text-[14px]" data-icon="close">close</button>
+</span>
+<input class="flex-1 min-w-[60px] border-none focus:ring-0 p-1 text-body-sm bg-transparent" placeholder="Add tag..." type="text"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Activity/Summary Card -->
+<div class="glass-card border border-primary/20 p-xl rounded-xl shadow-lg ring-1 ring-primary/10">
+<h4 class="font-label-md text-primary mb-md uppercase tracking-wider">Publication Preview</h4>
+<div class="space-y-sm">
+<div class="flex justify-between">
+<span class="text-body-sm text-on-surface-variant">Visibility</span>
+<span class="text-body-sm font-label-md text-green-600">Active</span>
+</div>
+<div class="flex justify-between">
+<span class="text-body-sm text-on-surface-variant">Channel</span>
+<span class="text-body-sm font-label-md">Internal Portal</span>
+</div>
+<div class="flex justify-between">
+<span class="text-body-sm text-on-surface-variant">Audit Logs</span>
+<span class="text-body-sm font-label-md">Enabled</span>
+</div>
+</div>
+<button class="mt-lg w-full py-md bg-primary-container text-on-primary-container rounded-lg font-label-md hover:brightness-110 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]" data-icon="visibility">visibility</span>
+                                Preview Product Page
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Sticky Bottom Action Bar Mobile -->
+<div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-md flex gap-md z-50">
+<button class="flex-1 py-sm border border-outline-variant rounded-lg font-label-md">Discard</button>
+<button class="flex-1 py-sm bg-primary text-on-primary rounded-lg font-label-md">Save Product</button>
+</div>
+</main>
+</div>
+</body></html>

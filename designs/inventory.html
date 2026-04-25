@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>InventoryFlow | Enterprise CRM</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#dcd8e5",
+                        "on-tertiary-fixed": "#351000",
+                        "primary-container": "#4f46e5",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "on-primary-fixed": "#0f0069",
+                        "surface-container": "#f0ecf9",
+                        "on-tertiary-container": "#ffd2be",
+                        "inverse-on-surface": "#f3effc",
+                        "surface-container-high": "#eae6f4",
+                        "tertiary-container": "#a44100",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "on-primary-container": "#dad7ff",
+                        "on-secondary-container": "#004666",
+                        "tertiary": "#7e3000",
+                        "secondary-fixed-dim": "#89ceff",
+                        "error": "#ba1a1a",
+                        "background": "#fcf8ff",
+                        "on-secondary-fixed": "#001e2f",
+                        "surface-variant": "#e4e1ee",
+                        "surface-tint": "#4d44e3",
+                        "on-background": "#1b1b24",
+                        "primary-fixed": "#e2dfff",
+                        "outline": "#777587",
+                        "on-surface": "#1b1b24",
+                        "surface-container-low": "#f5f2ff",
+                        "secondary": "#006591",
+                        "surface-container-highest": "#e4e1ee",
+                        "error-container": "#ffdad6",
+                        "inverse-surface": "#302f39",
+                        "tertiary-fixed-dim": "#ffb695",
+                        "secondary-fixed": "#c9e6ff",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#464555",
+                        "tertiary-fixed": "#ffdbcc",
+                        "surface-bright": "#fcf8ff",
+                        "on-secondary-fixed-variant": "#004c6e",
+                        "inverse-primary": "#c3c0ff",
+                        "on-primary": "#ffffff",
+                        "primary": "#3525cd",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#c7c4d8",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#7b2f00",
+                        "secondary-container": "#39b8fd",
+                        "surface": "#fcf8ff",
+                        "on-tertiary": "#ffffff"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "2xl": "48px",
+                        "3xl": "64px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "sm": "8px"
+                    },
+                    fontFamily: {
+                        "body-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "h3": ["Inter"],
+                        "display": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "h2": ["Inter"],
+                        "h1": ["Inter"]
+                    },
+                    fontSize: {
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "h3": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "display": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "h2": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "h1": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2dfff; border-radius: 10px; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md antialiased">
+    <!-- SideNavBar Shell -->
+    <aside class="fixed left-0 top-0 h-full flex flex-col py-6 px-4 w-64 border-r border-gray-200 bg-white z-50">
+        <div class="mb-xl px-2">
+            <h1 class="text-xl font-black tracking-tighter text-indigo-600">InventoryFlow</h1>
+            <p class="text-xs text-on-surface-variant font-medium">Enterprise CRM</p>
+        </div>
+        <nav class="flex-1 space-y-1">
+            <a class="flex items-center gap-3 px-3 py-2 text-gray-500 hover:bg-gray-50 transition-colors duration-200 font-body-sm rounded-lg" href="index.html">
+                <span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2 text-gray-500 hover:bg-gray-50 transition-colors duration-200 font-body-sm rounded-lg" href="customers.html">
+                <span class="material-symbols-outlined" data-icon="group">group</span>
+                Customers
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2 text-gray-500 hover:bg-gray-50 transition-colors duration-200 font-body-sm rounded-lg" href="products.html">
+                <span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+                Products
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2 text-indigo-600 font-semibold bg-indigo-50/50 border-r-2 border-indigo-600 font-body-sm" href="inventory.html">
+                <span class="material-symbols-outlined" data-icon="warehouse" style="font-variation-settings: 'FILL' 1;">warehouse</span>
+                Inventory
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2 text-gray-500 hover:bg-gray-50 transition-colors duration-200 font-body-sm rounded-lg" href="orders.html">
+                <span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+                Orders
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2 text-gray-500 hover:bg-gray-50 transition-colors duration-200 font-body-sm rounded-lg" href="#">
+                <span class="material-symbols-outlined" data-icon="bar_chart">bar_chart</span>
+                Analytics
+            </a>
+        </nav>
+        <div class="mt-auto border-t border-gray-100 pt-lg">
+            <a class="flex items-center gap-3 px-3 py-2 text-gray-500 hover:bg-gray-50 transition-colors duration-200 font-body-sm rounded-lg" href="#">
+                <span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </a>
+        </div>
+    </aside>
+
+    <!-- TopNavBar Shell -->
+    <header class="flex justify-between items-center px-8 sticky top-0 z-40 ml-64 w-[calc(100%-16rem)] h-16 bg-white/80 backdrop-blur-md shadow-sm">
+        <div class="flex items-center gap-4 flex-1">
+            <div class="relative w-full max-w-md">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+                <input class="w-full bg-surface-container-low border-none rounded-lg pl-10 py-2 text-body-sm focus:ring-2 focus:ring-primary-container outline-none transition-all" placeholder="Search inventory, warehouses, or SKU..." type="text"/>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+                <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+            </button>
+            <button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+                <span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+            </button>
+            <div class="w-8 h-8 rounded-full overflow-hidden bg-primary-fixed ring-2 ring-white ml-2 shadow-sm">
+                <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlD9uqo8tUh4FkdMf1k3pC-fQHLpcH7owWZFfg4HOpZ-Z45pZRwQyYjM68MkgaeRnm0foWwULLr3HONz1qurIs9o53-jhbFR13uZ9mlVxRzJ1G9QVw7OpT5j0_l2uxvYdcSzXAhRC3sT6MUplBkqK5pLVJx2UctnNvNDk3_lawwtsGk3KmBdqCJUe-LxfU49l5TqchCohmgiEZeAvnPyjLrOLZLFKy_sV5ceUZd0pssxjzMw_zyb2kFnhkwTE_2P-PXrJtKrNwTg0"/>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="ml-64 p-8 min-h-screen">
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-lg mb-xl">
+            <div>
+                <nav class="flex items-center gap-2 text-label-sm text-outline mb-2">
+                    <a class="hover:text-primary" href="index.html">DASHBOARD</a>
+                    <span class="material-symbols-outlined text-[12px]" data-icon="chevron_right">chevron_right</span>
+                    <span class="text-on-surface">INVENTORY</span>
+                </nav>
+                <h2 class="font-h1 text-h1 text-on-surface">Inventory &amp; Stock</h2>
+                <p class="text-body-md text-on-surface-variant mt-1">Real-time monitoring across 4 global distribution centers.</p>
+            </div>
+            <div class="flex items-center gap-sm">
+                <button class="flex items-center gap-2 px-lg py-2 bg-white border border-outline-variant text-on-surface-variant rounded-lg hover:bg-surface-container-lowest transition-all font-label-md">
+                    <span class="material-symbols-outlined text-md" data-icon="file_download">file_download</span>
+                    Export CSV
+                </button>
+                <button class="flex items-center gap-2 px-lg py-2 bg-primary text-white rounded-lg shadow-lg shadow-primary-container/20 hover:opacity-90 transition-all font-label-md">
+                    <span class="material-symbols-outlined text-md" data-icon="add">add</span>
+                    Restock Product
+                </button>
+            </div>
+        </div>
+
+        <!-- Bento Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-lg mb-xl">
+            <div class="glass-panel p-lg rounded-xl flex flex-col justify-between h-32">
+                <div class="flex justify-between">
+                    <span class="text-label-sm text-on-surface-variant">TOTAL STOCK VALUE</span>
+                    <span class="material-symbols-outlined text-primary" data-icon="payments">payments</span>
+                </div>
+                <div class="mt-2">
+                    <span class="text-h2 font-h2 text-on-surface">$1.2M</span>
+                    <span class="text-xs text-green-600 ml-2 font-semibold">↑ 4.2%</span>
+                </div>
+            </div>
+            <div class="glass-panel p-lg rounded-xl flex flex-col justify-between h-32">
+                <div class="flex justify-between">
+                    <span class="text-label-sm text-on-surface-variant">LOW STOCK ALERTS</span>
+                    <span class="material-symbols-outlined text-tertiary" data-icon="warning">warning</span>
+                </div>
+                <div class="mt-2">
+                    <span class="text-h2 font-h2 text-on-surface">14</span>
+                    <span class="text-xs text-on-surface-variant ml-2 font-medium">Items to restock</span>
+                </div>
+            </div>
+            <div class="glass-panel p-lg rounded-xl flex flex-col justify-between h-32">
+                <div class="flex justify-between">
+                    <span class="text-label-sm text-on-surface-variant">WAREHOUSE UTILIZATION</span>
+                    <span class="material-symbols-outlined text-secondary" data-icon="pie_chart">pie_chart</span>
+                </div>
+                <div class="mt-2">
+                    <span class="text-h2 font-h2 text-on-surface">82%</span>
+                    <div class="w-full bg-surface-container h-1.5 rounded-full mt-2">
+                        <div class="bg-secondary h-1.5 rounded-full w-[82%]"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-panel p-lg rounded-xl flex flex-col justify-between h-32">
+                <div class="flex justify-between">
+                    <span class="text-label-sm text-on-surface-variant">FULFILLMENT RATE</span>
+                    <span class="material-symbols-outlined text-green-600" data-icon="verified">verified</span>
+                </div>
+                <div class="mt-2">
+                    <span class="text-h2 font-h2 text-on-surface">99.1%</span>
+                    <span class="text-xs text-on-surface-variant ml-2 font-medium">Last 30 days</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Table Section -->
+        <div class="bg-white rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+            <!-- Table Controls -->
+            <div class="p-md border-b border-gray-100 flex flex-wrap items-center justify-between gap-md bg-gray-50/50">
+                <div class="flex items-center gap-sm">
+                    <div class="flex items-center border border-outline-variant rounded-lg bg-white p-1">
+                        <button class="px-3 py-1.5 text-label-sm bg-surface-container text-primary rounded-md font-semibold">All Items</button>
+                        <button class="px-3 py-1.5 text-label-sm text-on-surface-variant hover:text-on-surface transition-colors">Low Stock</button>
+                        <button class="px-3 py-1.5 text-label-sm text-on-surface-variant hover:text-on-surface transition-colors">Out of Stock</button>
+                    </div>
+                    <div class="h-8 w-[1px] bg-outline-variant mx-2"></div>
+                    <button class="flex items-center gap-1.5 px-3 py-2 text-label-sm text-on-surface-variant border border-outline-variant rounded-lg hover:bg-white transition-colors bg-white">
+                        <span class="material-symbols-outlined text-md" data-icon="filter_list">filter_list</span>
+                        Filters
+                    </button>
+                </div>
+                <!-- Bulk Actions -->
+                <div class="flex items-center gap-sm">
+                    <span class="text-label-sm text-on-surface-variant">3 items selected</span>
+                    <button class="flex items-center gap-2 px-4 py-2 text-label-md text-error bg-error-container/30 border border-error-container rounded-lg hover:bg-error-container transition-all">
+                        <span class="material-symbols-outlined text-md" data-icon="delete">delete</span>
+                        Delete Bulk
+                    </button>
+                    <button class="flex items-center gap-2 px-4 py-2 text-label-md text-primary border border-primary-container rounded-lg hover:bg-primary-fixed transition-all bg-white">
+                        <span class="material-symbols-outlined text-md" data-icon="local_shipping">local_shipping</span>
+                        Transfer
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-gray-50/80 border-b border-gray-100">
+                        <tr>
+                            <th class="p-md w-12">
+                                <input class="rounded text-primary focus:ring-primary" type="checkbox"/>
+                            </th>
+                            <th class="p-md text-label-sm font-bold uppercase tracking-wider text-on-surface-variant">Product &amp; SKU</th>
+                            <th class="p-md text-label-sm font-bold uppercase tracking-wider text-on-surface-variant">Warehouse Location</th>
+                            <th class="p-md text-label-sm font-bold uppercase tracking-wider text-on-surface-variant">Quantity &amp; Level</th>
+                            <th class="p-md text-label-sm font-bold uppercase tracking-wider text-on-surface-variant">Status</th>
+                            <th class="p-md text-label-sm font-bold uppercase tracking-wider text-on-surface-variant text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <!-- Row 1: In Stock -->
+                        <tr class="hover:bg-gray-50 transition-colors group">
+                            <td class="p-md">
+                                <input class="rounded text-primary focus:ring-primary" type="checkbox"/>
+                            </td>
+                            <td class="p-md">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-lg bg-surface-container overflow-hidden flex-shrink-0">
+                                        <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfyBQQzDc4zGA0KAUzTTWhLyqyXiOEz3nB81nir_4Yawo7sZ7fpODN3xVScmRa1saO4vn37MTmdbyuYrOGpiTB7Q_EptdpW50P72NAWijXjCBPmoX9ULNF0RatMDFBzjy0Msv6wOpHpUZp0xVOUn_tuVKlbqu_y5BtOm_GNR7RZk7KlQlsVWj2Xv6V2wWWfHfWMPYo3m6AXUl6T-S44O0exePRL5cMRu4oCZURhnHC5Ome6kHD8OghVm9KR-VQ7GgaC97CdIGrjss"/>
+                                    </div>
+                                    <div>
+                                        <div class="font-label-md text-on-surface">Chrono X1 Watch</div>
+                                        <div class="text-xs text-outline">SKU: WRST-004521</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-md">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-on-surface-variant text-[18px]" data-icon="location_on">location_on</span>
+                                    <span class="text-body-sm">Berlin - Main (B1)</span>
+                                </div>
+                            </td>
+                            <td class="p-md">
+                                <div class="w-full max-w-[120px]">
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="font-bold">428</span>
+                                        <span class="text-outline">/ 500</span>
+                                    </div>
+                                    <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                                        <div class="bg-green-500 h-full w-[85%]"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-md">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-100">
+                                    In Stock
+                                </span>
+                            </td>
+                            <td class="p-md text-right">
+                                <button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <!-- Row 2: Low Stock -->
+                        <tr class="hover:bg-gray-50 transition-colors group">
+                            <td class="p-md">
+                                <input checked="" class="rounded text-primary focus:ring-primary" type="checkbox"/>
+                            </td>
+                            <td class="p-md">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-lg bg-surface-container overflow-hidden flex-shrink-0">
+                                        <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPKy-tDFxGSqW2C30IaLcvJ_OlpL0n7j0q-iQfYGMY4jPjJ17q_m8ELvnXmACd6YM_Tudg0WO9Q_QlKMH4lWUK1DoiZR3n80OBMOKrd9i-kfN-qUTn8yiDMov9uAmw9ug5A0sohIA88mu-zEh2UV9M-dXjBZD_1dAdwBJk9O9qi-AJJ0cugxdvjUSpXOk3BE9g7Fp6kuqkPEhI2-opgPoj5PLxDmOa03cvRUCQxVKFp2henSsRd2GFepS2vtMiVjZNkBwyim50_xU"/>
+                                    </div>
+                                    <div>
+                                        <div class="font-label-md text-on-surface">Audio Pro Headphones</div>
+                                        <div class="text-xs text-outline">SKU: HEAD-990211</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-md">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-on-surface-variant text-[18px]" data-icon="location_on">location_on</span>
+                                    <span class="text-body-sm">New York - Hub (A4)</span>
+                                </div>
+                            </td>
+                            <td class="p-md">
+                                <div class="w-full max-w-[120px]">
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="font-bold text-tertiary">24</span>
+                                        <span class="text-outline">/ 250</span>
+                                    </div>
+                                    <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                                        <div class="bg-tertiary h-full w-[10%]"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-md">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-tertiary-fixed text-on-tertiary-fixed-variant border border-tertiary-container/20">
+                                    Low Stock
+                                </span>
+                            </td>
+                            <td class="p-md text-right">
+                                <button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <!-- Row 3: Out of Stock -->
+                        <tr class="hover:bg-gray-50 transition-colors group">
+                            <td class="p-md">
+                                <input checked="" class="rounded text-primary focus:ring-primary" type="checkbox"/>
+                            </td>
+                            <td class="p-md">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-lg bg-surface-container overflow-hidden flex-shrink-0 grayscale">
+                                        <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDP3Fo2D7xh3FhS6ciQFGjwxKjW68Ea1-d81Y5ahhiz8rlyhwLvhZ-3FpvJuJY5igXLyIkEQ3zjBaIw4Jrc6XvD-7du-vv3ch9DUTQMC-rJkz3qP0p8ihUkShVVm7kPGZOQAVOtYtaxzbci21HUdFKXwgbv6UAuu5gKRpJ_hnuJiPjytrCWGRBTh-Vvv0PuYOBCukhe9Aw1kGFD28s7fTQZdHHUqiEkVq1Kgq6Yp506rKlg78cBWCLOi9T1Zib1s-1aSVJR-8ERtrg"/>
+                                    </div>
+                                    <div>
+                                        <div class="font-label-md text-on-surface opacity-60">Velocity Runner v2</div>
+                                        <div class="text-xs text-outline">SKU: SHOE-112233</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-md">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-on-surface-variant text-[18px]" data-icon="location_on">location_on</span>
+                                    <span class="text-body-sm text-outline">Tokyo - Logistics (T1)</span>
+                                </div>
+                            </td>
+                            <td class="p-md">
+                                <div class="w-full max-w-[120px]">
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="font-bold text-error">0</span>
+                                        <span class="text-outline">/ 100</span>
+                                    </div>
+                                    <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                                        <div class="bg-error h-full w-[0%]"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-md">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-error-container text-on-error-container border border-error/10">
+                                    Out of Stock
+                                </span>
+                            </td>
+                            <td class="p-md text-right">
+                                <button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+                                </button>
+                            </td>
+                        </tr>
+                        <!-- Row 4 -->
+                        <tr class="hover:bg-gray-50 transition-colors group">
+                            <td class="p-md">
+                                <input checked="" class="rounded text-primary focus:ring-primary" type="checkbox"/>
+                            </td>
+                            <td class="p-md">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-lg bg-surface-container overflow-hidden flex-shrink-0">
+                                        <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1bsiEK89fqmGDswD2S3fFbNRTRmHH2dTjA3SMektLU0W2Y53nYfiyY-OnCuI9XzGFmzFg1A8kDUUqsBPR_AY7KixVcNvAxKEF9Ok16hpzibNDT0ig5sLbKsA5WUCXQqxnN4qXfK_UQ6XhVIrq6aahFqtFRqrCHFwjU0uvR891za3-RNAX6IkWoQxic-qRRdTTo2ymLRLXKsa8Gmgez6j5Ik9oE2ZxMc2Z9RQFT5XFDU1mWLZPiq4vjdZUkDkVHyXmtIhcmHBRbkY"/>
+                                    </div>
+                                    <div>
+                                        <div class="font-label-md text-on-surface">Flash-X Polaroid</div>
+                                        <div class="text-xs text-outline">SKU: CAM-001299</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-md">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-on-surface-variant text-[18px]" data-icon="location_on">location_on</span>
+                                    <span class="text-body-sm">Berlin - Main (B2)</span>
+                                </div>
+                            </td>
+                            <td class="p-md">
+                                <div class="w-full max-w-[120px]">
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="font-bold">112</span>
+                                        <span class="text-outline">/ 150</span>
+                                    </div>
+                                    <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                                        <div class="bg-green-500 h-full w-[74%]"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-md">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-100">
+                                    In Stock
+                                </span>
+                            </td>
+                            <td class="p-md text-right">
+                                <button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+                                    <span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="p-md border-t border-gray-100 flex items-center justify-between bg-white">
+                <span class="text-label-sm text-on-surface-variant">Showing 4 of 2,458 products</span>
+                <div class="flex items-center gap-xs">
+                    <button class="w-9 h-9 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container transition-colors disabled:opacity-50" disabled="">
+                        <span class="material-symbols-outlined text-md" data-icon="chevron_left">chevron_left</span>
+                    </button>
+                    <button class="w-9 h-9 flex items-center justify-center rounded-lg bg-primary-fixed text-primary font-bold text-label-sm">1</button>
+                    <button class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-label-sm">2</button>
+                    <button class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-label-sm">3</button>
+                    <span class="px-2 text-outline">...</span>
+                    <button class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors text-label-sm">24</button>
+                    <button class="w-9 h-9 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container transition-colors">
+                        <span class="material-symbols-outlined text-md" data-icon="chevron_right">chevron_right</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Secondary Insights Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-lg mt-xl">
+            <div class="bg-white p-lg rounded-xl border border-outline-variant shadow-sm col-span-2">
+                <h3 class="font-h3 text-h3 text-on-surface mb-md">Warehouse Distribution</h3>
+                <div class="space-y-md">
+                    <div class="flex items-center justify-between group">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-8 bg-primary rounded-full"></div>
+                            <div>
+                                <div class="font-label-md text-on-surface">Berlin Main Distribution</div>
+                                <div class="text-xs text-outline">Capacity: 92% full</div>
+                            </div>
+                        </div>
+                        <span class="text-body-sm font-bold">12,402 units</span>
+                    </div>
+                    <div class="flex items-center justify-between group">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-8 bg-secondary rounded-full"></div>
+                            <div>
+                                <div class="font-label-md text-on-surface">New York Hub</div>
+                                <div class="text-xs text-outline">Capacity: 45% full</div>
+                            </div>
+                        </div>
+                        <span class="text-body-sm font-bold">5,891 units</span>
+                    </div>
+                    <div class="flex items-center justify-between group">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-8 bg-tertiary rounded-full"></div>
+                            <div>
+                                <div class="font-label-md text-on-surface">Tokyo Logistics Center</div>
+                                <div class="text-xs text-outline">Capacity: 78% full</div>
+                            </div>
+                        </div>
+                        <span class="text-body-sm font-bold">9,203 units</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-indigo-600 p-lg rounded-xl shadow-lg relative overflow-hidden text-white">
+                <div class="relative z-10">
+                    <span class="material-symbols-outlined text-3xl mb-4" data-icon="bolt">bolt</span>
+                    <h3 class="font-h2 text-h2 mb-2 leading-tight">Smart Restock AI is available</h3>
+                    <p class="text-body-sm text-indigo-100 mb-6">Let our algorithms predict your inventory needs based on seasonal demand trends.</p>
+                    <button class="w-full py-3 bg-white text-indigo-600 rounded-lg font-bold hover:bg-indigo-50 transition-all shadow-md">
+                        Upgrade Strategy
+                    </button>
+                </div>
+                <!-- Abstract Decoration -->
+                <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+                <div class="absolute -left-8 -top-8 w-32 h-32 bg-indigo-400/20 rounded-full blur-2xl"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FAB Contextual -->
+    <button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-50 group">
+        <span class="material-symbols-outlined text-2xl group-hover:rotate-90 transition-transform" data-icon="add">add</span>
+        <div class="absolute right-16 bg-on-surface text-white px-3 py-1 rounded-md text-xs font-bold opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity">
+            Quick Add Product
+        </div>
+    </button>
+</body>
+</html>
