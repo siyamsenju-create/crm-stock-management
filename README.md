@@ -1,9 +1,10 @@
+<img width="1470" height="956" alt="deshboard" src="https://github.com/user-attachments/assets/1f9a8b2f-f802-4f17-a2c9-63e54fefa447" />
 <img width="1470" height="956" alt="setteings" src="https://github.com/user-attachments/assets/136461bb-1d9a-44f3-b0c0-1d2af7f0c167" />
 <img width="1470" height="956" alt="analistcs" src="https://github.com/user-attachments/assets/5b03428b-3f86-40ad-b499-a77525d990bc" />
 <img width="1470" height="956" alt="orders" src="https://github.com/user-attachments/assets/be098596-47ce-4437-a993-9ef34be3dcde" />
 <img width="1470" height="956" alt="product" src="https://github.com/user-attachments/assets/4dd32bb1-af57-47dc-b299-23f2ee970aef" />
 <img width="1470" height="956" alt="customer" src="https://github.com/user-attachments/assets/4ff5ebf7-3abf-445d-9c43-3640278cc814" />
-<img width="1470" height="956" alt="deshboard" src="https://github.com/user-attachments/assets/1f9a8b2f-f802-4f17-a2c9-63e54fefa447" />
+
 # 🎨 JJ Painting & Hardwares — Enterprise CRM
 
 A comprehensive, high-performance stock management and CRM solution designed specifically for hardware and painting enterprises. This application provides a seamless experience across **Web, Android, and iOS** using a single codebase.
