@@ -1,16 +1,51 @@
-# React + Vite
+# 🎨 JJ Painting & Hardwares — Enterprise CRM
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A comprehensive, high-performance stock management and CRM solution designed specifically for hardware and painting enterprises. This application provides a seamless experience across **Web, Android, and iOS** using a single codebase.
 
-Currently, two official plugins are available:
+## 🚀 Key Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+*   **Smart Dashboard**: Real-time KPI tracking for revenue, active customers, and stock levels.
+*   **Advanced Product Catalog**: Interactive catalog featuring a slide-in detail drawer, live search, and category filtering.
+*   **Inventory Control**: Precise stock tracking with "Quick Restock" functionality and low-stock automated alerts.
+*   **Orders & Billing**: Full transactional history with status-based filtering (All, Pending, Completed).
+*   **Multi-Period Analytics**: Deep-dive reports with Weekly, Monthly, and Yearly sales visualizations.
+*   **Mobile Ready**: Fully synchronized with Capacitor for native Android and iOS deployment.
+*   **Modern UI/UX**: Built with a premium, responsive design system using Tailwind CSS.
 
-## React Compiler
+## 🛠️ Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+*   **Frontend**: React 19 + Vite
+*   **State Management**: Zustand (with Persistence)
+*   **Styling**: Tailwind CSS
+*   **Mobile**: Capacitor (Native Android & iOS Bridge)
+*   **Icons**: Google Material Symbols
 
-## Expanding the ESLint configuration
+## 📦 Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Prerequisites
+*   Node.js (v18+)
+*   npm
+
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/siyamsenju-create/crm-stock-management.git
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+### Mobile Development
+To sync changes to Android/iOS:
+```bash
+npm run build
+npx cap sync
+```
+
+## 📄 License
+Custom Enterprise License for JJ Painting & Hardwares.
