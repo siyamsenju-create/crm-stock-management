@@ -8,6 +8,8 @@ const errorMiddleware = require('./middlewares/error.middleware');
 
 // Routes
 const authRoutes = require('./routes/auth.routes');
+const productRoutes = require('./routes/product.routes');
+const analyticsRoutes = require('./routes/analytics.routes');
 // const userRoutes = require('./routes/user.routes');
 // const workspaceRoutes = require('./routes/workspace.routes');
 
@@ -36,6 +38,8 @@ app.use((req, res, next) => {
 
 // API Routes
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/products', productRoutes);
+app.use('/api/v1/analytics', analyticsRoutes);
 // app.use('/api/v1/users', userRoutes);
 // app.use('/api/v1/workspaces', workspaceRoutes);
 
