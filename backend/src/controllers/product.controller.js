@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const Transaction = require('../models/Transaction');
 const logger = require('../utils/logger');
 
 // @desc    Create new product
@@ -7,6 +8,15 @@ const logger = require('../utils/logger');
 exports.createProduct = async (req, res, next) => {
   try {
     const product = await Product.create(req.body);
+
+    if (product.quantity > 0) {
+      await Transaction.create({
+        productId: product._id,
+        type: 'IN',
+        quantity: product.quantity,
+        reference: 'Initial Stock'
+      });
+    }
 
     res.status(201).json({
       success: true,
@@ -125,6 +135,11 @@ exports.updateProduct = async (req, res, next) => {
 
     if (!product) {
       return res.status(404).json({ success: false, message: 'Product not found', data: {} });
+    }
+
+    // Prevent direct manual updates to quantity
+    if (req.body.quantity !== undefined) {
+      delete req.body.quantity;
     }
 
     product = await Product.findByIdAndUpdate(req.params.id, req.body, {
