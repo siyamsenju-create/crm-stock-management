@@ -1,94 +1,83 @@
 const Transaction = require('../models/Transaction');
 const Product = require('../models/Product');
+const asyncHandler = require('../utils/asyncHandler');
+const AppError = require('../utils/AppError');
+const { sendSuccess } = require('../utils/apiResponse');
+const logger = require('../utils/logger');
 
-// @desc    Add stock movement
-// @route   POST /api/v1/transactions
-// @access  Private
-exports.addTransaction = async (req, res, next) => {
-  try {
-    const { productId, type, quantity, reference } = req.body;
+/**
+ * @desc    Add stock movement (IN/OUT)
+ * @route   POST /api/v1/transactions
+ * @access  Private
+ */
+exports.addTransaction = asyncHandler(async (req, res) => {
+  const { productId, type, quantity, reference } = req.body;
 
-    // Validate required fields manually to provide clear error messages
-    if (!productId || !type || !quantity) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Please provide productId, type (IN/OUT), and quantity' 
-      });
-    }
+  const product = await Product.findById(productId);
+  if (!product) {
+    throw AppError.notFound('Product');
+  }
 
-    if (type !== 'IN' && type !== 'OUT') {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Transaction type must be either IN or OUT' 
-      });
-    }
+  if (type === 'OUT' && product.quantity < quantity) {
+    throw AppError.badRequest(
+      `Insufficient stock. Available: ${product.quantity}, Requested: ${quantity}.`,
+      'INSUFFICIENT_STOCK'
+    );
+  }
 
-    if (quantity <= 0) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Quantity must be at least 1' 
-      });
-    }
+  const transaction = await Transaction.create({ productId, type, quantity, reference });
 
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ success: false, message: 'Product not found' });
-    }
+  // Atomically update stock
+  product.quantity = type === 'IN' ? product.quantity + quantity : product.quantity - quantity;
+  await product.save();
 
-    // Check for negative stock if type is OUT
-    if (type === 'OUT' && product.quantity < quantity) {
-      return res.status(400).json({ success: false, message: 'Insufficient stock to perform this transaction' });
-    }
-
-    // Create transaction
-    const transaction = await Transaction.create({
-      productId,
-      type,
+  // Emit real-time event if socket.io is available
+  const io = req.app.get('io');
+  if (io) {
+    io.emit('stock:updated', {
+      productId: product._id,
+      productName: product.name,
+      newQuantity: product.quantity,
+      transactionType: type,
       quantity,
-      reference
     });
-
-    // Update product stock
-    product.quantity = type === 'IN' ? product.quantity + quantity : product.quantity - quantity;
-    await product.save();
-
-    res.status(201).json({
-      success: true,
-      data: transaction
-    });
-  } catch (err) {
-    next(err);
   }
-};
 
-// @desc    Get transaction history
-// @route   GET /api/v1/transactions
-// @access  Private
-exports.getTransactions = async (req, res, next) => {
-  try {
-    const { product, startDate, endDate, type } = req.query;
-    
-    let query = {};
-    
-    if (product) query.productId = product;
-    if (type) query.type = type;
-    
-    if (startDate || endDate) {
-      query.createdAt = {};
-      if (startDate) query.createdAt.$gte = new Date(startDate);
-      if (endDate) query.createdAt.$lte = new Date(endDate);
-    }
+  logger.info('Stock transaction recorded', {
+    transactionId: transaction._id,
+    productId,
+    type,
+    quantity,
+    newStock: product.quantity,
+  });
 
-    const transactions = await Transaction.find(query)
-      .populate('productId', 'name price category')
-      .sort('-createdAt');
+  sendSuccess(res, 201, 'Transaction recorded successfully', transaction);
+});
 
-    res.status(200).json({
-      success: true,
-      count: transactions.length,
-      data: transactions
-    });
-  } catch (err) {
-    next(err);
+/**
+ * @desc    Get transaction history with filters & pagination
+ * @route   GET /api/v1/transactions
+ * @access  Private
+ */
+exports.getTransactions = asyncHandler(async (req, res) => {
+  const filter = {};
+  const { product, type, startDate, endDate } = req.query;
+
+  if (product) filter.productId = product;
+  if (type) filter.type = type;
+
+  if (startDate || endDate) {
+    filter.createdAt = {};
+    if (startDate) filter.createdAt.$gte = new Date(startDate);
+    if (endDate) filter.createdAt.$lte = new Date(endDate);
   }
-};
+
+  const { data: transactions, pagination } = await req.paginate(
+    Transaction,
+    filter,
+    null,
+    { path: 'productId', select: 'name price category' }
+  );
+
+  sendSuccess(res, 200, 'Transactions fetched successfully', transactions, pagination);
+});

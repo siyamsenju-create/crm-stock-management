@@ -1,80 +1,174 @@
 const request = require('supertest');
 const app = require('../src/app');
 const mongoose = require('mongoose');
+const User = require('../src/models/User');
 const Product = require('../src/models/Product');
 const Transaction = require('../src/models/Transaction');
-// Assume User model exists and we need a token to auth
-const User = require('../src/models/User');
 
-// Mock mongoose connect and disconnect
+// ── Test helpers ──────────────────────────────────────────────────────────────
+
+const getToken = async (role = 'Admin') => {
+  const email = `test_${role.toLowerCase()}_tx_${Date.now()}@test.com`;
+  await User.create({ name: `T ${role}`, email, password: 'password123', role });
+  const res = await request(app).post('/api/v1/auth/login').send({ email, password: 'password123' });
+  return res.body.data.accessToken;
+};
+
+const createProduct = async (token, quantity = 100) => {
+  const res = await request(app)
+    .post('/api/v1/products')
+    .set('Authorization', `Bearer ${token}`)
+    .send({
+      name: `[TEST] TX Product ${Date.now()}`,
+      price: 100,
+      quantity,
+      category: 'TestCategory',
+    });
+  return res.body.data;
+};
+
+// ── Setup / Teardown ──────────────────────────────────────────────────────────
+
 beforeAll(async () => {
-  // If not using an in-memory DB for tests, you'd connect here
-  // await mongoose.connect(process.env.MONGO_URI_TEST);
+  const uri = process.env.MONGO_URI_TEST || process.env.MONGO_URI;
+  if (!mongoose.connection.readyState) await mongoose.connect(uri);
 });
 
 afterAll(async () => {
-  // await mongoose.connection.close();
+  await mongoose.connection.close();
 });
 
-describe('Transaction API Integration Tests', () => {
-  let token;
-  let testProduct;
+afterEach(async () => {
+  await User.deleteMany({ email: /^test_/ });
+  await Product.deleteMany({ name: /^\[TEST\]/ });
+  await Transaction.deleteMany({});
+});
 
-  beforeEach(async () => {
-    // Generate a mock token or bypass if needed. 
-    // Here we're mocking the protect middleware behavior if possible, 
-    // or assuming we have a valid test user.
-    // For simplicity, we are assuming the tests have a way to authenticate,
-    // or we're mocking it. In a real test we'd create a user and get a token.
-    
-    // We mock auth for these tests if there is a known bypass, otherwise
-    // we would actually create a user and login here.
+// ── Transaction Tests ─────────────────────────────────────────────────────────
+
+describe('🔄 Transactions — POST /api/v1/transactions', () => {
+  it('201 — records an IN transaction and increases stock', async () => {
+    const token = await getToken('Admin');
+    const product = await createProduct(token, 0);
+
+    const res = await request(app)
+      .post('/api/v1/transactions')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ productId: product._id, type: 'IN', quantity: 50, reference: 'Test restock' });
+
+    expect(res.statusCode).toBe(201);
+    expect(res.body.data.type).toBe('IN');
+    expect(res.body.data.quantity).toBe(50);
+
+    // Verify product quantity updated
+    const productRes = await request(app)
+      .get(`/api/v1/products/${product._id}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(productRes.body.data.quantity).toBe(50);
   });
 
-  // Example basic tests that check structure and requirements.
-  it('should return 401 if adding transaction without token', async () => {
+  it('201 — records an OUT transaction and decreases stock', async () => {
+    const token = await getToken('Admin');
+    const product = await createProduct(token, 100);
+
+    const res = await request(app)
+      .post('/api/v1/transactions')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ productId: product._id, type: 'OUT', quantity: 30 });
+
+    expect(res.statusCode).toBe(201);
+
+    const productRes = await request(app)
+      .get(`/api/v1/products/${product._id}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(productRes.body.data.quantity).toBe(70);
+  });
+
+  it('400 — prevents OUT transaction when stock is insufficient', async () => {
+    const token = await getToken('Admin');
+    const product = await createProduct(token, 10);
+
+    const res = await request(app)
+      .post('/api/v1/transactions')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ productId: product._id, type: 'OUT', quantity: 50 });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body.code).toBe('INSUFFICIENT_STOCK');
+
+    // Stock unchanged
+    const productRes = await request(app)
+      .get(`/api/v1/products/${product._id}`)
+      .set('Authorization', `Bearer ${token}`);
+    expect(productRes.body.data.quantity).toBe(10);
+  });
+
+  it('404 — rejects transaction for non-existent product', async () => {
+    const token = await getToken('Admin');
+    const fakeId = new mongoose.Types.ObjectId();
+    const res = await request(app)
+      .post('/api/v1/transactions')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ productId: fakeId.toString(), type: 'IN', quantity: 10 });
+    expect(res.statusCode).toBe(404);
+  });
+
+  it('422 — rejects invalid transaction type', async () => {
+    const token = await getToken('Admin');
+    const product = await createProduct(token, 100);
+
+    const res = await request(app)
+      .post('/api/v1/transactions')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ productId: product._id, type: 'INVALID', quantity: 10 });
+    expect(res.statusCode).toBe(422);
+  });
+
+  it('422 — rejects quantity of 0', async () => {
+    const token = await getToken('Admin');
+    const product = await createProduct(token, 100);
+
+    const res = await request(app)
+      .post('/api/v1/transactions')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ productId: product._id, type: 'IN', quantity: 0 });
+    expect(res.statusCode).toBe(422);
+  });
+
+  it('401 — rejects unauthenticated request', async () => {
     const res = await request(app).post('/api/v1/transactions').send({
       productId: new mongoose.Types.ObjectId(),
       type: 'IN',
-      quantity: 10
+      quantity: 10,
     });
-    // Assuming auth middleware returns 401
-    expect(res.statusCode).toEqual(401);
+    expect(res.statusCode).toBe(401);
+  });
+});
+
+describe('🔄 Transactions — GET /api/v1/transactions', () => {
+  it('200 — returns paginated transactions', async () => {
+    const token = await getToken('Admin');
+    const res = await request(app)
+      .get('/api/v1/transactions?page=1&limit=10')
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.data).toBeInstanceOf(Array);
+    expect(res.body.meta).toHaveProperty('page', 1);
   });
 
-  it('should return 401 if getting transactions without token', async () => {
-    const res = await request(app).get('/api/v1/transactions');
-    expect(res.statusCode).toEqual(401);
-  });
+  it('200 — filters by transaction type', async () => {
+    const token = await getToken('Admin');
+    const product = await createProduct(token, 100);
 
-  // NOTE: For comprehensive tests with authentication, we'd need to mock the JWT token.
-  // The following tests outline the structure for testing transaction logic.
+    await request(app)
+      .post('/api/v1/transactions')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ productId: product._id, type: 'OUT', quantity: 10 });
 
-  /*
-  it('should add stock (IN) and update product quantity', async () => {
-    // 1. Create a product with 0 quantity
-    // 2. Make POST /api/v1/transactions with { productId, type: 'IN', quantity: 50 }
-    // 3. Expect 201 status
-    // 4. Fetch product and expect quantity to be 50
+    const res = await request(app)
+      .get('/api/v1/transactions?type=OUT')
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.data.every((t) => t.type === 'OUT')).toBe(true);
   });
-
-  it('should remove stock (OUT) and update product quantity', async () => {
-    // 1. Create a product with 50 quantity
-    // 2. Make POST /api/v1/transactions with { productId, type: 'OUT', quantity: 20 }
-    // 3. Expect 201 status
-    // 4. Fetch product and expect quantity to be 30
-  });
-
-  it('should prevent invalid operations (negative stock)', async () => {
-    // 1. Create a product with 10 quantity
-    // 2. Make POST /api/v1/transactions with { productId, type: 'OUT', quantity: 20 }
-    // 3. Expect 400 status
-    // 4. Fetch product and expect quantity to still be 10
-  });
-
-  it('should prevent creating transaction with invalid type', async () => {
-    // 1. Make POST /api/v1/transactions with { productId, type: 'INVALID', quantity: 10 }
-    // 2. Expect 400 status
-  });
-  */
 });

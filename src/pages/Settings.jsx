@@ -13,8 +13,20 @@ export default function Settings() {
         alert('Profile saved successfully!');
     };
 
-    const handleReset = () => {
-        if(window.confirm('Are you sure you want to completely clear all local application data? This action cannot be undone.')) {
+    const handleReset = async () => {
+        if(window.confirm('Are you sure you want to completely clear all application data (including backend database)? This action cannot be undone.')) {
+            try {
+                const token = localStorage.getItem('token');
+                await fetch('http://localhost:5005/api/v1/settings/factory-reset', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                    }
+                });
+            } catch (error) {
+                console.error('Failed to reset backend data:', error);
+            }
             localStorage.clear();
             window.location.reload();
         }

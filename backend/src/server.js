@@ -1,41 +1,63 @@
+require('dotenv').config();
 const http = require('http');
 const app = require('./app');
 const connectDB = require('./config/db');
 const logger = require('./utils/logger');
 const { Server } = require('socket.io');
+const registerSocketHandlers = require('./sockets');
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5005;
 
 const server = http.createServer(app);
 
-// Initialize Socket.io
+// ── Socket.IO ─────────────────────────────────────────────────────────────────
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
+  : ['http://localhost:5173', 'http://localhost:3000'];
+
 const io = new Server(server, {
   cors: {
-    origin: '*',
-    methods: ['GET', 'POST']
-  }
+    origin: allowedOrigins,
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
 });
 
-io.on('connection', (socket) => {
-  logger.info(`New client connected: ${socket.id}`);
-  
-  socket.on('disconnect', () => {
-    logger.info(`Client disconnected: ${socket.id}`);
-  });
-});
-
-// Make io accessible globally if needed, or pass to controllers
+registerSocketHandlers(io);
 app.set('io', io);
 
-// Start server after DB connection
+// ── Graceful shutdown ─────────────────────────────────────────────────────────
+const gracefulShutdown = (signal) => {
+  logger.info(`Received ${signal}. Shutting down gracefully...`);
+  server.close(() => {
+    logger.info('HTTP server closed.');
+    process.exit(0);
+  });
+
+  // Force shutdown after 10s if connections still open
+  setTimeout(() => {
+    logger.error('Forced shutdown — connections did not close in time.');
+    process.exit(1);
+  }, 10_000).unref();
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+// ── Start ─────────────────────────────────────────────────────────────────────
 const startServer = async () => {
   try {
     await connectDB();
     server.listen(PORT, () => {
-      logger.info(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+      logger.info(`🚀 Server running`, {
+        mode: process.env.NODE_ENV || 'development',
+        port: PORT,
+        docs: `http://localhost:${PORT}/api-docs`,
+        health: `http://localhost:${PORT}/health`,
+      });
     });
   } catch (error) {
-    logger.error('Failed to start server', error);
+    logger.error('Failed to start server', { message: error.message, stack: error.stack });
     process.exit(1);
   }
 };

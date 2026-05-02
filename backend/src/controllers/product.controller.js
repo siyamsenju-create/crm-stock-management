@@ -1,199 +1,134 @@
 const Product = require('../models/Product');
 const Transaction = require('../models/Transaction');
+const asyncHandler = require('../utils/asyncHandler');
+const AppError = require('../utils/AppError');
+const { sendSuccess } = require('../utils/apiResponse');
+const { invalidateCache } = require('../utils/cache');
 const logger = require('../utils/logger');
 
-// @desc    Create new product
-// @route   POST /api/v1/products
-// @access  Private/Admin
-exports.createProduct = async (req, res, next) => {
-  try {
-    const product = await Product.create(req.body);
+// ── Controllers ──────────────────────────────────────────────────────────────
 
-    if (product.quantity > 0) {
-      await Transaction.create({
-        productId: product._id,
-        type: 'IN',
-        quantity: product.quantity,
-        reference: 'Initial Stock'
-      });
-    }
+/**
+ * @desc    Create new product
+ * @route   POST /api/v1/products
+ * @access  Private/Admin/Manager
+ */
+exports.createProduct = asyncHandler(async (req, res) => {
+  const product = await Product.create(req.body);
 
-    res.status(201).json({
-      success: true,
-      data: product
+  // Record initial stock as an IN transaction
+  if (product.quantity > 0) {
+    await Transaction.create({
+      productId: product._id,
+      type: 'IN',
+      quantity: product.quantity,
+      reference: 'Initial Stock',
     });
-  } catch (err) {
-    next(err);
   }
-};
 
-// @desc    Get all products (with search & filter)
-// @route   GET /api/v1/products
-// @access  Private
-exports.getProducts = async (req, res, next) => {
-  try {
-    let query;
+  await invalidateCache('products');
 
-    // Copy req.query
-    const reqQuery = { ...req.query };
+  logger.info('Product created', { productId: product._id, name: product.name });
 
-    // Fields to exclude from filtering
-    const removeFields = ['select', 'sort', 'page', 'limit', 'search'];
-    removeFields.forEach(param => delete reqQuery[param]);
+  sendSuccess(res, 201, 'Product created successfully', product);
+});
 
-    // Create query string
-    let queryStr = JSON.stringify(reqQuery);
+/**
+ * @desc    Get all products with search, filter, sort & pagination
+ * @route   GET /api/v1/products
+ * @access  Private
+ */
+exports.getProducts = asyncHandler(async (req, res) => {
+  // Build filter from query (non-special fields)
+  const excluded = ['select', 'sort', 'page', 'limit', 'search'];
+  const rawFilter = { ...req.query };
+  excluded.forEach((k) => delete rawFilter[k]);
 
-    // Create operators ($gt, $gte, etc)
-    queryStr = queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g, match => `$${match}`);
+  // Convert operator shorthand: price[gt] → { $gt: value }
+  let filterStr = JSON.stringify(rawFilter);
+  filterStr = filterStr.replace(/\b(gt|gte|lt|lte|in)\b/g, (m) => `$${m}`);
+  const filter = JSON.parse(filterStr);
 
-    // Parse back to JSON
-    const parsedQuery = JSON.parse(queryStr);
-
-    // Search by name
-    if (req.query.search) {
-      parsedQuery.name = { $regex: req.query.search, $options: 'i' };
-    }
-
-    // Finding resource
-    query = Product.find(parsedQuery);
-
-    // Sort
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort('-createdAt');
-    }
-
-    // Pagination
-    const page = parseInt(req.query.page, 10) || 1;
-    const limit = parseInt(req.query.limit, 10) || 10;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    const total = await Product.countDocuments(parsedQuery);
-
-    query = query.skip(startIndex).limit(limit);
-
-    // Executing query
-    const products = await query;
-
-    // Pagination result
-    const pagination = {};
-
-    if (endIndex < total) {
-      pagination.next = {
-        page: page + 1,
-        limit
-      };
-    }
-
-    if (startIndex > 0) {
-      pagination.prev = {
-        page: page - 1,
-        limit
-      };
-    }
-
-    res.status(200).json({
-      success: true,
-      count: products.length,
-      pagination,
-      data: products
-    });
-  } catch (err) {
-    next(err);
+  // Full-text search on name
+  if (req.query.search) {
+    filter.name = { $regex: req.query.search, $options: 'i' };
   }
-};
 
-// @desc    Get single product
-// @route   GET /api/v1/products/:id
-// @access  Private
-exports.getProductById = async (req, res, next) => {
-  try {
-    const product = await Product.findById(req.params.id);
+  const { data: products, pagination } = await req.paginate(Product, filter);
 
-    if (!product) {
-      return res.status(404).json({ success: false, message: 'Product not found', data: {} });
-    }
+  sendSuccess(res, 200, 'Products fetched successfully', products, pagination);
+});
 
-    res.status(200).json({
-      success: true,
-      data: product
-    });
-  } catch (err) {
-    next(err);
+/**
+ * @desc    Get single product by ID
+ * @route   GET /api/v1/products/:id
+ * @access  Private
+ */
+exports.getProductById = asyncHandler(async (req, res) => {
+  const product = await Product.findById(req.params.id);
+
+  if (!product) {
+    throw AppError.notFound('Product');
   }
-};
 
-// @desc    Update product
-// @route   PUT /api/v1/products/:id
-// @access  Private/Admin
-exports.updateProduct = async (req, res, next) => {
-  try {
-    let product = await Product.findById(req.params.id);
+  sendSuccess(res, 200, 'Product fetched successfully', product);
+});
 
-    if (!product) {
-      return res.status(404).json({ success: false, message: 'Product not found', data: {} });
-    }
+/**
+ * @desc    Update product (quantity updates blocked — use transactions)
+ * @route   PUT /api/v1/products/:id
+ * @access  Private/Admin/Manager
+ */
+exports.updateProduct = asyncHandler(async (req, res) => {
+  const product = await Product.findById(req.params.id);
 
-    // Prevent direct manual updates to quantity
-    if (req.body.quantity !== undefined) {
-      delete req.body.quantity;
-    }
-
-    product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    });
-
-    res.status(200).json({
-      success: true,
-      data: product
-    });
-  } catch (err) {
-    next(err);
+  if (!product) {
+    throw AppError.notFound('Product');
   }
-};
 
-// @desc    Delete product
-// @route   DELETE /api/v1/products/:id
-// @access  Private/Admin
-exports.deleteProduct = async (req, res, next) => {
-  try {
-    const product = await Product.findById(req.params.id);
+  const updated = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
 
-    if (!product) {
-      return res.status(404).json({ success: false, message: 'Product not found', data: {} });
-    }
+  await invalidateCache('products');
 
-    await product.deleteOne();
+  logger.info('Product updated', { productId: updated._id });
 
-    res.status(200).json({
-      success: true,
-      data: {}
-    });
-  } catch (err) {
-    next(err);
+  sendSuccess(res, 200, 'Product updated successfully', updated);
+});
+
+/**
+ * @desc    Delete product
+ * @route   DELETE /api/v1/products/:id
+ * @access  Private/Admin
+ */
+exports.deleteProduct = asyncHandler(async (req, res) => {
+  const product = await Product.findById(req.params.id);
+
+  if (!product) {
+    throw AppError.notFound('Product');
   }
-};
 
-// @desc    Get low stock alerts
-// @route   GET /api/v1/products/alerts/low-stock
-// @access  Private
-exports.getLowStockAlerts = async (req, res, next) => {
-  try {
-    // Uses an aggregation pipeline or simple query to find products where quantity <= lowStockThreshold
-    const lowStockProducts = await Product.find({
-      $expr: { $lte: ["$quantity", "$lowStockThreshold"] }
-    });
+  await product.deleteOne();
+  await invalidateCache('products');
 
-    res.status(200).json({
-      success: true,
-      count: lowStockProducts.length,
-      data: lowStockProducts
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+  logger.info('Product deleted', { productId: req.params.id });
+
+  sendSuccess(res, 200, 'Product deleted successfully');
+});
+
+/**
+ * @desc    Get low-stock products
+ * @route   GET /api/v1/products/alerts/low-stock
+ * @access  Private
+ */
+exports.getLowStockAlerts = asyncHandler(async (req, res) => {
+  const lowStockProducts = await Product.find({
+    $expr: { $lte: ['$quantity', '$lowStockThreshold'] },
+  });
+
+  sendSuccess(res, 200, 'Low stock alerts fetched', lowStockProducts, {
+    count: lowStockProducts.length,
+  });
+});

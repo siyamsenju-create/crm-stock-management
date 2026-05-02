@@ -1,41 +1,52 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const AppError = require('../utils/AppError');
+const asyncHandler = require('../utils/asyncHandler');
 
-const protect = async (req, res, next) => {
+/**
+ * Protect middleware — verifies Bearer JWT and attaches req.user.
+ */
+const protect = asyncHandler(async (req, res, next) => {
   let token;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   }
 
   if (!token) {
-    return res.status(401).json({ success: false, message: 'Not authorized to access this route', data: {} });
+    return next(AppError.unauthorized());
   }
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id);
-    next();
-  } catch (err) {
-    return res.status(401).json({ success: false, message: 'Not authorized to access this route', data: {} });
-  }
-};
+  // Throws JsonWebTokenError / TokenExpiredError — caught by error middleware
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-// Grant access to specific roles
-const authorize = (...roles) => {
-  return (req, res, next) => {
+  const currentUser = await User.findById(decoded.id);
+
+  if (!currentUser) {
+    return next(AppError.unauthorized('The user belonging to this token no longer exists.'));
+  }
+
+  req.user = currentUser;
+  next();
+});
+
+/**
+ * Authorize middleware — restricts access to specific roles.
+ * Must be called AFTER protect.
+ *
+ * @param {...string} roles - Allowed role names (e.g. 'Admin', 'Manager')
+ * @returns {import('express').RequestHandler}
+ */
+const authorize = (...roles) =>
+  (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        message: `User role ${req.user.role} is not authorized to access this route`,
-        data: {}
-      });
+      return next(
+        AppError.forbidden(
+          `Your account role '${req.user.role}' is not authorized to perform this action.`
+        )
+      );
     }
     next();
   };
-};
 
 module.exports = { protect, authorize };

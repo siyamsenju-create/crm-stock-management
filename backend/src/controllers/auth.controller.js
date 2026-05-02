@@ -1,134 +1,143 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const asyncHandler = require('../utils/asyncHandler');
+const AppError = require('../utils/AppError');
+const { sendSuccess } = require('../utils/apiResponse');
+const logger = require('../utils/logger');
 
-// Generate tokens
+// ── Token generation ─────────────────────────────────────────────────────────
+
 const generateTokens = (id) => {
   const accessToken = jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
+    expiresIn: process.env.JWT_EXPIRES_IN || '1h',
   });
-  
+
   const refreshToken = jwt.sign({ id }, process.env.JWT_REFRESH_SECRET, {
-    expiresIn: process.env.JWT_REFRESH_EXPIRES_IN,
+    expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   });
 
   return { accessToken, refreshToken };
 };
 
-// @desc    Register user
-// @route   POST /api/v1/auth/register
-// @access  Public
-exports.register = async (req, res, next) => {
-  try {
-    const { name, email, password, role } = req.body;
+// ── Controllers ──────────────────────────────────────────────────────────────
 
-    // Check if user exists
-    let user = await User.findOne({ email });
-    if (user) {
-      return res.status(400).json({ success: false, message: 'User already exists', data: {} });
-    }
+/**
+ * @desc    Register user
+ * @route   POST /api/v1/auth/register
+ * @access  Public
+ */
+exports.register = asyncHandler(async (req, res) => {
+  const { name, email, password, role } = req.body;
 
-    // Create user
-    user = await User.create({
-      name,
-      email,
-      password,
-      role
-    });
-
-    const { accessToken, refreshToken } = generateTokens(user._id);
-    
-    // Save refresh token to user
-    user.refreshToken = refreshToken;
-    await user.save({ validateBeforeSave: false });
-
-    res.status(201).json({
-      success: true,
-      message: 'User registered successfully',
-      data: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        accessToken,
-        refreshToken
-      }
-    });
-  } catch (error) {
-    next(error);
+  const existing = await User.findOne({ email });
+  if (existing) {
+    throw AppError.conflict('An account with this email already exists.');
   }
-};
 
-// @desc    Login user
-// @route   POST /api/v1/auth/login
-// @access  Public
-exports.login = async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
+  const user = await User.create({ name, email, password, role });
 
-    if (!email || !password) {
-      return res.status(400).json({ success: false, message: 'Please provide an email and password', data: {} });
-    }
+  const { accessToken, refreshToken } = generateTokens(user._id);
+  user.refreshToken = refreshToken;
+  await user.save({ validateBeforeSave: false });
 
-    const user = await User.findOne({ email }).select('+password');
+  logger.info('New user registered', { userId: user._id, role: user.role });
 
-    if (!user || !(await user.matchPassword(password))) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials', data: {} });
-    }
+  sendSuccess(res, 201, 'User registered successfully', {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    accessToken,
+    refreshToken,
+  });
+});
 
-    const { accessToken, refreshToken } = generateTokens(user._id);
+/**
+ * @desc    Login user
+ * @route   POST /api/v1/auth/login
+ * @access  Public
+ */
+exports.login = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
 
-    user.refreshToken = refreshToken;
-    await user.save({ validateBeforeSave: false });
+  const user = await User.findOne({ email }).select('+password');
 
-    res.status(200).json({
-      success: true,
-      message: 'Login successful',
-      data: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        accessToken,
-        refreshToken
-      }
-    });
-  } catch (error) {
-    next(error);
+  if (!user || !(await user.matchPassword(password))) {
+    throw AppError.unauthorized('Invalid email or password.');
   }
-};
 
-// @desc    Refresh Token
-// @route   POST /api/v1/auth/refresh
-// @access  Public
-exports.refreshToken = async (req, res, next) => {
+  const { accessToken, refreshToken } = generateTokens(user._id);
+  user.refreshToken = refreshToken;
+  await user.save({ validateBeforeSave: false });
+
+  logger.info('User logged in', { userId: user._id });
+
+  sendSuccess(res, 200, 'Login successful', {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    accessToken,
+    refreshToken,
+  });
+});
+
+/**
+ * @desc    Refresh access token using refresh token
+ * @route   POST /api/v1/auth/refresh
+ * @access  Public
+ */
+exports.refreshToken = asyncHandler(async (req, res) => {
+  const { token } = req.body;
+
+  let decoded;
   try {
-    const { token } = req.body;
-
-    if (!token) {
-      return res.status(403).json({ success: false, message: 'Refresh token is required', data: {} });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-    const user = await User.findById(decoded.id);
-
-    if (!user || user.refreshToken !== token) {
-      return res.status(403).json({ success: false, message: 'Invalid refresh token', data: {} });
-    }
-
-    const tokens = generateTokens(user._id);
-
-    user.refreshToken = tokens.refreshToken;
-    await user.save({ validateBeforeSave: false });
-
-    res.status(200).json({
-      success: true,
-      message: 'Token refreshed',
-      data: {
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken
-      }
-    });
-  } catch (error) {
-    return res.status(403).json({ success: false, message: 'Invalid or expired refresh token', data: {} });
+    decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+  } catch {
+    throw AppError.forbidden('Invalid or expired refresh token. Please login again.');
   }
-};
+
+  const user = await User.findById(decoded.id);
+
+  if (!user || user.refreshToken !== token) {
+    throw AppError.forbidden('Refresh token mismatch. Please login again.');
+  }
+
+  const tokens = generateTokens(user._id);
+  user.refreshToken = tokens.refreshToken;
+  await user.save({ validateBeforeSave: false });
+
+  sendSuccess(res, 200, 'Token refreshed successfully', {
+    accessToken: tokens.accessToken,
+    refreshToken: tokens.refreshToken,
+  });
+});
+
+/**
+ * @desc    Logout — invalidates the refresh token
+ * @route   POST /api/v1/auth/logout
+ * @access  Private
+ */
+exports.logout = asyncHandler(async (req, res) => {
+  req.user.refreshToken = undefined;
+  await req.user.save({ validateBeforeSave: false });
+
+  logger.info('User logged out', { userId: req.user._id });
+
+  sendSuccess(res, 200, 'Logged out successfully');
+});
+
+/**
+ * @desc    Get current user profile
+ * @route   GET /api/v1/auth/me
+ * @access  Private
+ */
+exports.getMe = asyncHandler(async (req, res) => {
+  sendSuccess(res, 200, 'User profile fetched successfully', {
+    _id: req.user._id,
+    name: req.user.name,
+    email: req.user.email,
+    role: req.user.role,
+    createdAt: req.user.createdAt,
+  });
+});

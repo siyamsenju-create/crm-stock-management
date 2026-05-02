@@ -1,70 +1,58 @@
 const Product = require('../models/Product');
 const Transaction = require('../models/Transaction');
+const asyncHandler = require('../utils/asyncHandler');
+const { sendSuccess } = require('../utils/apiResponse');
 
-// @desc    Get dashboard analytics
-// @route   GET /api/v1/analytics
-// @access  Private
-exports.getDashboardAnalytics = async (req, res, next) => {
-  try {
-    // 1. Total products count
-    const totalProducts = await Product.countDocuments();
-
-    // 2. Low stock items
-    const lowStockItems = await Product.countDocuments({
-      $expr: { $lte: ["$quantity", "$lowStockThreshold"] }
-    });
-
-    // 3. Total inventory value & Total Stock Quantity using Aggregation
-    const inventoryStats = await Product.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalInventoryValue: { $sum: { $multiply: ["$price", "$quantity"] } },
-          totalStockQuantity: { $sum: "$quantity" }
-        }
-      }
+/**
+ * @desc    Get dashboard analytics
+ * @route   GET /api/v1/analytics
+ * @access  Private
+ */
+exports.getDashboardAnalytics = asyncHandler(async (req, res) => {
+  const [totalProducts, lowStockItems, inventoryStats, transactionStats, recentActivity] =
+    await Promise.all([
+      Product.countDocuments(),
+      Product.countDocuments({
+        $expr: { $lte: ['$quantity', '$lowStockThreshold'] },
+      }),
+      Product.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalInventoryValue: { $sum: { $multiply: ['$price', '$quantity'] } },
+            totalStockQuantity: { $sum: '$quantity' },
+          },
+        },
+      ]),
+      Transaction.aggregate([
+        {
+          $group: {
+            _id: '$type',
+            totalQuantity: { $sum: '$quantity' },
+          },
+        },
+      ]),
+      Product.find().sort('-createdAt').limit(5).select('name quantity category createdAt'),
     ]);
 
-    const stats = inventoryStats.length > 0 ? inventoryStats[0] : { totalInventoryValue: 0, totalStockQuantity: 0 };
-    delete stats._id;
+  const { totalInventoryValue = 0, totalStockQuantity = 0 } =
+    inventoryStats[0] || {};
 
-    // 4. Transaction Stats (Total Inflow, Outflow, Net Movement)
-    const transactionStats = await Transaction.aggregate([
-      {
-        $group: {
-          _id: "$type",
-          totalQuantity: { $sum: "$quantity" }
-        }
-      }
-    ]);
+  let totalStockInflow = 0;
+  let totalStockOutflow = 0;
+  transactionStats.forEach((s) => {
+    if (s._id === 'IN') totalStockInflow = s.totalQuantity;
+    if (s._id === 'OUT') totalStockOutflow = s.totalQuantity;
+  });
 
-    let totalStockInflow = 0;
-    let totalStockOutflow = 0;
-
-    transactionStats.forEach(stat => {
-      if (stat._id === 'IN') totalStockInflow = stat.totalQuantity;
-      if (stat._id === 'OUT') totalStockOutflow = stat.totalQuantity;
-    });
-
-    const netInventoryMovement = totalStockInflow - totalStockOutflow;
-
-    // 5. Recent activity logs (mocking recent product additions for now)
-    const recentActivity = await Product.find().sort('-createdAt').limit(5).select('name createdAt');
-
-    res.status(200).json({
-      success: true,
-      data: {
-        totalProducts,
-        lowStockItems,
-        totalInventoryValue: stats.totalInventoryValue,
-        totalStockQuantity: stats.totalStockQuantity,
-        totalStockInflow,
-        totalStockOutflow,
-        netInventoryMovement,
-        recentActivity
-      }
-    });
-  } catch (err) {
-    next(err);
-  }
-};
+  sendSuccess(res, 200, 'Analytics fetched successfully', {
+    totalProducts,
+    lowStockItems,
+    totalInventoryValue,
+    totalStockQuantity,
+    totalStockInflow,
+    totalStockOutflow,
+    netInventoryMovement: totalStockInflow - totalStockOutflow,
+    recentActivity,
+  });
+});

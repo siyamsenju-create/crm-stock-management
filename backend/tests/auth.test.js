@@ -1,0 +1,146 @@
+const request = require('supertest');
+const app = require('../src/app');
+const mongoose = require('mongoose');
+const User = require('../src/models/User');
+const Product = require('../src/models/Product');
+
+// ── Test helpers ──────────────────────────────────────────────────────────────
+
+/**
+ * Create a test user in DB and return a valid JWT token.
+ */
+const createUserAndLogin = async (role = 'Admin') => {
+  const email = `test_${role.toLowerCase()}_${Date.now()}@test.com`;
+  const user = await User.create({
+    name: `Test ${role}`,
+    email,
+    password: 'password123',
+    role,
+  });
+
+  const loginRes = await request(app).post('/api/v1/auth/login').send({
+    email,
+    password: 'password123',
+  });
+
+  return { user, token: loginRes.body.data.accessToken };
+};
+
+// ── Setup / Teardown ──────────────────────────────────────────────────────────
+
+beforeAll(async () => {
+  const uri = process.env.MONGO_URI_TEST || process.env.MONGO_URI;
+  if (!mongoose.connection.readyState) {
+    await mongoose.connect(uri);
+  }
+});
+
+afterAll(async () => {
+  await mongoose.connection.close();
+});
+
+afterEach(async () => {
+  // Clean up created test records after each test
+  await User.deleteMany({ email: /^test_/ });
+  await Product.deleteMany({ name: /^\[TEST\]/ });
+});
+
+// ── Auth Tests ────────────────────────────────────────────────────────────────
+
+describe('🔐 Auth — POST /api/v1/auth/register', () => {
+  it('201 — registers a new user and returns tokens', async () => {
+    const res = await request(app).post('/api/v1/auth/register').send({
+      name: 'Test User',
+      email: `test_user_reg_${Date.now()}@test.com`,
+      password: 'password123',
+    });
+    expect(res.statusCode).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('accessToken');
+    expect(res.body.data).toHaveProperty('refreshToken');
+    expect(res.body.data).toHaveProperty('role', 'User');
+  });
+
+  it('409 — rejects duplicate email', async () => {
+    const email = `test_dup_${Date.now()}@test.com`;
+    await User.create({ name: 'Dup', email, password: 'password123' });
+    const res = await request(app).post('/api/v1/auth/register').send({
+      name: 'Dup2',
+      email,
+      password: 'password123',
+    });
+    expect(res.statusCode).toBe(409);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('422 — rejects invalid email format', async () => {
+    const res = await request(app).post('/api/v1/auth/register').send({
+      name: 'Test',
+      email: 'not-an-email',
+      password: 'password123',
+    });
+    expect(res.statusCode).toBe(422);
+    expect(res.body.details).toBeDefined();
+  });
+
+  it('422 — rejects password shorter than 6 chars', async () => {
+    const res = await request(app).post('/api/v1/auth/register').send({
+      name: 'Test',
+      email: `test_short_${Date.now()}@test.com`,
+      password: '123',
+    });
+    expect(res.statusCode).toBe(422);
+  });
+});
+
+describe('🔐 Auth — POST /api/v1/auth/login', () => {
+  it('200 — logs in with valid credentials', async () => {
+    const email = `test_login_${Date.now()}@test.com`;
+    await User.create({ name: 'Login Test', email, password: 'password123' });
+
+    const res = await request(app).post('/api/v1/auth/login').send({
+      email,
+      password: 'password123',
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.body.data).toHaveProperty('accessToken');
+  });
+
+  it('401 — rejects wrong password', async () => {
+    const email = `test_wrongpw_${Date.now()}@test.com`;
+    await User.create({ name: 'WrongPW', email, password: 'correctpass' });
+    const res = await request(app).post('/api/v1/auth/login').send({
+      email,
+      password: 'wrongpass',
+    });
+    expect(res.statusCode).toBe(401);
+  });
+
+  it('422 — rejects missing fields', async () => {
+    const res = await request(app).post('/api/v1/auth/login').send({ email: 'a@b.com' });
+    expect(res.statusCode).toBe(422);
+  });
+});
+
+describe('🔐 Auth — GET /api/v1/auth/me', () => {
+  it('200 — returns profile when authenticated', async () => {
+    const { token, user } = await createUserAndLogin('User');
+    const res = await request(app)
+      .get('/api/v1/auth/me')
+      .set('Authorization', `Bearer ${token}`);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.data.email).toBe(user.email);
+  });
+
+  it('401 — rejects missing token', async () => {
+    const res = await request(app).get('/api/v1/auth/me');
+    expect(res.statusCode).toBe(401);
+  });
+
+  it('401 — rejects malformed token', async () => {
+    const res = await request(app)
+      .get('/api/v1/auth/me')
+      .set('Authorization', 'Bearer not.a.valid.token');
+    expect(res.statusCode).toBe(401);
+  });
+});

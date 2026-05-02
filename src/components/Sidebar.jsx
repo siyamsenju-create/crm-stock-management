@@ -19,6 +19,7 @@ export default function Sidebar() {
         { path: '/products', icon: 'format_paint', label: 'Products' },
         { path: '/inventory', icon: 'warehouse', label: 'Inventory' },
         { path: '/orders', icon: 'receipt_long', label: 'Orders & Sales' },
+        { path: '/transactions', icon: 'sync_alt', label: 'Transactions' },
         { path: '/analytics', icon: 'bar_chart', label: 'Analytics' },
         { path: '/settings', icon: 'settings', label: 'Settings' },
     ];

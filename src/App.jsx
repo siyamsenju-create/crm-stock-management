@@ -9,6 +9,7 @@ import Inventory from './pages/Inventory';
 import Orders from './pages/Orders';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
+import Transactions from './pages/Transactions';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/products/add" element={<AddProduct />} />
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/orders" element={<Orders />} />
+        <Route path="/transactions" element={<Transactions />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/settings" element={<Settings />} />
       </Routes>
