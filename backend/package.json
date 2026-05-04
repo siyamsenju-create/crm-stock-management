@@ -13,7 +13,13 @@
     "lint": "eslint src/ --ext .js",
     "lint:fix": "eslint src/ --ext .js --fix"
   },
-  "keywords": ["crm", "inventory", "stock", "express", "mongodb"],
+  "keywords": [
+    "crm",
+    "inventory",
+    "stock",
+    "express",
+    "mongodb"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
@@ -38,13 +44,18 @@
   "devDependencies": {
     "eslint": "^8.57.0",
     "jest": "^30.3.0",
+    "mongodb-memory-server": "^11.1.0",
     "nodemon": "^3.1.14",
     "supertest": "^7.2.2"
   },
   "jest": {
     "testEnvironment": "node",
-    "testMatch": ["**/tests/**/*.test.js"],
-    "testTimeout": 30000,
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ],
+    "testTimeout": 60000,
+    "globalSetup": "./tests/setup.js",
+    "globalTeardown": "./tests/teardown.js",
     "coverageDirectory": "coverage",
     "collectCoverageFrom": [
       "src/controllers/**/*.js",
