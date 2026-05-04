@@ -47,12 +47,28 @@ A comprehensive, high-performance stock management and CRM solution designed spe
    npm run dev
    ```
 
-### Mobile Development
-To sync changes to Android/iOS:
-```bash
-npm run build
-npx cap sync
-```
+### Mobile Application (React Native + Expo)
+The project includes a standalone React Native mobile application located in `backend/mobile-app`.
+
+To run the mobile app:
+1. Make sure your backend server is running first:
+   ```bash
+   cd backend
+   npm run dev
+   ```
+2. Open a new terminal and navigate to the mobile app directory:
+   ```bash
+   cd backend/mobile-app
+   ```
+3. Install dependencies (if you haven't already):
+   ```bash
+   npm install
+   ```
+4. Start the Expo development server:
+   ```bash
+   npm start
+   ```
+   *Note: Make sure to update the `EXPO_PUBLIC_API_URL` inside `backend/mobile-app/.env` if your local IP address changes.*
 
 ## 📄 License
 Custom Enterprise License for JJ Painting & Hardwares.
