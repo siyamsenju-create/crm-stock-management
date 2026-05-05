@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 
 <html class="light" lang="en"><head>
+<title>Settings — InventoryFlow CRM</title>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -194,17 +195,17 @@
 <div class="flex-1 space-y-md">
 <div class="grid md:grid-cols-2 gap-md">
 <div class="flex flex-col gap-xs">
-<label class="font-label-sm text-on-surface-variant">Full Name</label>
-<input class="rounded-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" type="text" value="Sarah Jenkins"/>
+<label class="font-label-sm text-on-surface-variant" for="profile-full-name">Full Name</label>
+<input id="profile-full-name" class="rounded-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" type="text" value="Sarah Jenkins" placeholder="Full name"/>
 </div>
 <div class="flex flex-col gap-xs">
-<label class="font-label-sm text-on-surface-variant">Email Address</label>
-<input class="rounded-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" type="email" value="sarah.jenkins@nexus-core.io"/>
+<label class="font-label-sm text-on-surface-variant" for="profile-email">Email Address</label>
+<input id="profile-email" class="rounded-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" type="email" value="sarah.jenkins@nexus-core.io" placeholder="Email address"/>
 </div>
 </div>
 <div class="flex flex-col gap-xs">
-<label class="font-label-sm text-on-surface-variant">Bio</label>
-<textarea class="rounded-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" rows="2">Head of Global Operations at Nexus CRM. Passionate about logistics and enterprise scale.</textarea>
+<label class="font-label-sm text-on-surface-variant" for="profile-bio">Bio</label>
+<textarea id="profile-bio" class="rounded-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" rows="2" placeholder="Short bio">Head of Global Operations at Nexus CRM. Passionate about logistics and enterprise scale.</textarea>
 </div>
 </div>
 </div>
@@ -223,20 +224,20 @@
 <div class="p-lg grid md:grid-cols-2 gap-xl">
 <div class="space-y-md">
 <div class="flex flex-col gap-xs">
-<label class="font-label-sm text-on-surface-variant">Business Name</label>
-<input class="rounded-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" type="text" value="Nexus Core Industries"/>
+<label class="font-label-sm text-on-surface-variant" for="org-business-name">Business Name</label>
+<input id="org-business-name" class="rounded-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" type="text" value="Nexus Core Industries" placeholder="Business name"/>
 </div>
 <div class="flex flex-col gap-xs">
-<label class="font-label-sm text-on-surface-variant">Workspace URL</label>
+<label class="font-label-sm text-on-surface-variant" for="org-workspace-url">Workspace URL</label>
 <div class="flex">
 <span class="inline-flex items-center px-md rounded-l-lg border border-r-0 border-outline-variant bg-surface-container-high text-on-surface-variant font-body-sm">nexus-crm.io/</span>
-<input class="flex-1 rounded-r-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" type="text" value="nexus-core"/>
+<input id="org-workspace-url" class="flex-1 rounded-r-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" type="text" value="nexus-core" placeholder="workspace-slug"/>
 </div>
 </div>
 <div class="flex flex-col gap-xs">
-<label class="font-label-sm text-on-surface-variant">Business Address</label>
-<input class="rounded-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" type="text" value="128 Innovation Way, Ste 400"/>
-<input class="mt-xs rounded-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" type="text" value="San Francisco, CA 94105"/>
+<label class="font-label-sm text-on-surface-variant" for="org-address-line1">Business Address</label>
+<input id="org-address-line1" class="rounded-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" type="text" value="128 Innovation Way, Ste 400" placeholder="Street address"/>
+<input aria-label="Business address line 2" class="mt-xs rounded-lg border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary font-body-sm px-md py-sm" type="text" value="San Francisco, CA 94105" placeholder="City, State ZIP"/>
 </div>
 </div>
 <div class="space-y-md">
@@ -389,8 +390,8 @@
 <h3 class="font-label-md text-on-surface">Security Alerts</h3>
 <p class="font-body-sm text-on-surface-variant">Receive emails for new logins and sensitive setting changes.</p>
 </div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only peer" type="checkbox"/>
+<label class="relative inline-flex items-center cursor-pointer" aria-label="Security Alerts">
+<input checked="" class="sr-only peer" type="checkbox" aria-label="Enable security alerts"/>
 <div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
 </label>
 </div>
@@ -399,8 +400,8 @@
 <h3 class="font-label-md text-on-surface">Inventory Updates</h3>
 <p class="font-body-sm text-on-surface-variant">Daily summary of low-stock items and warehouse transfers.</p>
 </div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only peer" type="checkbox"/>
+<label class="relative inline-flex items-center cursor-pointer" aria-label="Inventory Updates">
+<input checked="" class="sr-only peer" type="checkbox" aria-label="Enable inventory update notifications"/>
 <div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
 </label>
 </div>
@@ -409,8 +410,8 @@
 <h3 class="font-label-md text-on-surface">Marketing Communications</h3>
 <p class="font-body-sm text-on-surface-variant">Tips, product updates, and platform newsletter.</p>
 </div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input class="sr-only peer" type="checkbox"/>
+<label class="relative inline-flex items-center cursor-pointer" aria-label="Marketing Communications">
+<input class="sr-only peer" type="checkbox" aria-label="Enable marketing communications"/>
 <div class="w-11 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
 </label>
 </div>

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 
 <html class="light" lang="en"><head>
+<title>Add New Product - Nexus CRM</title>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -108,8 +109,8 @@
         }
         .glass-card {
             background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
         }
     </style>
 </head>
@@ -243,8 +244,8 @@
 </div>
 </div>
 <div class="col-span-1">
-<label class="block font-label-md text-on-surface-variant mb-xs">Brand</label>
-<select class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 transition-all outline-none bg-white">
+<label for="brand-select" class="block font-label-md text-on-surface-variant mb-xs">Brand</label>
+<select id="brand-select" class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 transition-all outline-none bg-white">
 <option>Nexus Manufacturing</option>
 <option>Steelcase</option>
 <option>Herman Miller</option>
@@ -272,8 +273,8 @@
 <input class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 outline-none" placeholder="0.00" step="0.01" type="number"/>
 </div>
 <div>
-<label class="block font-label-md text-on-surface-variant mb-xs">Tax Class</label>
-<select class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 transition-all outline-none bg-white">
+<label for="tax-class-select" class="block font-label-md text-on-surface-variant mb-xs">Tax Class</label>
+<select id="tax-class-select" class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 transition-all outline-none bg-white">
 <option>Standard (15%)</option>
 <option>Reduced (5%)</option>
 <option>Exempt (0%)</option>
@@ -310,13 +311,13 @@
 </div>
 <!-- Existing Previews -->
 <div class="relative group aspect-square rounded-xl border border-outline-variant overflow-hidden">
-<img class="w-full h-full object-cover" data-alt="professional studio shot of high-quality headphones against a clean minimalist background with soft shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBK4iLV6CfEggoBR8wYAJcOS6nAUY_cxfW5naCT-f4EfcizOT4MJf5RHrAYiwilWdCvyxvMW6miuXtftv5GeYq1P97uYmRrhTBg-KjOz6lk9gLl8gX4HChlTw4WL75J3RFGnEQ8PWib8_jzEaGTIEglNsvagnN-0rXW38rKOLBaFCwa_19FfBoZuRQq80x6bXf7-tZbxf2XL_W1dsSkwiL447vdulBAsaqHiVkqm1znFmdWns8O7ctoEkYPwkqf9itYSoN2DsKlw8c"/>
+<img alt="professional studio shot of high-quality headphones" class="w-full h-full object-cover" data-alt="professional studio shot of high-quality headphones against a clean minimalist background with soft shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBK4iLV6CfEggoBR8wYAJcOS6nAUY_cxfW5naCT-f4EfcizOT4MJf5RHrAYiwilWdCvyxvMW6miuXtftv5GeYq1P97uYmRrhTBg-KjOz6lk9gLl8gX4HChlTw4WL75J3RFGnEQ8PWib8_jzEaGTIEglNsvagnN-0rXW38rKOLBaFCwa_19FfBoZuRQq80x6bXf7-tZbxf2XL_W1dsSkwiL447vdulBAsaqHiVkqm1znFmdWns8O7ctoEkYPwkqf9itYSoN2DsKlw8c"/>
 <button class="absolute top-2 right-2 p-1 bg-white/90 backdrop-blur rounded-full shadow-sm text-error opacity-0 group-hover:opacity-100 transition-opacity">
 <span class="material-symbols-outlined text-[18px]" data-icon="delete">delete</span>
 </button>
 </div>
 <div class="relative group aspect-square rounded-xl border border-outline-variant overflow-hidden">
-<img class="w-full h-full object-cover" data-alt="close-up detail of a minimalist white ceramic watch on a light grey stone surface with soft ambient lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMDusggRoEu8Nz1KzM35AuZOf5VpLBOgFEVo-5OIlGOh8DR3KS_N7gta2x8xSnHgY5thqmKu4GQFRRGEuqai0rgZ3FRewUmZqucU_D33OHSLB28cazYvgU9ZwA5JZ84oBYbFs9yYjWOjcATkoEYl_7hNS4UsTdBOooY8_eupXTs0PZ8IF1C2oiJ61FudxOlLqH0Bbb1APKuQLqbzGQvB33ry1L4700Iw95Pp-9tEirz15wZNnJrfKy9R4wYGygkygZ9DNTOJ3ldZk"/>
+<img alt="close-up detail of a minimalist white ceramic watch" class="w-full h-full object-cover" data-alt="close-up detail of a minimalist white ceramic watch on a light grey stone surface with soft ambient lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMDusggRoEu8Nz1KzM35AuZOf5VpLBOgFEVo-5OIlGOh8DR3KS_N7gta2x8xSnHgY5thqmKu4GQFRRGEuqai0rgZ3FRewUmZqucU_D33OHSLB28cazYvgU9ZwA5JZ84oBYbFs9yYjWOjcATkoEYl_7hNS4UsTdBOooY8_eupXTs0PZ8IF1C2oiJ61FudxOlLqH0Bbb1APKuQLqbzGQvB33ry1L4700Iw95Pp-9tEirz15wZNnJrfKy9R4wYGygkygZ9DNTOJ3ldZk"/>
 <button class="absolute top-2 right-2 p-1 bg-white/90 backdrop-blur rounded-full shadow-sm text-error opacity-0 group-hover:opacity-100 transition-opacity">
 <span class="material-symbols-outlined text-[18px]" data-icon="delete">delete</span>
 </button>
@@ -339,8 +340,8 @@
 </div>
 <div class="p-xl space-y-md">
 <div>
-<label class="block font-label-md text-on-surface-variant mb-xs">Warehouse Location</label>
-<select class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 transition-all outline-none bg-white">
+<label for="warehouse-location-select" class="block font-label-md text-on-surface-variant mb-xs">Warehouse Location</label>
+<select id="warehouse-location-select" class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 transition-all outline-none bg-white">
 <option>Main Warehouse (Chicago)</option>
 <option>East Coast Depot (NYC)</option>
 <option>West Coast Hub (LA)</option>
@@ -359,13 +360,13 @@
 <div class="pt-sm">
 <div class="flex items-center justify-between mb-2">
 <label class="font-label-md text-on-surface">Enable Stock Tracking</label>
-<button class="w-10 h-6 bg-primary rounded-full relative p-1 transition-all">
+<button aria-label="Toggle enable stock tracking" class="w-10 h-6 bg-primary rounded-full relative p-1 transition-all">
 <div class="w-4 h-4 bg-white rounded-full translate-x-4"></div>
 </button>
 </div>
 <div class="flex items-center justify-between">
 <label class="font-label-md text-on-surface">Sell when out of stock</label>
-<button class="w-10 h-6 bg-outline-variant rounded-full relative p-1 transition-all">
+<button aria-label="Toggle sell when out of stock" class="w-10 h-6 bg-outline-variant rounded-full relative p-1 transition-all">
 <div class="w-4 h-4 bg-white rounded-full"></div>
 </button>
 </div>
@@ -380,8 +381,8 @@
 </div>
 <div class="p-xl space-y-md">
 <div>
-<label class="block font-label-md text-on-surface-variant mb-xs">Primary Category</label>
-<select class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 transition-all outline-none bg-white">
+<label for="primary-category-select" class="block font-label-md text-on-surface-variant mb-xs">Primary Category</label>
+<select id="primary-category-select" class="w-full px-md py-sm rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary-container/20 transition-all outline-none bg-white">
 <option>Office Furniture</option>
 <option>Electronics</option>
 <option>Stationery</option>

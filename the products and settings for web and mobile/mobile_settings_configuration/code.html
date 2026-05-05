@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 
 <html class="light" lang="en"><head>
+<title>Mobile Settings - Nexus CRM</title>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -108,6 +109,9 @@
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
             vertical-align: middle;
         }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
     </style>
 <style>
@@ -144,16 +148,16 @@
 </div>
 <div class="space-y-md">
 <div>
-<label class="block font-label-sm text-label-sm text-outline mb-xs">FULL NAME</label>
-<input class="w-full bg-surface-container border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all font-body-md text-body-md" type="text" value="Alex Rivera"/>
+<label for="full-name" class="block font-label-sm text-label-sm text-outline mb-xs">FULL NAME</label>
+<input id="full-name" placeholder="Full Name" class="w-full bg-surface-container border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all font-body-md text-body-md" type="text" value="Alex Rivera"/>
 </div>
 <div>
-<label class="block font-label-sm text-label-sm text-outline mb-xs">EMAIL ADDRESS</label>
-<input class="w-full bg-surface-container border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all font-body-md text-body-md" type="email" value="alex.rivera@nexus-corp.com"/>
+<label for="email" class="block font-label-sm text-label-sm text-outline mb-xs">EMAIL ADDRESS</label>
+<input id="email" placeholder="Email Address" class="w-full bg-surface-container border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all font-body-md text-body-md" type="email" value="alex.rivera@nexus-corp.com"/>
 </div>
 <div>
-<label class="block font-label-sm text-label-sm text-outline mb-xs">BIO</label>
-<textarea class="w-full bg-surface-container border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all font-body-md text-body-md resize-none" rows="3">Product Lead at Nexus. Focus on operational efficiency and scalable inventory systems.</textarea>
+<label for="bio" class="block font-label-sm text-label-sm text-outline mb-xs">BIO</label>
+<textarea id="bio" placeholder="Bio" class="w-full bg-surface-container border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all font-body-md text-body-md resize-none" rows="3">Product Lead at Nexus. Focus on operational efficiency and scalable inventory systems.</textarea>
 </div>
 </div>
 </div>
@@ -164,8 +168,8 @@
 <div class="bg-surface-container-lowest rounded-xl border border-outline-variant p-md shadow-sm">
 <div class="space-y-md">
 <div>
-<label class="block font-label-sm text-label-sm text-outline mb-xs">BUSINESS NAME</label>
-<input class="w-full bg-surface-container border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary outline-none font-body-md text-body-md" type="text" value="Nexus Enterprise Solutions"/>
+<label for="business-name" class="block font-label-sm text-label-sm text-outline mb-xs">BUSINESS NAME</label>
+<input id="business-name" placeholder="Business Name" class="w-full bg-surface-container border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary outline-none font-body-md text-body-md" type="text" value="Nexus Enterprise Solutions"/>
 </div>
 <div>
 <label class="block font-label-sm text-label-sm text-outline mb-xs">LOGO</label>
@@ -279,7 +283,7 @@
 <span class="text-[11px] font-medium tracking-wide">Orders</span>
 </a>
 <a class="flex flex-col items-center justify-center text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl px-3 py-1" href="#">
-<span class="material-symbols-outlined" data-icon="person" data-weight="fill" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="material-symbols-outlined icon-fill" data-icon="person" data-weight="fill">person</span>
 <span class="text-[11px] font-medium tracking-wide">Profile</span>
 </a>
 </nav>
