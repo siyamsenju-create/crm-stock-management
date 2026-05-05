@@ -152,9 +152,11 @@ jobs:
 
     steps:
       - name: Trigger Render Deploy Hook
+        env:
+          DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
-          if [ -n "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" ]; then
-            curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+          if [ -n "$DEPLOY_HOOK" ]; then
+            curl -X POST "$DEPLOY_HOOK"
             echo "✅ Render deploy triggered"
           else
             echo "⚠️  RENDER_DEPLOY_HOOK_URL secret not set — skipping deploy"
