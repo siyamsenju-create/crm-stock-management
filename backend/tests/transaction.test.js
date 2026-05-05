@@ -8,7 +8,7 @@ const Transaction = require('../src/models/Transaction');
 // ── Test helpers ──────────────────────────────────────────────────────────────
 
 const getToken = async (role = 'Admin') => {
-  const email = `test_${role.toLowerCase()}_tx_${Date.now()}@test.com`;
+  const email = `test.${role.toLowerCase()}.tx.${Date.now()}@test.com`;
   await User.create({ name: `T ${role}`, email, password: 'password123', role });
   const res = await request(app).post('/api/v1/auth/login').send({ email, password: 'password123' });
   return res.body.data.accessToken;
@@ -39,7 +39,7 @@ afterAll(async () => {
 });
 
 afterEach(async () => {
-  await User.deleteMany({ email: /^test_/ });
+  await User.deleteMany({ email: /^test\./ });
   await Product.deleteMany({ name: /^\[TEST\]/ });
   await Transaction.deleteMany({});
 });

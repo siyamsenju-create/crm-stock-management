@@ -10,7 +10,7 @@ const Product = require('../src/models/Product');
  * Create a test user in DB and return a valid JWT token.
  */
 const createUserAndLogin = async (role = 'Admin') => {
-  const email = `test_${role.toLowerCase()}_${Date.now()}@test.com`;
+  const email = `test.${role.toLowerCase()}.${Date.now()}@test.com`;
   const user = await User.create({
     name: `Test ${role}`,
     email,
@@ -41,7 +41,7 @@ afterAll(async () => {
 
 afterEach(async () => {
   // Clean up created test records after each test
-  await User.deleteMany({ email: /^test_/ });
+  await User.deleteMany({ email: /^test\./ });
   await Product.deleteMany({ name: /^\[TEST\]/ });
 });
 
@@ -51,7 +51,7 @@ describe('🔐 Auth — POST /api/v1/auth/register', () => {
   it('201 — registers a new user and returns tokens', async () => {
     const res = await request(app).post('/api/v1/auth/register').send({
       name: 'Test User',
-      email: `test_user_reg_${Date.now()}@test.com`,
+      email: `test.user.reg.${Date.now()}@test.com`,
       password: 'password123',
     });
     expect(res.statusCode).toBe(201);
@@ -62,7 +62,7 @@ describe('🔐 Auth — POST /api/v1/auth/register', () => {
   });
 
   it('409 — rejects duplicate email', async () => {
-    const email = `test_dup_${Date.now()}@test.com`;
+    const email = `test.dup.${Date.now()}@test.com`;
     await User.create({ name: 'Dup', email, password: 'password123' });
     const res = await request(app).post('/api/v1/auth/register').send({
       name: 'Dup2',
@@ -86,7 +86,7 @@ describe('🔐 Auth — POST /api/v1/auth/register', () => {
   it('422 — rejects password shorter than 6 chars', async () => {
     const res = await request(app).post('/api/v1/auth/register').send({
       name: 'Test',
-      email: `test_short_${Date.now()}@test.com`,
+      email: `test.short.${Date.now()}@test.com`,
       password: '123',
     });
     expect(res.statusCode).toBe(422);
@@ -95,7 +95,7 @@ describe('🔐 Auth — POST /api/v1/auth/register', () => {
 
 describe('🔐 Auth — POST /api/v1/auth/login', () => {
   it('200 — logs in with valid credentials', async () => {
-    const email = `test_login_${Date.now()}@test.com`;
+    const email = `test.login.${Date.now()}@test.com`;
     await User.create({ name: 'Login Test', email, password: 'password123' });
 
     const res = await request(app).post('/api/v1/auth/login').send({
@@ -107,7 +107,7 @@ describe('🔐 Auth — POST /api/v1/auth/login', () => {
   });
 
   it('401 — rejects wrong password', async () => {
-    const email = `test_wrongpw_${Date.now()}@test.com`;
+    const email = `test.wrongpw.${Date.now()}@test.com`;
     await User.create({ name: 'WrongPW', email, password: 'correctpass' });
     const res = await request(app).post('/api/v1/auth/login').send({
       email,
