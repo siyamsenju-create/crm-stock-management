@@ -69,6 +69,76 @@ To run the mobile app:
    npm start
    ```
    *Note: Make sure to update the `EXPO_PUBLIC_API_URL` inside `backend/mobile-app/.env` if your local IP address changes.*
+# 🏗️ System Architecture
 
+This project follows a scalable, secure, cloud-native microservices architecture designed for web and mobile applications.
+
+## Architecture Diagram
+
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/08c1b31f-1334-4206-b7d0-ea1ed2b7057d" />
+
+---
+
+## Architecture Highlights
+
+### Client Layer
+- Web Application
+- Mobile Application (iOS / Android)
+- Third-Party Integrations
+
+### Edge & Security Layer
+- CDN
+- WAF Protection
+- Load Balancer
+
+### API Gateway
+- Authentication & Authorization
+- Rate Limiting
+- Request Validation
+- API Routing
+
+### Microservices Layer
+- User Service
+- Tenant Service
+- Subscription Service
+- Billing Service
+- Notification Service
+- Project Service
+
+### Data Layer
+- PostgreSQL
+- Redis Cache
+- Object Storage
+- Search Engine
+- Analytics Warehouse
+
+### Infrastructure
+- Docker
+- Kubernetes
+- CI/CD Pipeline
+- Auto Scaling
+- Multi-Region Deployment
+
+### Monitoring & Security
+- Prometheus
+- Grafana
+- OpenTelemetry
+- ELK Stack
+- Sentry
+
+---
+
+## Deployment Flow
+
+```text
+Client Apps
+   ↓
+CDN / Load Balancer
+   ↓
+API Gateway
+   ↓
+Microservices
+   ↓
+Database / Cache / Storage
 ## 📄 License
 Custom Enterprise License for JJ Painting & Hardwares.
