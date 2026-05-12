@@ -46,6 +46,16 @@ A comprehensive, high-performance stock management and CRM solution designed spe
    ```bash
    npm run dev
    ```
+###✅ Run Locally — Step by Step
+Backend:
+bash      @
+cd /Users/siyammeshak/Downloads/crm-stock-management/backend
+npm run dev
+
+Frontend: 
+bash      @
+cd /Users/siyammeshak/Downloads/crm-stock-management
+npm run dev
 
 ### Mobile Application (React Native + Expo)
 The project includes a standalone React Native mobile application located in `backend/mobile-app`.
