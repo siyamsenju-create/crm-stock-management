@@ -1,15 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import { useStore } from '../store';
+import api from '../api/client';
 
 export default function Orders() {
-    const { orders } = useStore();
+    const [orders, setOrders] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [filter, setFilter] = useState('All Orders');
+
+    const fetchOrders = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const res = await api.get('/orders');
+            setOrders(res.data);
+        } catch (err) {
+            setError(err.message || 'Failed to fetch orders');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchOrders();
+    }, []);
 
     const filteredOrders = orders.filter(o => {
         if (filter === 'All Orders') return true;
         return o.status === filter;
     });
+
+    const outstandingRevenue = orders
+        .filter(o => o.status === 'Pending')
+        .reduce((sum, o) => sum + (o.total || 0), 0);
 
     return (
         <Layout>
@@ -29,6 +52,12 @@ export default function Orders() {
                     </button>
                 </div>
             </div>
+
+            {error && (
+                <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 border border-red-200">
+                    {error}
+                </div>
+            )}
 
             <div className="grid grid-cols-12 gap-lg">
                 <div className="col-span-12 xl:col-span-8 space-y-lg">
@@ -64,19 +93,24 @@ export default function Orders() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-surface-variant">
-                                {filteredOrders.map(o => (
-                                    <tr key={o.id} className="hover:bg-surface-container-lowest transition-colors group">
-                                        <td className="px-md py-4 font-label-md text-on-surface">#{o.id}</td>
+                                {isLoading ? (
+                                    <tr><td colSpan="6" className="p-8 text-center text-on-surface-variant">Loading orders...</td></tr>
+                                ) : filteredOrders.map(o => {
+                                    const customerName = o.customer?.name || 'Unknown';
+                                    const dateStr = new Date(o.createdAt).toLocaleDateString();
+                                    return (
+                                    <tr key={o._id} className="hover:bg-surface-container-lowest transition-colors group">
+                                        <td className="px-md py-4 font-label-md text-on-surface">#{o._id.substring(18).toUpperCase()}</td>
                                         <td className="px-md py-4">
                                             <div className="flex items-center gap-sm">
-                                                <div className={`h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold ${o.bg || 'bg-primary-container text-on-primary-container'}`}>
-                                                    {o.initial || o.customer.substring(0, 2).toUpperCase()}
+                                                <div className={`h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold bg-primary-container text-on-primary-container`}>
+                                                    {customerName.substring(0, 2).toUpperCase()}
                                                 </div>
-                                                <span className="font-body-md text-on-surface">{o.customer}</span>
+                                                <span className="font-body-md text-on-surface">{customerName}</span>
                                             </div>
                                         </td>
-                                        <td className="px-md py-4 text-body-sm text-on-surface-variant">{o.date}</td>
-                                        <td className="px-md py-4 font-label-md text-on-surface">₹{o.total.toFixed(2)}</td>
+                                        <td className="px-md py-4 text-body-sm text-on-surface-variant">{dateStr}</td>
+                                        <td className="px-md py-4 font-label-md text-on-surface">₹{(o.total || 0).toFixed(2)}</td>
                                         <td className="px-md py-4">
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                                                 o.status === 'Completed' ? 'bg-green-100 text-green-700' : 
@@ -89,10 +123,10 @@ export default function Orders() {
                                             <button className="material-symbols-outlined text-outline group-hover:text-primary transition-colors">more_vert</button>
                                         </td>
                                     </tr>
-                                ))}
+                                )})}
                             </tbody>
                         </table>
-                        {filteredOrders.length === 0 && (
+                        {!isLoading && filteredOrders.length === 0 && (
                             <div className="p-8 text-center text-on-surface-variant">No orders match the selected filter.</div>
                         )}
                         <div className="p-md bg-surface-container-lowest flex items-center justify-between">
@@ -114,7 +148,7 @@ export default function Orders() {
                         <div className="space-y-sm">
                             <div className="flex justify-between items-center text-body-sm">
                                 <span className="text-on-surface-variant">Outstanding Revenue</span>
-                                <span className="font-bold text-on-surface">₹42,105.00</span>
+                                <span className="font-bold text-on-surface">₹{outstandingRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                             </div>
                         </div>
                     </div>

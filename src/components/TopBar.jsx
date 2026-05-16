@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
 
 export default function TopBar() {
-    const { profile } = useStore();
+    const { user, logout } = useStore();
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -16,8 +16,8 @@ export default function TopBar() {
         }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
+    const handleLogout = async () => {
+        await logout();
         navigate('/login');
     };
 
@@ -62,15 +62,15 @@ export default function TopBar() {
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
                         className="w-9 h-9 rounded-full bg-primary-container text-on-primary font-bold text-sm flex items-center justify-center ring-2 ring-outline-variant hover:ring-primary transition-all"
                     >
-                        {profile.name.substring(0, 2).toUpperCase()}
+                        {user?.name ? user.name.substring(0, 2).toUpperCase() : 'AD'}
                     </button>
                     
                     {/* Dropdown Menu */}
                     {isDropdownOpen && (
                         <div className="absolute right-0 mt-2 w-48 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-lg overflow-hidden py-1 z-50">
                             <div className="px-4 py-3 border-b border-outline-variant">
-                                <p className="text-sm font-label-md text-on-surface truncate">{profile.name}</p>
-                                <p className="text-xs font-body-sm text-on-surface-variant truncate">{profile.email}</p>
+                                <p className="text-sm font-label-md text-on-surface truncate">{user?.name || 'Admin'}</p>
+                                <p className="text-xs font-body-sm text-on-surface-variant truncate">{user?.email || 'admin@example.com'}</p>
                             </div>
                             <button
                                 onClick={() => { setIsDropdownOpen(false); navigate('/settings'); }}

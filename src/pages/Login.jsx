@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useStore } from '../store';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -30,6 +31,8 @@ export default function Login() {
     return newErrors;
   };
 
+  const loginAction = useStore((state) => state.login);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     
@@ -43,38 +46,15 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      // Calling the existing backend API endpoint
-      const response = await fetch('http://localhost:5005/api/v1/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: formData.email, password: formData.password })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Invalid credentials');
-      }
-
-      // Success
-      const token = data.data?.accessToken || data.token;
-      if (token) {
-        localStorage.setItem('token', token);
-      }
-      
-      setToast({ show: true, message: 'Successfully logged in!', type: 'success' });
-      setTimeout(() => navigate('/'), 1000);
-      
-    } catch (error) {
-      // Fallback for development if the backend crashes due to MongoDB IP Whitelist issues
-      if (error.message.includes('Failed to fetch') || error.message.includes('Load failed')) {
-        console.warn('Backend is unreachable. Using development mock login...');
-        localStorage.setItem('token', 'mock_dev_token_12345');
-        setToast({ show: true, message: 'Backend offline: Using Dev Mock Login!', type: 'success' });
+      const success = await loginAction(formData.email, formData.password);
+      if (success) {
+        setToast({ show: true, message: 'Successfully logged in!', type: 'success' });
         setTimeout(() => navigate('/'), 1000);
       } else {
-        setToast({ show: true, message: error.message || 'Failed to login. Please try again.', type: 'error' });
+        throw new Error('Invalid credentials');
       }
+    } catch (error) {
+      setToast({ show: true, message: error.message || 'Failed to login. Please try again.', type: 'error' });
     } finally {
       setIsLoading(false);
     }

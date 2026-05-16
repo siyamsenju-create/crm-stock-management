@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useStore } from './store';
 
 import Dashboard from './pages/Dashboard';
 import Customers from './pages/Customers';
@@ -13,22 +15,28 @@ import Transactions from './pages/Transactions';
 import Login from './pages/Login';
 
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  if (!token) {
+  const { isAuthenticated } = useStore();
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
   return children;
 };
 
 const AuthRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  if (token) {
+  const { isAuthenticated } = useStore();
+  if (isAuthenticated) {
     return <Navigate to="/" replace />;
   }
   return children;
 };
 
 function App() {
+  const { validateSession } = useStore();
+
+  useEffect(() => {
+    validateSession();
+  }, [validateSession]);
+
   return (
     <>
       <Router>

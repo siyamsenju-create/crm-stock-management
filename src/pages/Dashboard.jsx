@@ -1,26 +1,64 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import { useStore } from '../store';
+import api from '../api/client';
 
 export default function Dashboard() {
-    const { products, customers, orders } = useStore();
+    const [analytics, setAnalytics] = useState(null);
+    const [recentOrders, setRecentOrders] = useState([]);
+    const [lowStockProducts, setLowStockProducts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const totalRevenue = orders.filter(o => o.status === 'Completed').reduce((s, o) => s + o.total, 0);
-    const totalItems = products.reduce((s, p) => s + p.stock, 0);
-    const lowStock = products.filter(p => p.stock < 20 && p.stock > 0).length;
-    const pendingOrders = orders.filter(o => o.status === 'Pending').length;
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            setIsLoading(true);
+            try {
+                const [analyticsRes, ordersRes, productsRes] = await Promise.all([
+                    api.get('/analytics'),
+                    api.get('/orders?limit=5&sort=-createdAt'),
+                    api.get('/products/alerts/low-stock')
+                ]);
+                
+                if (analyticsRes.success) setAnalytics(analyticsRes.data);
+                if (ordersRes.success) setRecentOrders(ordersRes.data || []);
+                if (productsRes.success) setLowStockProducts(productsRes.data || []);
+            } catch (err) {
+                console.error('Failed to fetch dashboard data:', err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, []);
+
+    const totalRevenue = analytics?.totalRevenue || 0;
+    const activeCustomers = analytics?.activeCustomers || 0;
+    const lowStock = analytics?.lowStockItems || 0;
+    const pendingOrders = analytics?.pendingOrders || 0;
+    const totalItems = analytics?.totalStockQuantity || 0;
+    const productLines = analytics?.totalProducts || 0;
+    const totalValue = analytics?.totalInventoryValue || 0;
 
     const statCards = [
-        { label: 'Total Revenue', value: `₹${totalRevenue.toLocaleString('en-IN')}`, icon: 'account_balance_wallet', change: '+12.5%', positive: true, gradient: 'from-primary/20 to-primary/5', border: 'border-primary/20', text: 'text-primary' },
-        { label: 'Active Customers', value: customers.filter(c => c.status === 'Active').length, icon: 'groups', change: '+4 this month', positive: true, gradient: 'from-green-500/20 to-green-500/5', border: 'border-green-500/20', text: 'text-green-600' },
-        { label: 'Products in Stock', value: products.filter(p => p.stock > 0).length, icon: 'inventory_2', change: `${lowStock} low stock`, positive: lowStock === 0, gradient: 'from-blue-500/20 to-blue-500/5', border: 'border-blue-500/20', text: 'text-blue-600' },
+        { label: 'Total Revenue', value: `₹${totalRevenue.toLocaleString('en-IN')}`, icon: 'account_balance_wallet', change: 'Current', positive: true, gradient: 'from-primary/20 to-primary/5', border: 'border-primary/20', text: 'text-primary' },
+        { label: 'Active Customers', value: activeCustomers, icon: 'groups', change: 'Current', positive: true, gradient: 'from-green-500/20 to-green-500/5', border: 'border-green-500/20', text: 'text-green-600' },
+        { label: 'Products in Stock', value: productLines, icon: 'inventory_2', change: `${lowStock} low stock`, positive: lowStock === 0, gradient: 'from-blue-500/20 to-blue-500/5', border: 'border-blue-500/20', text: 'text-blue-600' },
         { label: 'Pending Orders', value: pendingOrders, icon: 'pending_actions', change: 'Needs attention', positive: pendingOrders === 0, gradient: 'from-orange-500/20 to-orange-500/5', border: 'border-orange-500/20', text: 'text-orange-600' },
     ];
+
+    if (isLoading) {
+        return (
+            <Layout>
+                <div className="flex items-center justify-center min-h-[500px]">
+                    <p className="text-on-surface-variant">Loading dashboard...</p>
+                </div>
+            </Layout>
+        );
+    }
 
     return (
         <Layout>
             <div className="relative mb-8 pb-8 border-b border-outline-variant/50">
-                {/* Decorative background glow */}
                 <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
                     <div className="absolute -top-24 -left-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl opacity-50"></div>
                     <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl opacity-50"></div>
@@ -48,11 +86,9 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {statCards.map(card => (
                     <div key={card.label} className="group relative bg-white/70 backdrop-blur-xl p-6 rounded-2xl border border-gray-200/60 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 overflow-hidden">
-                        {/* Hover Gradient Background */}
                         <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out`}></div>
                         
                         <div className="relative z-10">
@@ -74,9 +110,7 @@ export default function Dashboard() {
                 ))}
             </div>
 
-            {/* Main content grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Recent Orders - Spans 2 columns */}
                 <div className="lg:col-span-2">
                     <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden h-full flex flex-col">
                         <div className="px-6 py-5 border-b border-gray-100/80 flex justify-between items-center bg-white/50">
@@ -99,18 +133,20 @@ export default function Dashboard() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50/80">
-                                    {orders.slice(0, 5).map(o => (
-                                        <tr key={o.id} className="hover:bg-primary/5 transition-colors group cursor-pointer">
+                                    {recentOrders.map(o => {
+                                        const customerName = o.customer?.name || 'Unknown';
+                                        return (
+                                        <tr key={o._id} className="hover:bg-primary/5 transition-colors group cursor-pointer">
                                             <td className="px-6 py-4">
-                                                <span className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">#{o.id}</span>
+                                                <span className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">#{o._id.substring(18).toUpperCase()}</span>
                                             </td>
                                             <td className="px-6 py-4 flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-xs font-bold text-gray-600 border border-white shadow-sm">
-                                                    {o.customer.substring(0,2).toUpperCase()}
+                                                    {customerName.substring(0,2).toUpperCase()}
                                                 </div>
-                                                <span className="text-sm font-medium text-on-surface">{o.customer}</span>
+                                                <span className="text-sm font-medium text-on-surface">{customerName}</span>
                                             </td>
-                                            <td className="px-6 py-4 text-sm font-bold text-on-surface">₹{Number(o.total).toLocaleString('en-IN')}</td>
+                                            <td className="px-6 py-4 text-sm font-bold text-on-surface">₹{(o.total || 0).toLocaleString('en-IN')}</td>
                                             <td className="px-6 py-4">
                                                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
                                                     o.status === 'Completed' ? 'bg-green-100/80 text-green-700 border border-green-200/50' : 
@@ -122,43 +158,44 @@ export default function Dashboard() {
                                                 </span>
                                             </td>
                                         </tr>
-                                    ))}
+                                    )})}
+                                    {recentOrders.length === 0 && (
+                                        <tr><td colSpan="4" className="p-6 text-center text-on-surface-variant">No recent orders</td></tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                {/* Right sidebar - 1 column */}
                 <div className="lg:col-span-1 space-y-8">
-                    {/* Low stock alert */}
                     <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-red-100 shadow-lg shadow-red-500/5 overflow-hidden">
                         <div className="px-6 py-5 border-b border-red-100 bg-red-50/50 flex justify-between items-center">
                             <h2 className="font-bold text-lg text-red-700 flex items-center gap-2">
                                 <span className="material-symbols-outlined">warning</span>
                                 Action Required
                             </h2>
-                            <span className="bg-red-100 text-red-700 text-xs font-extrabold px-2 py-1 rounded-md">{products.filter(p => p.stock < 20).length} Items</span>
+                            <span className="bg-red-100 text-red-700 text-xs font-extrabold px-2 py-1 rounded-md">{lowStockProducts.length} Items</span>
                         </div>
                         <div className="divide-y divide-gray-50/80 p-2">
-                            {products.filter(p => p.stock < 20).slice(0, 4).map(p => (
-                                <div key={p.id} className="p-4 flex justify-between items-center hover:bg-red-50/30 rounded-xl transition-colors">
+                            {lowStockProducts.slice(0, 4).map(p => (
+                                <div key={p._id} className="p-4 flex justify-between items-center hover:bg-red-50/30 rounded-xl transition-colors">
                                     <div className="flex items-start gap-3">
-                                        <div className={`w-2 h-2 mt-2 rounded-full ${p.stock <= 0 ? 'bg-red-500 animate-pulse' : 'bg-orange-400'}`}></div>
+                                        <div className={`w-2 h-2 mt-2 rounded-full ${p.quantity <= 0 ? 'bg-red-500 animate-pulse' : 'bg-orange-400'}`}></div>
                                         <div>
                                             <p className="text-sm font-bold text-on-surface line-clamp-1">{p.name}</p>
                                             <p className="text-xs text-on-surface-variant mt-0.5">{p.sku}</p>
                                         </div>
                                     </div>
                                     <div className="text-right pl-3">
-                                        <span className={`block text-lg font-black ${p.stock <= 0 ? 'text-red-600' : 'text-orange-600'}`}>
-                                            {p.stock}
+                                        <span className={`block text-lg font-black ${p.quantity <= 0 ? 'text-red-600' : 'text-orange-600'}`}>
+                                            {p.quantity}
                                         </span>
                                         <span className="text-[10px] uppercase font-bold text-gray-400">Left</span>
                                     </div>
                                 </div>
                             ))}
-                            {products.filter(p => p.stock < 20).length === 0 && (
+                            {lowStockProducts.length === 0 && (
                                 <div className="p-8 text-center flex flex-col items-center gap-3">
                                     <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600">
                                         <span className="material-symbols-outlined text-2xl">check_circle</span>
@@ -172,7 +209,6 @@ export default function Dashboard() {
                         </div>
                     </div>
 
-                    {/* Quick stats summary */}
                     <div className="bg-gradient-to-br from-surface-container to-white rounded-2xl border border-outline-variant/30 shadow-sm p-6 relative overflow-hidden">
                         <div className="absolute -right-10 -bottom-10 opacity-5">
                             <span className="material-symbols-outlined text-[150px]">inventory</span>
@@ -183,7 +219,7 @@ export default function Dashboard() {
                                 <span className="text-sm font-medium text-on-surface-variant flex items-center gap-2">
                                     <span className="material-symbols-outlined text-[16px]">category</span> Product Lines
                                 </span>
-                                <span className="text-sm font-black text-on-surface bg-gray-100 px-2.5 py-1 rounded-md">{products.length}</span>
+                                <span className="text-sm font-black text-on-surface bg-gray-100 px-2.5 py-1 rounded-md">{productLines}</span>
                             </div>
                             <div className="flex justify-between items-center p-3 rounded-xl bg-white/60 border border-gray-100">
                                 <span className="text-sm font-medium text-on-surface-variant flex items-center gap-2">
@@ -195,7 +231,7 @@ export default function Dashboard() {
                                 <span className="text-sm font-bold text-primary flex items-center gap-2">
                                     <span className="material-symbols-outlined text-[18px]">account_balance</span> Total Value
                                 </span>
-                                <span className="text-lg font-black text-primary">₹{products.reduce((s, p) => s + p.price * p.stock, 0).toLocaleString('en-IN')}</span>
+                                <span className="text-lg font-black text-primary">₹{totalValue.toLocaleString('en-IN')}</span>
                             </div>
                         </div>
                     </div>
