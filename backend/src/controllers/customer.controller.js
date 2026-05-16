@@ -32,7 +32,24 @@ exports.getCustomerById = asyncHandler(async (req, res) => {
 });
 
 exports.updateCustomer = asyncHandler(async (req, res) => {
-  const customer = await Customer.findByIdAndUpdate(req.params.id, req.body, {
+  const allowedFields = ['name', 'status', 'email', 'phone', 'address'];
+  const safeUpdates = {};
+
+  for (const field of allowedFields) {
+    if (Object.prototype.hasOwnProperty.call(req.body, field)) {
+      const value = req.body[field];
+      if (
+        value === null ||
+        typeof value === 'string' ||
+        typeof value === 'number' ||
+        typeof value === 'boolean'
+      ) {
+        safeUpdates[field] = value;
+      }
+    }
+  }
+
+  const customer = await Customer.findByIdAndUpdate(req.params.id, safeUpdates, {
     new: true,
     runValidators: true,
   });
