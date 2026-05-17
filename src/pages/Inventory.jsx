@@ -1,14 +1,21 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import { useStore } from '../store';
+import api from '../api/client';
 import Papa from 'papaparse';
+
+const getStatus = (stock, lowThreshold = 20) => {
+    if (stock <= 0) return 'Out of Stock';
+    if (stock < lowThreshold) return 'Low Stock';
+    return 'In Stock';
+};
 
 const statusColor = (s) =>
     s === 'In Stock' ? 'bg-green-100 text-green-800' :
     s === 'Low Stock' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800';
 
 export default function Inventory() {
-    const { products, updateProductStock } = useStore();
+    const [products, setProducts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [drawerVisible, setDrawerVisible] = useState(false);
     const [restockTarget, setRestockTarget] = useState('');
@@ -16,7 +23,37 @@ export default function Inventory() {
     const [isRestocking, setIsRestocking] = useState(false);
     const [search, setSearch] = useState('');
 
-    // Drawer open/close with animation
+    const fetchProducts = async () => {
+        setIsLoading(true);
+        try {
+            const res = await api.get('/products?limit=1000');
+            const mapped = (res.data || []).map(p => ({
+                id: p._id,
+                name: p.name,
+                sku: p.sku || '',
+                category: p.category,
+                price: p.price,
+                stock: p.quantity,
+                status: getStatus(p.quantity, p.lowStockThreshold || 20),
+                lowStockThreshold: p.lowStockThreshold || 20
+            }));
+            setProducts(mapped);
+            
+            if (selectedProduct) {
+                const updated = mapped.find(p => p.id === selectedProduct.id);
+                if (updated) setSelectedProduct(updated);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
     useEffect(() => {
         if (selectedProduct) {
             const t = setTimeout(() => setDrawerVisible(true), 10);
@@ -42,7 +79,7 @@ export default function Inventory() {
 
     const totalItems = products.reduce((acc, p) => acc + p.stock, 0);
     const totalValue = products.reduce((acc, p) => acc + (p.price * p.stock), 0);
-    const lowStockCount = products.filter(p => p.stock < 20 && p.stock > 0).length;
+    const lowStockCount = products.filter(p => p.stock < p.lowStockThreshold && p.stock > 0).length;
     const outOfStockCount = products.filter(p => p.stock <= 0).length;
 
     const filtered = products.filter(p =>
@@ -66,25 +103,41 @@ export default function Inventory() {
         document.body.removeChild(link);
     };
 
-    const handleRestock = (e) => {
+    const handleRestock = async (e) => {
         e.preventDefault();
         if (restockTarget && restockAmount) {
-            updateProductStock(restockTarget, Number(restockAmount));
-            // Update the drawer view if it's the same product
-            if (selectedProduct?.id === restockTarget) {
-                const updated = products.find(p => p.id === restockTarget);
-                if (updated) {
-                    const newStock = updated.stock + Number(restockAmount);
-                    setSelectedProduct({
-                        ...updated,
-                        stock: newStock,
-                        status: newStock <= 0 ? 'Out of Stock' : newStock < 20 ? 'Low Stock' : 'In Stock'
-                    });
-                }
+            try {
+                await api.post('/transactions', {
+                    productId: restockTarget,
+                    type: 'IN',
+                    quantity: Number(restockAmount),
+                    reference: 'Manual Restock'
+                });
+                setRestockAmount('');
+                setRestockTarget('');
+                setIsRestocking(false);
+                fetchProducts();
+            } catch (err) {
+                alert(err.message || 'Failed to restock');
             }
-            setRestockAmount('');
-            setRestockTarget('');
-            setIsRestocking(false);
+        }
+    };
+
+    const quickRestock = async (e) => {
+        e.preventDefault();
+        if (restockAmount && Number(restockAmount) > 0) {
+            try {
+                await api.post('/transactions', {
+                    productId: selectedProduct.id,
+                    type: 'IN',
+                    quantity: Number(restockAmount),
+                    reference: 'Quick Restock'
+                });
+                setRestockAmount('');
+                fetchProducts();
+            } catch (err) {
+                alert(err.message || 'Failed to restock');
+            }
         }
     };
 
@@ -92,7 +145,6 @@ export default function Inventory() {
 
     return (
         <Layout>
-            {/* ── Backdrop ── */}
             {selectedProduct && (
                 <div
                     onClick={closeDrawer}
@@ -100,11 +152,9 @@ export default function Inventory() {
                 />
             )}
 
-            {/* ── Slide-in Product Detail Drawer ── */}
             {selectedProduct && (
                 <div className={`fixed top-0 right-0 h-full w-[360px] max-w-[90vw] bg-white shadow-2xl z-[46] flex flex-col transition-transform duration-250 ease-out ${drawerVisible ? 'translate-x-0' : 'translate-x-full'}`}>
 
-                    {/* Header */}
                     <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-white shrink-0">
                         <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -120,9 +170,7 @@ export default function Inventory() {
                         </button>
                     </div>
 
-                    {/* Scrollable body */}
                     <div className="flex-1 overflow-y-auto p-5 space-y-5">
-                        {/* Image */}
                         <div className="w-full h-36 rounded-xl overflow-hidden border border-gray-100 bg-gradient-to-br from-indigo-50 to-gray-50 flex items-center justify-center">
                             {selectedProduct.image
                                 ? <img src={selectedProduct.image} alt={selectedProduct.name} className="w-full h-full object-cover"/>
@@ -133,7 +181,6 @@ export default function Inventory() {
                             }
                         </div>
 
-                        {/* Name + status */}
                         <div className="flex items-start justify-between gap-3">
                             <h2 className="text-lg font-bold text-on-surface leading-tight">{selectedProduct.name}</h2>
                             <span className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold ${statusColor(selectedProduct.status)}`}>
@@ -141,7 +188,6 @@ export default function Inventory() {
                             </span>
                         </div>
 
-                        {/* Info grid */}
                         <div className="grid grid-cols-2 gap-3">
                             {[
                                 { label: 'SKU', value: selectedProduct.sku || '—', icon: 'qr_code' },
@@ -159,7 +205,6 @@ export default function Inventory() {
                             ))}
                         </div>
 
-                        {/* Stock bar */}
                         <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
                             <div className="flex justify-between items-center mb-2">
                                 <span className="text-sm font-semibold text-on-surface">Stock Level</span>
@@ -167,11 +212,11 @@ export default function Inventory() {
                             </div>
                             <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden">
                                 <div
-                                    className={`h-full rounded-full ${selectedProduct.stock <= 0 ? 'bg-red-500' : selectedProduct.stock < 20 ? 'bg-yellow-500' : 'bg-primary'}`}
+                                    className={`h-full rounded-full ${selectedProduct.stock <= 0 ? 'bg-red-500' : selectedProduct.stock < selectedProduct.lowStockThreshold ? 'bg-yellow-500' : 'bg-primary'}`}
                                     style={{ width: `${stockPct(selectedProduct)}%` }}
                                 />
                             </div>
-                            {selectedProduct.stock < 20 && selectedProduct.stock > 0 && (
+                            {selectedProduct.stock < selectedProduct.lowStockThreshold && selectedProduct.stock > 0 && (
                                 <p className="text-xs text-yellow-700 mt-2 flex items-center gap-1">
                                     <span className="material-symbols-outlined text-[14px]">warning</span>
                                     Low stock — restock soon
@@ -185,7 +230,6 @@ export default function Inventory() {
                             )}
                         </div>
 
-                        {/* Inventory value */}
                         <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-1">Total Inventory Value</p>
                             <p className="text-2xl font-black text-primary">₹{(selectedProduct.price * selectedProduct.stock).toLocaleString('en-IN')}</p>
@@ -194,22 +238,9 @@ export default function Inventory() {
                             </p>
                         </div>
 
-                        {/* Quick restock inside drawer */}
                         <div className="rounded-xl p-4 border border-outline-variant/40 bg-surface-container-low">
                             <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-3">Quick Restock</p>
-                            <form onSubmit={(e) => {
-                                e.preventDefault();
-                                if (restockAmount && Number(restockAmount) > 0) {
-                                    updateProductStock(selectedProduct.id, Number(restockAmount));
-                                    const newStock = selectedProduct.stock + Number(restockAmount);
-                                    setSelectedProduct({
-                                        ...selectedProduct,
-                                        stock: newStock,
-                                        status: newStock <= 0 ? 'Out of Stock' : newStock < 20 ? 'Low Stock' : 'In Stock'
-                                    });
-                                    setRestockAmount('');
-                                }
-                            }} className="flex gap-2">
+                            <form onSubmit={quickRestock} className="flex gap-2">
                                 <input
                                     type="number" min="1"
                                     value={restockAmount}
@@ -224,7 +255,6 @@ export default function Inventory() {
                         </div>
                     </div>
 
-                    {/* Footer */}
                     <div className="px-5 py-4 border-t border-gray-100 bg-gray-50 flex gap-3 shrink-0">
                         <button onClick={closeDrawer} className="flex-1 py-2.5 border border-outline-variant rounded-xl text-sm font-semibold text-on-surface hover:bg-white transition-colors">Close</button>
                         <button className="flex-1 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold hover:brightness-110 flex items-center justify-center gap-2">
@@ -234,7 +264,6 @@ export default function Inventory() {
                 </div>
             )}
 
-            {/* ── Page Content ── */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div>
                     <h1 className="text-3xl font-semibold text-on-surface">Inventory Control</h1>
@@ -253,7 +282,6 @@ export default function Inventory() {
                 </div>
             </div>
 
-            {/* Restock form */}
             {isRestocking && (
                 <div className="bg-white p-6 rounded-xl border border-primary/30 shadow-md mb-6 ring-1 ring-primary/10">
                     <h3 className="font-semibold text-lg text-on-surface mb-4 flex items-center gap-2">
@@ -276,7 +304,6 @@ export default function Inventory() {
                 </div>
             )}
 
-            {/* Summary cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 {[
                     { label: 'Total Stock Units', value: totalItems.toLocaleString('en-IN'), icon: 'inventory_2', color: 'text-primary', bg: 'bg-primary/10' },
@@ -294,7 +321,6 @@ export default function Inventory() {
                 ))}
             </div>
 
-            {/* Table */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between gap-3">
                     <div className="relative max-w-sm flex-1">
@@ -304,7 +330,6 @@ export default function Inventory() {
                     <p className="text-xs text-on-surface-variant hidden sm:block">Click a row to view details & quick-restock</p>
                 </div>
 
-                {/* Desktop table */}
                 <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -320,7 +345,9 @@ export default function Inventory() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
-                            {filtered.map(p => (
+                            {isLoading ? (
+                                <tr><td colSpan="8" className="p-8 text-center text-on-surface-variant">Loading inventory...</td></tr>
+                            ) : filtered.map(p => (
                                 <tr key={p.id} onClick={() => handleRowClick(p)}
                                     className={`transition-all cursor-pointer group ${selectedProduct?.id === p.id ? 'bg-indigo-50/60' : 'hover:bg-gray-50/80'}`}>
                                     <td className="px-6 py-4">
@@ -338,7 +365,7 @@ export default function Inventory() {
                                     <td className="px-6 py-4 text-sm text-on-surface-variant">{p.category}</td>
                                     <td className="px-6 py-4 font-semibold text-sm">₹{Number(p.price).toLocaleString('en-IN')}</td>
                                     <td className="px-6 py-4">
-                                        <span className={`font-bold text-sm ${p.stock <= 0 ? 'text-red-600' : p.stock < 20 ? 'text-yellow-600' : 'text-on-surface'}`}>{p.stock}</span>
+                                        <span className={`font-bold text-sm ${p.stock <= 0 ? 'text-red-600' : p.stock < p.lowStockThreshold ? 'text-yellow-600' : 'text-on-surface'}`}>{p.stock}</span>
                                     </td>
                                     <td className="px-6 py-4 font-semibold text-sm">₹{(p.price * p.stock).toLocaleString('en-IN')}</td>
                                     <td className="px-6 py-4">
@@ -353,9 +380,10 @@ export default function Inventory() {
                     </table>
                 </div>
 
-                {/* Mobile card list */}
                 <div className="md:hidden divide-y divide-gray-100">
-                    {filtered.map(p => (
+                    {isLoading ? (
+                        <div className="p-8 text-center text-on-surface-variant">Loading inventory...</div>
+                    ) : filtered.map(p => (
                         <div key={p.id} onClick={() => handleRowClick(p)}
                             className={`flex items-center gap-4 px-4 py-4 cursor-pointer transition-colors ${selectedProduct?.id === p.id ? 'bg-indigo-50/60' : 'hover:bg-gray-50'}`}>
                             {p.image
@@ -378,7 +406,7 @@ export default function Inventory() {
                     ))}
                 </div>
 
-                {filtered.length === 0 && (
+                {!isLoading && filtered.length === 0 && (
                     <div className="p-12 text-center">
                         <span className="material-symbols-outlined text-5xl text-outline mb-3 block">inventory_2</span>
                         <p className="text-on-surface-variant font-medium">No items match your search</p>

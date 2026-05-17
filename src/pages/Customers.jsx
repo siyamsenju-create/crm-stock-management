@@ -1,15 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import { useStore } from '../store';
+import api from '../api/client';
 import Papa from 'papaparse';
 
 export default function Customers() {
-    const { customers, addCustomer } = useStore();
+    const [customers, setCustomers] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [isAdding, setIsAdding] = useState(false);
     const [newCustomer, setNewCustomer] = useState({ name: '', email: '', location: '' });
 
+    const fetchCustomers = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const res = await api.get('/customers');
+            setCustomers(res.data);
+        } catch (err) {
+            setError(err.message || 'Failed to fetch customers');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchCustomers();
+    }, []);
+
     const handleExport = () => {
-        const csv = Papa.unparse(customers);
+        const csv = Papa.unparse(customers.map(c => ({
+            Name: c.name,
+            Email: c.email,
+            Location: c.location,
+            'Total Orders': c.ordersCount,
+            'Total Spent': c.totalSpent,
+            Status: c.status
+        })));
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
@@ -19,11 +45,16 @@ export default function Customers() {
         document.body.removeChild(link);
     };
 
-    const handleAddCustomer = (e) => {
+    const handleAddCustomer = async (e) => {
         e.preventDefault();
-        addCustomer(newCustomer);
-        setIsAdding(false);
-        setNewCustomer({ name: '', email: '', location: '' });
+        try {
+            await api.post('/customers', newCustomer);
+            setIsAdding(false);
+            setNewCustomer({ name: '', email: '', location: '' });
+            fetchCustomers();
+        } catch (err) {
+            alert(err.message || 'Failed to add customer');
+        }
     };
 
     return (
@@ -44,6 +75,12 @@ export default function Customers() {
                     </button>
                 </div>
             </div>
+
+            {error && (
+                <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 border border-red-200">
+                    {error}
+                </div>
+            )}
 
             {isAdding && (
                 <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-6">
@@ -82,8 +119,8 @@ export default function Customers() {
                             <span className="material-symbols-outlined" data-icon="shopping_cart_checkout">shopping_cart_checkout</span>
                         </div>
                     </div>
-                    <div className="text-on-surface-variant text-label-sm uppercase tracking-wider mb-xs">Active Orders</div>
-                    <div className="text-h2 font-h2 text-on-surface">{customers.reduce((acc, c) => acc + c.orders, 0)}</div>
+                    <div className="text-on-surface-variant text-label-sm uppercase tracking-wider mb-xs">Total Orders</div>
+                    <div className="text-h2 font-h2 text-on-surface">{customers.reduce((acc, c) => acc + (c.ordersCount || 0), 0)}</div>
                 </div>
                 <div className="bg-white p-lg rounded-xl border border-gray-200 shadow-sm">
                     <div className="flex justify-between items-start mb-md">
@@ -92,7 +129,7 @@ export default function Customers() {
                         </div>
                     </div>
                     <div className="text-on-surface-variant text-label-sm uppercase tracking-wider mb-xs">Avg. LTV</div>
-                    <div className="text-h2 font-h2 text-on-surface">₹{customers.length > 0 ? Math.round(customers.reduce((acc, c) => acc + c.spent, 0) / customers.length) : 0}</div>
+                    <div className="text-h2 font-h2 text-on-surface">₹{customers.length > 0 ? Math.round(customers.reduce((acc, c) => acc + (c.totalSpent || 0), 0) / customers.length) : 0}</div>
                 </div>
             </div>
 
@@ -110,30 +147,33 @@ export default function Customers() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
-                            {customers.map((c) => (
-                                <tr key={c.id} className="hover:bg-gray-50/80 transition-colors group">
-                                    <td className="px-lg py-4 text-on-surface-variant font-body-sm">{c.id}</td>
-                                    <td className="px-lg py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">{c.name.substring(0,2).toUpperCase()}</div>
-                                            <span className="font-semibold text-on-surface">{c.name}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-lg py-4 text-on-surface-variant font-body-sm">{c.email}</td>
-                                    <td className="px-lg py-4 text-on-surface-variant font-body-sm">{c.location}</td>
-                                    <td className="px-lg py-4 text-on-surface font-semibold">{c.orders} Orders</td>
-                                    <td className="px-lg py-4">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ₹{c.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                            {c.status}
-                                        </span>
-                                    </td>
-                                </tr>
-                            ))}
+                            {isLoading ? (
+                                <tr><td colSpan="6" className="p-8 text-center text-on-surface-variant">Loading customers...</td></tr>
+                            ) : customers.length === 0 ? (
+                                <tr><td colSpan="6" className="p-8 text-center text-on-surface-variant">No customers found.</td></tr>
+                            ) : (
+                                customers.map((c) => (
+                                    <tr key={c._id} className="hover:bg-gray-50/80 transition-colors group">
+                                        <td className="px-lg py-4 text-on-surface-variant font-body-sm">{c._id.substring(18).toUpperCase()}</td>
+                                        <td className="px-lg py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">{c.name.substring(0,2).toUpperCase()}</div>
+                                                <span className="font-semibold text-on-surface">{c.name}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-lg py-4 text-on-surface-variant font-body-sm">{c.email}</td>
+                                        <td className="px-lg py-4 text-on-surface-variant font-body-sm">{c.location}</td>
+                                        <td className="px-lg py-4 text-on-surface font-semibold">{c.ordersCount || 0} Orders</td>
+                                        <td className="px-lg py-4">
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${c.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                                {c.status}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
-                    {customers.length === 0 && (
-                        <div className="p-8 text-center text-on-surface-variant">No customers found.</div>
-                    )}
                 </div>
             </div>
         </Layout>

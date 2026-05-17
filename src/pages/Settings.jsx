@@ -5,12 +5,15 @@ import { useStore } from '../store';
 
 export default function Settings() {
     const navigate = useNavigate();
-    const { profile, updateProfile } = useStore();
-    const [localProfile, setLocalProfile] = useState(profile);
+    const { user } = useStore();
+    const [localProfile, setLocalProfile] = useState({
+        name: user?.name || 'Admin',
+        email: user?.email || 'admin@example.com',
+        company: 'JJ Painting'
+    });
 
     const handleSaveProfile = () => {
-        updateProfile(localProfile);
-        alert('Profile saved successfully!');
+        alert('Profile saving is disabled in this version.');
     };
 
     const handleReset = async () => {
@@ -43,7 +46,7 @@ export default function Settings() {
                     <span className="text-lg font-bold text-primary tracking-tight">Settings</span>
                 </div>
                 <div className="w-8 h-8 rounded-full overflow-hidden border border-outline-variant bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-xs">
-                    {profile.name.substring(0, 2).toUpperCase()}
+                    {localProfile.name.substring(0, 2).toUpperCase()}
                 </div>
             </header>
 

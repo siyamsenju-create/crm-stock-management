@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import TopBar from '../components/TopBar';
+import api from '../api/client';
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([]);
@@ -14,15 +15,10 @@ export default function Transactions() {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:5005/api/v1/transactions');
-      if (!res.ok) {
-        throw new Error('Failed to fetch transactions');
-      }
-      const json = await res.json();
+      const res = await api.get('/transactions');
       
-      // Handle "Cannot read property 'map' of undefined" by setting to json.data
-      if (json.success && Array.isArray(json.data)) {
-        setTransactions(json.data);
+      if (res.success && Array.isArray(res.data)) {
+        setTransactions(res.data);
       } else {
         setTransactions([]);
       }

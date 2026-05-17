@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
-import { useStore } from '../store';
+import api from '../api/client';
 
 const CATEGORIES = [
     'Exterior Paints', 'Interior Paints', 'Primers & Undercoats',
@@ -11,7 +11,6 @@ const CATEGORIES = [
 
 export default function AddProduct() {
     const navigate = useNavigate();
-    const { addProduct } = useStore();
     const [imagePreview, setImagePreview] = useState(null);
     const [product, setProduct] = useState({
         name: '', sku: '', category: 'Interior Paints', description: '',
@@ -42,10 +41,22 @@ export default function AddProduct() {
         reader.readAsDataURL(file);
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!product.name) { alert('Product name is required.'); return; }
-        addProduct({ ...product, price: Number(product.price), stock: Number(product.stock) });
-        navigate('/products');
+        try {
+            await api.post('/products', {
+                name: product.name,
+                sku: product.sku,
+                category: product.category,
+                description: product.description,
+                price: Number(product.price),
+                quantity: Number(product.stock),
+                lowStockThreshold: product.lowStockAlert
+            });
+            navigate('/products');
+        } catch (err) {
+            alert(err.message || 'Failed to save product');
+        }
     };
 
     const upd = (field, val) => setProduct(p => ({ ...p, [field]: val }));

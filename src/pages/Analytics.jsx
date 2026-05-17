@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import { useStore } from '../store';
+import api from '../api/client';
 
 const WEEKLY = [
     { day: 'Mon', sales: 12400, orders: 4 },
@@ -33,8 +33,16 @@ const YEARLY = [
 ];
 
 export default function Analytics() {
-    const { products, customers, orders } = useStore();
     const [period, setPeriod] = useState('Weekly');
+    const [totalProducts, setTotalProducts] = useState(0);
+
+    useEffect(() => {
+        api.get('/analytics').then(res => {
+            if (res.success) {
+                setTotalProducts(res.data?.totalProducts || 0);
+            }
+        }).catch(console.error);
+    }, []);
 
     const data = period === 'Weekly' ? WEEKLY : period === 'Monthly' ? MONTHLY : YEARLY;
     const totalSales = data.reduce((s, d) => s + d.sales, 0);
@@ -74,7 +82,7 @@ export default function Analytics() {
                     { label: `${period} Revenue`, value: `₹${totalSales.toLocaleString('en-IN')}`, icon: 'currency_rupee', color: 'text-primary', bg: 'bg-primary/10', change: '+14.2%' },
                     { label: `${period} Orders`, value: totalOrders, icon: 'receipt_long', color: 'text-green-700', bg: 'bg-green-50', change: '+8.7%' },
                     { label: 'Avg Order Value', value: `₹${avgOrder.toLocaleString('en-IN')}`, icon: 'trending_up', color: 'text-secondary', bg: 'bg-secondary/10', change: '+5.1%' },
-                    { label: 'Total Products', value: products.length, icon: 'format_paint', color: 'text-purple-700', bg: 'bg-purple-50', change: '' },
+                    { label: 'Total Products', value: totalProducts, icon: 'format_paint', color: 'text-purple-700', bg: 'bg-purple-50', change: '' },
                 ].map(card => (
                     <div key={card.label} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
                         <div className="flex justify-between items-start mb-3">

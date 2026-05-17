@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Layout from '../components/Layout';
-import { useStore } from '../store';
+import api from '../api/client';
 import Papa from 'papaparse';
 
 const CATEGORIES = [
@@ -10,6 +10,12 @@ const CATEGORIES = [
     'Adhesives & Sealants', 'Hardware & Fasteners', 'Safety Equipment', 'Other'
 ];
 
+const getStatus = (stock, lowThreshold = 20) => {
+    if (stock <= 0) return 'Out of Stock';
+    if (stock < lowThreshold) return 'Low Stock';
+    return 'In Stock';
+};
+
 const statusColor = (s) =>
     s === 'In Stock' ? 'bg-green-100 text-green-800' :
     s === 'Low Stock' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800';
@@ -17,17 +23,50 @@ const statusColor = (s) =>
 export default function Products() {
     const navigate = useNavigate();
     const location = useLocation();
-    const { products, importProducts } = useStore();
+    const [products, setProducts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('All');
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [drawerVisible, setDrawerVisible] = useState(false);
     const fileInputRef = useRef(null);
 
-    // Animate in when product is selected
+    const fetchProducts = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const res = await api.get('/products?limit=1000'); // fetch all for now, to keep client-side filtering working
+            const mapped = (res.data || []).map(p => ({
+                id: p._id,
+                name: p.name,
+                sku: p.sku || '',
+                category: p.category,
+                price: p.price,
+                stock: p.quantity,
+                status: getStatus(p.quantity, p.lowStockThreshold || 20),
+                lowStockAlert: p.lowStockThreshold || 20
+            }));
+            setProducts(mapped);
+            
+            // Re-select if open
+            if (selectedProduct) {
+                const updated = mapped.find(p => p.id === selectedProduct.id);
+                if (updated) setSelectedProduct(updated);
+            }
+        } catch (err) {
+            setError(err.message || 'Failed to fetch products');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
     useEffect(() => {
         if (selectedProduct) {
-            // Small delay so transition triggers
             const t = setTimeout(() => setDrawerVisible(true), 10);
             return () => clearTimeout(t);
         } else {
@@ -73,16 +112,25 @@ export default function Products() {
         Papa.parse(file, {
             header: true,
             skipEmptyLines: true,
-            complete: (results) => {
+            complete: async (results) => {
                 const mapped = results.data.map(row => ({
                     name: row.name || row.Name || 'Unknown',
                     sku: row.sku || row.SKU || '',
                     category: row.category || row.Category || 'Other',
                     price: Number(row.price || row.Price || 0),
-                    stock: Number(row.stock || row.Stock || 0),
-                    status: Number(row.stock || 0) <= 0 ? 'Out of Stock' : 'In Stock'
+                    quantity: Number(row.stock || row.Stock || 0)
                 }));
-                importProducts(mapped);
+                
+                try {
+                    // Import sequentially
+                    for(const product of mapped) {
+                        await api.post('/products', product);
+                    }
+                    alert('Products imported successfully!');
+                    fetchProducts();
+                } catch(err) {
+                    alert('Error during import: ' + err.message);
+                }
             }
         });
         e.target.value = '';
@@ -92,7 +140,6 @@ export default function Products() {
 
     return (
         <Layout>
-            {/* ── Backdrop (sits above layout, below sidebar z-50) ── */}
             {selectedProduct && (
                 <div
                     onClick={closeDrawer}
@@ -100,11 +147,8 @@ export default function Products() {
                 />
             )}
 
-            {/* ── Slide-in Drawer ── */}
             {selectedProduct && (
                 <div className={`fixed top-0 right-0 h-full w-[360px] max-w-[90vw] bg-white shadow-2xl z-[46] flex flex-col transition-transform duration-250 ease-out ${drawerVisible ? 'translate-x-0' : 'translate-x-full'}`}>
-
-                    {/* Drawer Header */}
                     <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-white shrink-0">
                         <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -120,10 +164,7 @@ export default function Products() {
                         </button>
                     </div>
 
-                    {/* Scrollable body */}
                     <div className="flex-1 overflow-y-auto p-5 space-y-5">
-
-                        {/* Image / icon */}
                         <div className="w-full h-40 rounded-xl overflow-hidden border border-gray-100 bg-gradient-to-br from-indigo-50 to-gray-50 flex items-center justify-center">
                             {selectedProduct.image
                                 ? <img src={selectedProduct.image} alt={selectedProduct.name} className="w-full h-full object-cover"/>
@@ -134,7 +175,6 @@ export default function Products() {
                             }
                         </div>
 
-                        {/* Name + Status */}
                         <div className="flex items-start justify-between gap-3">
                             <h2 className="text-lg font-bold text-on-surface leading-tight">{selectedProduct.name}</h2>
                             <span className={`shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold ${statusColor(selectedProduct.status)}`}>
@@ -146,7 +186,6 @@ export default function Products() {
                             <p className="text-sm text-on-surface-variant leading-relaxed">{selectedProduct.description}</p>
                         )}
 
-                        {/* Info grid */}
                         <div className="grid grid-cols-2 gap-3">
                             {[
                                 { label: 'SKU', value: selectedProduct.sku || '—', icon: 'qr_code' },
@@ -164,7 +203,6 @@ export default function Products() {
                             ))}
                         </div>
 
-                        {/* Stock bar */}
                         <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
                             <div className="flex justify-between items-center mb-2">
                                 <span className="text-sm font-semibold text-on-surface">Stock Level</span>
@@ -193,7 +231,6 @@ export default function Products() {
                             )}
                         </div>
 
-                        {/* Inventory value */}
                         <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-1">Total Inventory Value</p>
                             <p className="text-2xl font-black text-primary">₹{(selectedProduct.price * selectedProduct.stock).toLocaleString('en-IN')}</p>
@@ -203,7 +240,6 @@ export default function Products() {
                         </div>
                     </div>
 
-                    {/* Footer actions */}
                     <div className="px-5 py-4 border-t border-gray-100 bg-gray-50 flex gap-3 shrink-0">
                         <button onClick={closeDrawer} className="flex-1 py-2.5 border border-outline-variant rounded-xl text-sm font-semibold text-on-surface hover:bg-white transition-colors">
                             Close
@@ -215,7 +251,6 @@ export default function Products() {
                 </div>
             )}
 
-            {/* ── Page content ── */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div>
                     <h1 className="text-3xl font-semibold text-on-surface">Products Catalog</h1>
@@ -232,8 +267,13 @@ export default function Products() {
                 </div>
             </div>
 
+            {error && (
+                <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 border border-red-200">
+                    {error}
+                </div>
+            )}
+
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                {/* Search + filter */}
                 <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row gap-3">
                     <div className="relative flex-1">
                         <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
@@ -262,7 +302,6 @@ export default function Products() {
                     </div>
                 </div>
 
-                {/* Desktop table */}
                 <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -277,7 +316,9 @@ export default function Products() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
-                            {filteredProducts.map(p => (
+                            {isLoading ? (
+                                <tr><td colSpan="7" className="p-8 text-center text-on-surface-variant">Loading products...</td></tr>
+                            ) : filteredProducts.map(p => (
                                 <tr key={p.id} onClick={() => handleRowClick(p)}
                                     className={`transition-all cursor-pointer group ${selectedProduct?.id === p.id ? 'bg-indigo-50/60' : 'hover:bg-gray-50/80'}`}>
                                     <td className="px-6 py-4">
@@ -312,9 +353,10 @@ export default function Products() {
                     </table>
                 </div>
 
-                {/* Mobile card list */}
                 <div className="md:hidden divide-y divide-gray-100">
-                    {filteredProducts.map(p => (
+                    {isLoading ? (
+                        <div className="p-8 text-center text-on-surface-variant">Loading products...</div>
+                    ) : filteredProducts.map(p => (
                         <div key={p.id} onClick={() => handleRowClick(p)}
                             className={`flex items-center gap-4 px-4 py-4 cursor-pointer transition-colors ${selectedProduct?.id === p.id ? 'bg-indigo-50/60' : 'hover:bg-gray-50'}`}>
                             {p.image
@@ -336,7 +378,7 @@ export default function Products() {
                     ))}
                 </div>
 
-                {filteredProducts.length === 0 && (
+                {!isLoading && filteredProducts.length === 0 && (
                     <div className="p-12 text-center">
                         <span className="material-symbols-outlined text-5xl text-outline mb-3 block">search_off</span>
                         <p className="text-on-surface-variant font-medium">No products found</p>
