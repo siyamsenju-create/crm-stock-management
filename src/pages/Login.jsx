@@ -157,7 +157,18 @@ export default function Login() {
                 </label>
               </div>
               <div className="text-sm">
-                <a href="#" className="font-label-md text-primary hover:text-primary-fixed-dim transition-colors">
+                <a 
+                  href="#" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (!formData.email) {
+                      setToast({ show: true, message: 'Please enter your email address first to reset your password.', type: 'error' });
+                    } else {
+                      setToast({ show: true, message: 'Password reset instructions have been sent to your email.', type: 'success' });
+                    }
+                  }}
+                  className="font-label-md text-primary hover:text-primary-fixed-dim transition-colors"
+                >
                   Forgot password?
                 </a>
               </div>
