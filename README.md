@@ -153,6 +153,9 @@ Database / Cache / Storage
 ## 📄 License
 Custom Enterprise License for JJ Painting & Hardwares.
 
+
+
+
 ## 🚀 Commands to Stage, Commit, and Push
 
 Run the following commands in your terminal to safely push changes to your branch.
