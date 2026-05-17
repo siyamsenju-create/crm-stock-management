@@ -15,11 +15,11 @@ import Transactions from './pages/Transactions';
 import Login from './pages/Login';
 
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useStore();
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
+  // const { isAuthenticated } = useStore();
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/login" replace />;
+  // }
+  return children; // Temporarily bypass auth
 };
 
 const AuthRoute = ({ children }) => {
