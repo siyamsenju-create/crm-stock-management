@@ -52,6 +52,9 @@ exports.updateCustomer = asyncHandler(async (req, res) => {
   const customer = await Customer.findByIdAndUpdate(req.params.id, safeUpdates, {
     new: true,
     runValidators: true,
+    sanitizeFilter: true,
+    strict: true,
+    context: 'query',
   });
   if (!customer) {
     throw AppError.notFound('Customer');
