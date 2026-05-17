@@ -152,3 +152,31 @@ Microservices
 Database / Cache / Storage
 ## 📄 License
 Custom Enterprise License for JJ Painting & Hardwares.
+
+## 🚀 Commands to Stage, Commit, and Push
+
+Run the following commands in your terminal to safely push changes to your branch.
+
+### 1. Stage your files
+> This stages all files except `.env` (since it is ignored in `.gitignore`).
+
+```bash
+git add .
+```
+
+### 2. Commit your changes
+
+```bash
+git commit -m "feat: integrate supabase client and initialize prisma orm"
+```
+
+### 3. Push to GitHub
+
+```bash
+git push origin feature/login-ui
+```
+
+### Notes
+- Ensure your `.env` file is included in `.gitignore`.
+- Replace `feature/login-ui` with your current branch name if working on another feature branch.
+- Use meaningful commit messages following conventional commits (`feat:`, `fix:`, `docs:`, etc.).
