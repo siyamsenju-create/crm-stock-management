@@ -106,31 +106,90 @@ export default function Products() {
         return matchesSearch && matchesCat;
     });
 
+    const downloadTemplate = () => {
+        const template = 'Name,SKU,Category,Price,Stock\n"Sample Product","SKU-001","Hardware & Fasteners",150.50,100';
+        const blob = new Blob([template], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute('download', 'products_template.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     const handleFileUpload = (e) => {
         const file = e.target.files[0];
         if (!file) return;
+        
+        setIsLoading(true);
         Papa.parse(file, {
             header: true,
             skipEmptyLines: true,
             complete: async (results) => {
-                const mapped = results.data.map(row => ({
-                    name: row.name || row.Name || 'Unknown',
-                    sku: row.sku || row.SKU || '',
-                    category: row.category || row.Category || 'Other',
-                    price: Number(row.price || row.Price || 0),
-                    quantity: Number(row.stock || row.Stock || 0)
-                }));
-                
-                try {
-                    // Import sequentially
-                    for(const product of mapped) {
-                        await api.post('/products', product);
-                    }
-                    alert('Products imported successfully!');
-                    fetchProducts();
-                } catch(err) {
-                    alert('Error during import: ' + err.message);
+                let successCount = 0;
+                let failCount = 0;
+                let errorMessages = [];
+                const tempProductsList = [...products];
+
+                // Validate headers
+                const headers = results.meta.fields.map(f => f.toLowerCase());
+                if (!headers.includes('name') || !headers.includes('price')) {
+                    alert('Invalid file format. Please use the provided template. Name and Price are required headers.');
+                    setIsLoading(false);
+                    return;
                 }
+
+                for (let i = 0; i < results.data.length; i++) {
+                    const row = results.data[i];
+                    const name = row.name || row.Name;
+                    const sku = row.sku || row.SKU || '';
+                    const price = Number(row.price || row.Price);
+                    
+                    if (!name) {
+                        failCount++;
+                        errorMessages.push(`Row ${i + 1}: Name is required`);
+                        continue;
+                    }
+                    if (isNaN(price)) {
+                        failCount++;
+                        errorMessages.push(`Row ${i + 1}: Invalid price`);
+                        continue;
+                    }
+
+                    // Duplicate check by SKU if SKU exists
+                    if (sku && tempProductsList.some(p => p.sku === sku)) {
+                        failCount++;
+                        errorMessages.push(`Row ${i + 1}: Duplicate SKU ${sku}`);
+                        continue;
+                    }
+
+                    const product = {
+                        name,
+                        sku,
+                        category: row.category || row.Category || 'Other',
+                        price,
+                        quantity: Number(row.stock || row.Stock || 0)
+                    };
+                    
+                    try {
+                        await api.post('/products', product);
+                        successCount++;
+                        if (sku) tempProductsList.push({ sku });
+                    } catch(err) {
+                        failCount++;
+                        errorMessages.push(`Row ${i + 1}: ${err.message}`);
+                    }
+                }
+                
+                setIsLoading(false);
+                fetchProducts();
+                
+                let summary = `Import Complete!\n\nSuccessful: ${successCount}\nFailed: ${failCount}`;
+                if (failCount > 0) {
+                    summary += `\n\nErrors (first 5):\n${errorMessages.slice(0, 5).join('\n')}`;
+                    if (errorMessages.length > 5) summary += '\n...and more';
+                }
+                alert(summary);
             }
         });
         e.target.value = '';
@@ -257,6 +316,9 @@ export default function Products() {
                     <p className="text-on-surface-variant mt-1">Click any row to view product details.</p>
                 </div>
                 <div className="flex gap-3">
+                    <button onClick={downloadTemplate} className="flex items-center gap-2 px-4 py-2 bg-white border border-outline-variant rounded-lg text-sm font-medium hover:bg-surface-container-low transition-all">
+                        <span className="material-symbols-outlined text-[18px]">download</span> Template
+                    </button>
                     <input type="file" accept=".csv" ref={fileInputRef} className="hidden" onChange={handleFileUpload} />
                     <button onClick={() => fileInputRef.current.click()} className="flex items-center gap-2 px-4 py-2 bg-white border border-outline-variant rounded-lg text-sm font-medium hover:bg-surface-container-low transition-all">
                         <span className="material-symbols-outlined text-[18px]">upload_file</span> Import CSV
