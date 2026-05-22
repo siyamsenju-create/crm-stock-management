@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import api from '../api/client';
-
+import { getOrdersFromFirebase } from '../utils/firebaseDb';
 export default function Orders() {
     const [orders, setOrders] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -12,8 +11,8 @@ export default function Orders() {
         setIsLoading(true);
         setError(null);
         try {
-            const res = await api.get('/orders');
-            setOrders(res.data);
+            const data = await getOrdersFromFirebase();
+            setOrders(data);
         } catch (err) {
             setError(err.message || 'Failed to fetch orders');
         } finally {
@@ -99,8 +98,8 @@ export default function Orders() {
                                     const customerName = o.customer?.name || 'Unknown';
                                     const dateStr = new Date(o.createdAt).toLocaleDateString();
                                     return (
-                                    <tr key={o._id} className="hover:bg-surface-container-lowest transition-colors group">
-                                        <td className="px-md py-4 font-label-md text-on-surface">#{o._id.substring(18).toUpperCase()}</td>
+                                    <tr key={o.id || o._id} className="hover:bg-surface-container-lowest transition-colors group">
+                                        <td className="px-md py-4 font-label-md text-on-surface">#{(o.id || o._id || '').substring(0, 6).toUpperCase()}</td>
                                         <td className="px-md py-4">
                                             <div className="flex items-center gap-sm">
                                                 <div className={`h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold bg-primary-container text-on-primary-container`}>

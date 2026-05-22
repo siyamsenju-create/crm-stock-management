@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import api from '../api/client';
 import Papa from 'papaparse';
+import { getCustomersFromFirebase, saveCustomerToFirebase } from '../utils/firebaseDb';
 
 export default function Customers() {
     const [customers, setCustomers] = useState([]);
@@ -14,8 +15,8 @@ export default function Customers() {
         setIsLoading(true);
         setError(null);
         try {
-            const res = await api.get('/customers');
-            setCustomers(res.data);
+            const data = await getCustomersFromFirebase();
+            setCustomers(data);
         } catch (err) {
             setError(err.message || 'Failed to fetch customers');
         } finally {
@@ -48,7 +49,7 @@ export default function Customers() {
     const handleAddCustomer = async (e) => {
         e.preventDefault();
         try {
-            await api.post('/customers', newCustomer);
+            await saveCustomerToFirebase(newCustomer);
             setIsAdding(false);
             setNewCustomer({ name: '', email: '', location: '' });
             fetchCustomers();
@@ -153,8 +154,8 @@ export default function Customers() {
                                 <tr><td colSpan="6" className="p-8 text-center text-on-surface-variant">No customers found.</td></tr>
                             ) : (
                                 customers.map((c) => (
-                                    <tr key={c._id} className="hover:bg-gray-50/80 transition-colors group">
-                                        <td className="px-lg py-4 text-on-surface-variant font-body-sm">{c._id.substring(18).toUpperCase()}</td>
+                                    <tr key={c.id || c._id} className="hover:bg-gray-50/80 transition-colors group">
+                                        <td className="px-lg py-4 text-on-surface-variant font-body-sm">{(c.id || c._id || '').substring(0, 6).toUpperCase()}</td>
                                         <td className="px-lg py-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">{c.name.substring(0,2).toUpperCase()}</div>

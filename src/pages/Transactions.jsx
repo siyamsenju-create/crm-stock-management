@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import TopBar from '../components/TopBar';
-import api from '../api/client';
+import { getTransactionsFromFirebase } from '../utils/firebaseDb';
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([]);
@@ -15,10 +15,10 @@ export default function Transactions() {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/transactions');
+      const data = await getTransactionsFromFirebase();
       
-      if (res.success && Array.isArray(res.data)) {
-        setTransactions(res.data);
+      if (Array.isArray(data)) {
+        setTransactions(data);
       } else {
         setTransactions([]);
       }
@@ -79,7 +79,7 @@ export default function Transactions() {
                   </tr>
                 ) : (
                   transactions.map((txn) => (
-                    <tr key={txn._id} className="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
+                    <tr key={txn.id || txn._id} className="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap text-on-surface-variant">
                         {formatDate(txn.createdAt)}
                       </td>

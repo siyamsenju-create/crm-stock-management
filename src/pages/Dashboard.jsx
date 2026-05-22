@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import api from '../api/client';
+import { getProductsFromFirebase, getOrdersFromFirebase, getCustomersFromFirebase } from '../utils/firebaseDb';
 
 export default function Dashboard() {
     const [analytics, setAnalytics] = useState(null);
@@ -12,15 +12,32 @@ export default function Dashboard() {
         const fetchDashboardData = async () => {
             setIsLoading(true);
             try {
-                const [analyticsRes, ordersRes, productsRes] = await Promise.all([
-                    api.get('/analytics'),
-                    api.get('/orders?limit=5&sort=-createdAt'),
-                    api.get('/products/alerts/low-stock')
+                const [products, orders, customers] = await Promise.all([
+                    getProductsFromFirebase(),
+                    getOrdersFromFirebase(),
+                    getCustomersFromFirebase()
                 ]);
                 
-                if (analyticsRes.success) setAnalytics(analyticsRes.data);
-                if (ordersRes.success) setRecentOrders(ordersRes.data || []);
-                if (productsRes.success) setLowStockProducts(productsRes.data || []);
+                const totalRevenue = orders.filter(o => o.status === 'Completed').reduce((sum, o) => sum + (o.total || 0), 0);
+                const pendingOrders = orders.filter(o => o.status === 'Pending').length;
+                const totalStockQuantity = products.reduce((sum, p) => sum + (p.quantity || 0), 0);
+                const totalInventoryValue = products.reduce((sum, p) => sum + ((p.quantity || 0) * (p.price || 0)), 0);
+                const lowStockItemsCount = products.filter(p => (p.quantity || 0) < (p.lowStockThreshold || 20) && (p.quantity || 0) > 0).length;
+
+                setAnalytics({
+                    totalRevenue,
+                    activeCustomers: customers.length,
+                    lowStockItems: lowStockItemsCount,
+                    pendingOrders,
+                    totalStockQuantity,
+                    totalProducts: products.length,
+                    totalInventoryValue
+                });
+                
+                const sortedOrders = [...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                setRecentOrders(sortedOrders.slice(0, 5));
+                
+                setLowStockProducts(products.filter(p => (p.quantity || 0) < (p.lowStockThreshold || 20)));
             } catch (err) {
                 console.error('Failed to fetch dashboard data:', err);
             } finally {
@@ -136,9 +153,9 @@ export default function Dashboard() {
                                     {recentOrders.map(o => {
                                         const customerName = o.customer?.name || 'Unknown';
                                         return (
-                                        <tr key={o._id} className="hover:bg-primary/5 transition-colors group cursor-pointer">
+                                        <tr key={o.id || o._id} className="hover:bg-primary/5 transition-colors group cursor-pointer">
                                             <td className="px-6 py-4">
-                                                <span className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">#{o._id.substring(18).toUpperCase()}</span>
+                                                <span className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">#{(o.id || o._id || '').substring(0, 6).toUpperCase()}</span>
                                             </td>
                                             <td className="px-6 py-4 flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-xs font-bold text-gray-600 border border-white shadow-sm">
@@ -179,7 +196,7 @@ export default function Dashboard() {
                         </div>
                         <div className="divide-y divide-gray-50/80 p-2">
                             {lowStockProducts.slice(0, 4).map(p => (
-                                <div key={p._id} className="p-4 flex justify-between items-center hover:bg-red-50/30 rounded-xl transition-colors">
+                                <div key={p.id || p._id} className="p-4 flex justify-between items-center hover:bg-red-50/30 rounded-xl transition-colors">
                                     <div className="flex items-start gap-3">
                                         <div className={`w-2 h-2 mt-2 rounded-full ${p.quantity <= 0 ? 'bg-red-500 animate-pulse' : 'bg-orange-400'}`}></div>
                                         <div>

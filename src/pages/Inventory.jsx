@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import api from '../api/client';
+import { getProductsFromFirebase, saveTransactionToFirebase } from '../utils/firebaseDb';
 import Papa from 'papaparse';
 
 const getStatus = (stock, lowThreshold = 20) => {
@@ -26,9 +26,9 @@ export default function Inventory() {
     const fetchProducts = async () => {
         setIsLoading(true);
         try {
-            const res = await api.get('/products?limit=1000');
-            const mapped = (res.data || []).map(p => ({
-                id: p._id,
+            const data = await getProductsFromFirebase();
+            const mapped = data.map(p => ({
+                id: p.id,
                 name: p.name,
                 sku: p.sku || '',
                 category: p.category,
@@ -107,7 +107,7 @@ export default function Inventory() {
         e.preventDefault();
         if (restockTarget && restockAmount) {
             try {
-                await api.post('/transactions', {
+                await saveTransactionToFirebase({
                     productId: restockTarget,
                     type: 'IN',
                     quantity: Number(restockAmount),
@@ -127,7 +127,7 @@ export default function Inventory() {
         e.preventDefault();
         if (restockAmount && Number(restockAmount) > 0) {
             try {
-                await api.post('/transactions', {
+                await saveTransactionToFirebase({
                     productId: selectedProduct.id,
                     type: 'IN',
                     quantity: Number(restockAmount),

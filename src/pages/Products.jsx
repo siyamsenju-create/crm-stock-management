@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Layout from '../components/Layout';
 import api from '../api/client';
 import Papa from 'papaparse';
+import { getProductsFromFirebase, saveProductToFirebase } from '../utils/firebaseDb';
 
 const CATEGORIES = [
     'All', 'Exterior Paints', 'Interior Paints', 'Primers & Undercoats',
@@ -36,16 +37,17 @@ export default function Products() {
         setIsLoading(true);
         setError(null);
         try {
-            const res = await api.get('/products?limit=1000'); // fetch all for now, to keep client-side filtering working
-            const mapped = (res.data || []).map(p => ({
-                id: p._id,
+            const data = await getProductsFromFirebase();
+            const mapped = data.map(p => ({
+                id: p.id,
                 name: p.name,
                 sku: p.sku || '',
                 category: p.category,
                 price: p.price,
                 stock: p.quantity,
                 status: getStatus(p.quantity, p.lowStockThreshold || 20),
-                lowStockAlert: p.lowStockThreshold || 20
+                lowStockAlert: p.lowStockThreshold || 20,
+                image: p.image || null
             }));
             setProducts(mapped);
             
@@ -168,11 +170,12 @@ export default function Products() {
                         sku,
                         category: row.category || row.Category || 'Other',
                         price,
-                        quantity: Number(row.stock || row.Stock || 0)
+                        quantity: Number(row.stock || row.Stock || 0),
+                        lowStockThreshold: 10
                     };
                     
                     try {
-                        await api.post('/products', product);
+                        await saveProductToFirebase(product);
                         successCount++;
                         if (sku) tempProductsList.push({ sku });
                     } catch(err) {

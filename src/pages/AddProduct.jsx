@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import api from '../api/client';
+import { saveProductToFirebase } from '../utils/firebaseDb';
 
 const CATEGORIES = [
     'Exterior Paints', 'Interior Paints', 'Primers & Undercoats',
@@ -44,7 +45,7 @@ export default function AddProduct() {
     const handleSave = async () => {
         if (!product.name) { alert('Product name is required.'); return; }
         try {
-            await api.post('/products', {
+            await saveProductToFirebase({
                 name: product.name,
                 sku: product.sku,
                 category: product.category,

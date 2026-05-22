@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import api from '../api/client';
+import { getProductsFromFirebase } from '../utils/firebaseDb';
 
 const WEEKLY = [
     { day: 'Mon', sales: 12400, orders: 4 },
@@ -37,10 +37,8 @@ export default function Analytics() {
     const [totalProducts, setTotalProducts] = useState(0);
 
     useEffect(() => {
-        api.get('/analytics').then(res => {
-            if (res.success) {
-                setTotalProducts(res.data?.totalProducts || 0);
-            }
+        getProductsFromFirebase().then(data => {
+            setTotalProducts(data.length || 0);
         }).catch(console.error);
     }, []);
 
