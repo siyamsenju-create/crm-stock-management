@@ -1,5 +1,5 @@
 const express = require('express');
-const { register, login, refreshToken, getMe, logout } = require('../controllers/auth.controller');
+const { register, login, refreshToken, getMe, logout, updateProfile } = require('../controllers/auth.controller');
 const { protect } = require('../middlewares/auth.middleware');
 const validate = require('../middlewares/validate.middleware');
 const authSchemas = require('../validations/auth.validation');
@@ -130,5 +130,52 @@ router.post('/logout', protect, logout);
  *         description: Not authenticated
  */
 router.get('/me', protect, getMe);
+
+/**
+ * @swagger
+ * /auth/profile:
+ *   put:
+ *     summary: Update current logged-in user profile
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               company:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *               language:
+ *                 type: string
+ *               timezone:
+ *                 type: string
+ *               notifications:
+ *                 type: object
+ *                 properties:
+ *                   email:
+ *                     type: boolean
+ *                   push:
+ *                     type: boolean
+ *                   sms:
+ *                     type: boolean
+ *     responses:
+ *       200:
+ *         description: User profile updated successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Not authenticated
+ */
+router.put('/profile', protect, validate(authSchemas.updateProfile), updateProfile);
 
 module.exports = router;

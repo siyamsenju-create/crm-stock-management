@@ -8,6 +8,34 @@ export default function Dashboard() {
     const [lowStockProducts, setLowStockProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
+    // Mock states for Operational Dashboard features with localStorage persistence
+    const [workingStatus, setWorkingStatus] = useState(() => localStorage.getItem('dashboard_working_status') || 'Active');
+    const [assignedTasks, setAssignedTasks] = useState(() => {
+        const saved = localStorage.getItem('dashboard_tasks');
+        return saved ? JSON.parse(saved) : [
+            { id: 1, title: 'Review monthly sales report', completed: false },
+            { id: 2, title: 'Approve pending leaves', completed: true },
+            { id: 3, title: 'Follow up with supplier A', completed: false }
+        ];
+    });
+    const recruitActivities = [
+        { id: 1, name: 'John Doe', role: 'Sales Executive', status: 'Interviewing', date: 'Oct 24' },
+        { id: 2, name: 'Jane Smith', role: 'Store Manager', status: 'Offered', date: 'Oct 22' },
+        { id: 3, name: 'Mike Ross', role: 'Delivery Agent', status: 'Rejected', date: 'Oct 20' }
+    ];
+
+    useEffect(() => {
+        localStorage.setItem('dashboard_working_status', workingStatus);
+    }, [workingStatus]);
+
+    useEffect(() => {
+        localStorage.setItem('dashboard_tasks', JSON.stringify(assignedTasks));
+    }, [assignedTasks]);
+
+    const toggleTask = (id) => {
+        setAssignedTasks(tasks => tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+    };
+
     useEffect(() => {
         const fetchDashboardData = async () => {
             setIsLoading(true);
@@ -250,6 +278,111 @@ export default function Dashboard() {
                                 </span>
                                 <span className="text-lg font-black text-primary">₹{totalValue.toLocaleString('en-IN')}</span>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+                {/* Working Status & Assigned Tasks */}
+                <div className="lg:col-span-1 space-y-8">
+                    {/* Working Status Card */}
+                    <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-gray-200/60 shadow-sm p-6">
+                        <h2 className="font-bold text-lg text-on-surface mb-4 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-primary">person_check</span>
+                            My Working Status
+                        </h2>
+                        <div className="flex flex-col gap-3">
+                            {['Active', 'In a Meeting', 'On Leave'].map(status => (
+                                <button
+                                    key={status}
+                                    onClick={() => setWorkingStatus(status)}
+                                    className={`flex items-center justify-between p-3 rounded-xl border transition-all duration-300 ${
+                                        workingStatus === status 
+                                            ? 'bg-primary/10 border-primary text-primary font-bold shadow-sm' 
+                                            : 'bg-surface border-outline-variant text-on-surface-variant hover:bg-surface-variant/50'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <div className={`w-2.5 h-2.5 rounded-full ${status === 'Active' ? 'bg-green-500' : status === 'In a Meeting' ? 'bg-orange-500' : 'bg-red-500'}`}></div>
+                                        {status}
+                                    </div>
+                                    {workingStatus === status && <span className="material-symbols-outlined text-[18px]">check_circle</span>}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Assigned Tasks Card */}
+                    <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden flex flex-col h-[350px]">
+                        <div className="px-6 py-5 border-b border-gray-100/80 bg-white/50 flex justify-between items-center shrink-0">
+                            <h2 className="font-bold text-lg text-on-surface flex items-center gap-2">
+                                <span className="material-symbols-outlined text-primary">task</span>
+                                Assigned Tasks
+                            </h2>
+                        </div>
+                        <div className="p-4 space-y-2 overflow-y-auto flex-1">
+                            {assignedTasks.map(task => (
+                                <div key={task.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-variant/50 transition-colors group cursor-pointer" onClick={() => toggleTask(task.id)}>
+                                    <div className={`flex items-center justify-center w-6 h-6 rounded-md border ${task.completed ? 'bg-primary border-primary text-white' : 'border-outline-variant text-transparent'} transition-colors`}>
+                                        <span className="material-symbols-outlined text-[16px]">{task.completed ? 'check' : ''}</span>
+                                    </div>
+                                    <span className={`text-sm font-medium ${task.completed ? 'text-on-surface-variant line-through' : 'text-on-surface'}`}>{task.title}</span>
+                                </div>
+                            ))}
+                            {assignedTasks.length === 0 && (
+                                <p className="text-center text-sm text-on-surface-variant mt-4">No pending tasks!</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Recruit Activities Card */}
+                <div className="lg:col-span-2">
+                    <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden h-full flex flex-col">
+                        <div className="px-6 py-5 border-b border-gray-100/80 bg-white/50 flex justify-between items-center shrink-0">
+                            <h2 className="font-bold text-lg text-on-surface flex items-center gap-2">
+                                <span className="material-symbols-outlined text-primary">how_to_reg</span>
+                                Recruit Activities
+                            </h2>
+                            <button className="text-primary text-sm font-bold hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                                Add Candidate
+                            </button>
+                        </div>
+                        <div className="overflow-x-auto flex-1">
+                            <table className="w-full text-left">
+                                <thead>
+                                    <tr className="bg-gray-50/50 text-[11px] font-extrabold uppercase tracking-widest text-on-surface-variant/80 border-b border-gray-100/80">
+                                        <th className="px-6 py-4">Candidate</th>
+                                        <th className="px-6 py-4">Role</th>
+                                        <th className="px-6 py-4">Date</th>
+                                        <th className="px-6 py-4">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50/80">
+                                    {recruitActivities.map(activity => (
+                                        <tr key={activity.id} className="hover:bg-primary/5 transition-colors group">
+                                            <td className="px-6 py-4 flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-xs font-bold text-indigo-700">
+                                                    {activity.name.substring(0,2).toUpperCase()}
+                                                </div>
+                                                <span className="text-sm font-medium text-on-surface">{activity.name}</span>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-on-surface-variant">{activity.role}</td>
+                                            <td className="px-6 py-4 text-sm text-on-surface-variant">{activity.date}</td>
+                                            <td className="px-6 py-4">
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                                                    activity.status === 'Offered' ? 'bg-green-100 text-green-700' :
+                                                    activity.status === 'Interviewing' ? 'bg-blue-100 text-blue-700' :
+                                                    'bg-gray-100 text-gray-700'
+                                                }`}>
+                                                    {activity.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

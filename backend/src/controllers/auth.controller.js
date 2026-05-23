@@ -141,3 +141,36 @@ exports.getMe = asyncHandler(async (req, res) => {
     createdAt: req.user.createdAt,
   });
 });
+
+/**
+ * @desc    Update current user profile
+ * @route   PUT /api/v1/auth/profile
+ * @access  Private
+ */
+exports.updateProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    throw AppError.notFound('User not found');
+  }
+
+  const updates = Object.keys(req.body);
+  updates.forEach((update) => {
+    user[update] = req.body[update];
+  });
+
+  await user.save();
+
+  logger.info('User profile updated', { userId: user._id });
+
+  sendSuccess(res, 200, 'Profile updated successfully', {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    company: user.company,
+    role: user.role,
+    language: user.language,
+    timezone: user.timezone,
+    notifications: user.notifications
+  });
+});

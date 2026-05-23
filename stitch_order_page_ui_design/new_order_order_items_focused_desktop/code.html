@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>New Order | Nexus CRM</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary": "#ffffff",
+                        "surface": "#fcf8fa",
+                        "secondary": "#515f74",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "status-success": "#10B981",
+                        "inverse-on-surface": "#f3f0f2",
+                        "on-error-container": "#93000a",
+                        "status-error": "#EF4444",
+                        "surface-container-high": "#eae7e9",
+                        "on-secondary-fixed": "#0d1c2f",
+                        "on-primary-container": "#7c839b",
+                        "outline": "#76777d",
+                        "inverse-surface": "#303032",
+                        "tertiary-fixed-dim": "#dec29a",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-tertiary-fixed-variant": "#574425",
+                        "on-tertiary-fixed": "#271901",
+                        "secondary-fixed": "#d5e3fd",
+                        "on-surface-variant": "#45464d",
+                        "primary": "#000000",
+                        "tertiary-container": "#271901",
+                        "primary-container": "#131b2e",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#000000",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#98805d",
+                        "on-secondary-fixed-variant": "#3a485c",
+                        "on-error": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#d5e3fd",
+                        "on-secondary-container": "#57657b",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-highest": "#e4e2e4",
+                        "on-background": "#1b1b1d",
+                        "on-surface": "#1b1b1d",
+                        "outline-variant": "#c6c6cd",
+                        "primary-fixed": "#dae2fd",
+                        "surface-tint": "#565e74",
+                        "surface-bright": "#fcf8fa",
+                        "tertiary-fixed": "#fcdeb5",
+                        "surface-dim": "#dcd9db",
+                        "secondary-fixed-dim": "#b9c7e0",
+                        "surface-variant": "#e4e2e4",
+                        "inverse-primary": "#bec6e0",
+                        "surface-container": "#f0edef",
+                        "status-info": "#3B82F6",
+                        "on-primary-fixed": "#131b2e",
+                        "background": "#fcf8fa",
+                        "error": "#ba1a1a",
+                        "border-subtle": "#E2E8F0",
+                        "surface-container-low": "#f6f3f5",
+                        "status-warning": "#F59E0B",
+                        "surface-muted": "#F8FAFC"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "margin-tablet": "24px",
+                        "margin-mobile": "16px",
+                        "container-max": "1280px",
+                        "margin-desktop": "40px",
+                        "gutter": "24px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "body-md": ["Inter"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "label-sm": ["JetBrains Mono"],
+                        "title-lg": ["Inter"],
+                        "label-md": ["JetBrains Mono"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-sm": ["10px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .executive-shadow { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-secondary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop py-2 bg-surface border-b border-outline-variant">
+<div class="flex items-center gap-12">
+<h1 class="text-title-lg font-headline-lg font-bold text-primary tracking-tight">Nexus CRM</h1>
+<nav class="hidden md:flex gap-8">
+<a class="text-primary border-b-2 border-primary pb-1 font-body-md text-body-md" href="#">Orders</a>
+<a class="text-on-surface-variant font-medium font-body-md text-body-md hover:text-primary transition-colors" href="#">Inventory</a>
+<a class="text-on-surface-variant font-medium font-body-md text-body-md hover:text-primary transition-colors" href="#">Customers</a>
+<a class="text-on-surface-variant font-medium font-body-md text-body-md hover:text-primary transition-colors" href="#">Analytics</a>
+</nav>
+</div>
+<div class="flex items-center gap-gutter">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="User" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC--yAs5fJIaYTDK4RovLnO-mZfw98d1kAnUialxKbk7om7z8LDg4095X6RQ-SyjzDDzp2SuQNubvSM1TW5guy86WeSfmdeePW9ddEQZMucYJS9vADZ5I511XR1mDnjiE5PMuR9vMLCbUjY8IVujY4Peg5ZOwkhEaZ5PT_McsJ9-bvUNRiNLbmAwpAlHswUGP7DmOQmdTPSZjG998KXclaQV7FXGsLhujrqe0nUjicbLEhBPw02dk3CT80yS_VDJogwyCVk7BAbVQs"/>
+</div>
+</div>
+</header>
+<div class="flex pt-16 min-h-screen">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 pt-16 flex flex-col bg-surface border-r border-outline-variant z-40">
+<div class="p-6 flex flex-col space-y-2 flex-1">
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-2 hover:bg-surface-container-low rounded transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 bg-primary text-on-primary font-semibold rounded px-4 py-2" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-body-md text-body-md">Active Orders</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-2 hover:bg-surface-container-low rounded transition-colors" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-body-md text-body-md">Stock Control</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-2 hover:bg-surface-container-low rounded transition-colors" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-body-md text-body-md">Customers</span>
+</a>
+</div>
+<div class="p-6 border-t border-outline-variant">
+<a class="flex items-center gap-3 text-on-surface-variant px-4 py-2 hover:bg-surface-container-low rounded transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 flex-1 p-margin-desktop bg-surface min-h-screen">
+<div class="max-w-3xl mx-auto space-y-12"><div><nav class="flex items-center gap-2 mb-2 text-label-md text-on-surface-variant"><span>Orders</span><span class="material-symbols-outlined text-[14px]">chevron_right</span><span class="text-primary font-semibold">New Order</span></nav><h2 class="text-headline-lg font-headline-lg text-primary mb-8">New Order</h2><div class="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start"><div class="lg:col-span-2 space-y-8"><section class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden executive-shadow"><div class="px-6 py-5 flex justify-between items-center border-b border-outline-variant bg-surface-container-low"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-primary">shopping_bag</span><h3 class="text-title-lg font-headline-md text-primary">Order Items</h3></div><button class="px-4 py-2 bg-primary text-on-primary rounded text-label-md font-semibold hover:opacity-90">+ Add Product</button></div><div class="overflow-x-auto"><table class="w-full text-left"><thead class="bg-surface-container-low/50 border-b border-outline-variant"><tr><th class="px-8 py-4 font-label-md text-label-sm text-on-surface-variant uppercase">Product</th><th class="px-8 py-4 font-label-md text-label-sm text-on-surface-variant uppercase w-32 text-center">Qty</th><th class="px-8 py-4 font-label-md text-label-sm text-on-surface-variant uppercase text-right">Price</th></tr></thead><tbody class="divide-y divide-outline-variant"><tr class="hover:bg-surface-container-low/30 transition-colors"><td class="px-8 py-6 font-headline-md text-lg font-bold text-primary">Enterprise Suite Pro V2</td><td class="px-8 py-6 text-center"><input class="w-16 bg-surface-container-low border border-outline-variant rounded py-2 text-center focus:border-primary outline-none font-medium" type="number" value="1"/></td><td class="px-8 py-6 font-headline-md text-lg text-right font-bold text-primary">$2,450.00</td></tr><tr class="hover:bg-surface-container-low/30 transition-colors"><td class="px-8 py-6 font-headline-md text-lg font-bold text-primary">Cloud Expansion Pack</td><td class="px-8 py-6 text-center"><input class="w-16 bg-surface-container-low border border-outline-variant rounded py-2 text-center focus:border-primary outline-none font-medium" type="number" value="3"/></td><td class="px-8 py-6 font-headline-md text-lg text-right font-bold text-primary">$2,670.00</td></tr></tbody></table></div><div class="p-8 bg-surface-container-low border-t border-outline-variant"><div class="max-w-xs ml-auto space-y-3"><div class="flex justify-between text-body-md text-on-surface-variant"><span>Subtotal</span><span class="font-medium">$5,120.00</span></div><div class="flex justify-between text-body-md text-on-surface-variant pb-3 border-b border-outline-variant"><span>Tax &amp; Shipping</span><span class="font-medium">$480.20</span></div><div class="flex justify-between text-headline-md text-primary pt-2 font-bold"><span>Total Amount</span><span>$5,600.20</span></div></div></div></section><div class="flex gap-4"><button class="flex-1 px-8 py-4 bg-primary text-on-primary rounded-lg font-bold text-lg hover:opacity-90 active:scale-[0.98] transition-all">Finalize Order</button><button class="px-8 py-4 border border-outline-variant rounded-lg font-semibold hover:bg-surface-container-low transition-colors">Save as Draft</button></div></div><div class="space-y-8"><section class="bg-surface-container-low/50 p-6 rounded-xl border border-outline-variant space-y-6"><div class="flex items-center gap-2 pb-3 border-b border-outline-variant"><span class="material-symbols-outlined text-on-surface-variant" style="font-size: 18px;">person</span><h4 class="font-headline-md text-on-surface-variant">Customer</h4></div><div class="space-y-4"><div class="space-y-1.5"><label class="text-[10px] font-label-md text-on-surface-variant uppercase tracking-widest">Full Name</label><input class="w-full bg-surface border border-outline-variant rounded px-3 py-2 text-body-md outline-none focus:border-primary" placeholder="Alex Verder" type="text" value="Alex Verder"/></div><div class="space-y-1.5"><label class="text-[10px] font-label-md text-on-surface-variant uppercase tracking-widest">Email</label><input class="w-full bg-surface border border-outline-variant rounded px-3 py-2 text-body-md outline-none focus:border-primary" placeholder="email@example.com" type="email" value="alex.v@enterprise.co"/></div><div class="space-y-1.5"><label class="text-[10px] font-label-md text-on-surface-variant uppercase tracking-widest">Shipping Address</label><textarea class="w-full bg-surface border border-outline-variant rounded px-3 py-2 text-body-md outline-none focus:border-primary" rows="2">942 Corporate Parkway...</textarea></div></div></section><section class="bg-surface-container-low/50 p-6 rounded-xl border border-outline-variant space-y-6"><div class="flex items-center gap-2 pb-3 border-b border-outline-variant"><span class="material-symbols-outlined text-on-surface-variant" style="font-size: 18px;">local_shipping</span><h4 class="font-headline-md text-on-surface-variant">Logistics</h4></div><div class="space-y-4"><div class="space-y-1.5"><label class="text-[10px] font-label-md text-on-surface-variant uppercase tracking-widest">Delivery Date</label><input class="w-full bg-surface border border-outline-variant rounded px-3 py-2 text-body-md outline-none focus:border-primary" type="date"/></div><div class="space-y-1.5"><label class="text-[10px] font-label-md text-on-surface-variant uppercase tracking-widest">Carrier</label><select class="w-full bg-surface border border-outline-variant rounded px-3 py-2 text-body-md outline-none focus:border-primary"><option>FedEx - Standard</option><option>DHL - Priority</option><option>Nexus - Direct</option></select></div></div></section></div></div></div></div>
+</main>
+</div>
+<script>
+        // Simple micro-interactions
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+            el.addEventListener('focus', () => {
+                el.classList.add('bg-white');
+            });
+            el.addEventListener('blur', () => {
+                el.classList.remove('bg-white');
+            });
+        });
+    </script>
+</body></html>

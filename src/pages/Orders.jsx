@@ -1,158 +1,619 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
-import { getOrdersFromFirebase } from '../utils/firebaseDb';
-export default function Orders() {
-    const [orders, setOrders] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [filter, setFilter] = useState('All Orders');
+import {
+    getOrdersFromFirebase,
+    getCustomersFromFirebase,
+    getProductsFromFirebase,
+    saveOrderToFirebase
+} from '../utils/firebaseDb';
 
-    const fetchOrders = async () => {
-        setIsLoading(true);
-        setError(null);
-        try {
-            const data = await getOrdersFromFirebase();
-            setOrders(data);
-        } catch (err) {
-            setError(err.message || 'Failed to fetch orders');
-        } finally {
-            setIsLoading(false);
+// ─── New Order Modal ──────────────────────────────────────────────────────────
+function NewOrderModal({ customers, products, onClose, onSuccess }) {
+    const [selectedCustomer, setSelectedCustomer] = useState('');
+    const [customerName, setCustomerName] = useState('');
+    const [customerEmail, setCustomerEmail] = useState('');
+    const [shippingAddress, setShippingAddress] = useState('');
+    const [deliveryDate, setDeliveryDate] = useState('');
+    const [carrier, setCarrier] = useState('Standard Freight');
+    const [orderItems, setOrderItems] = useState([]);
+    const [showProductPicker, setShowProductPicker] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitState, setSubmitState] = useState('idle'); // idle | loading | success | error
+
+    const TAX_RATE = 0.09;
+
+    const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
+    const tax = subtotal * TAX_RATE;
+    const total = subtotal + tax;
+
+    const handleCustomerChange = (e) => {
+        const cid = e.target.value;
+        setSelectedCustomer(cid);
+        const found = customers.find(c => c.id === cid);
+        if (found) {
+            setCustomerName(found.name || '');
+            setCustomerEmail(found.email || '');
         }
     };
 
-    useEffect(() => {
-        fetchOrders();
+    const addProduct = (product) => {
+        const existing = orderItems.find(i => i.productId === product.id);
+        if (existing) {
+            setOrderItems(items => items.map(i => i.productId === product.id ? { ...i, qty: i.qty + 1 } : i));
+        } else {
+            setOrderItems(items => [...items, { productId: product.id, name: product.name, price: product.price || 0, qty: 1 }]);
+        }
+        setShowProductPicker(false);
+    };
+
+    const updateQty = (productId, qty) => {
+        if (qty < 1) return;
+        setOrderItems(items => items.map(i => i.productId === productId ? { ...i, qty } : i));
+    };
+
+    const removeItem = (productId) => {
+        setOrderItems(items => items.filter(i => i.productId !== productId));
+    };
+
+    const handleFinalize = async () => {
+        if (!selectedCustomer || orderItems.length === 0) {
+            alert('Please select a customer and add at least one product.');
+            return;
+        }
+        setIsSubmitting(true);
+        setSubmitState('loading');
+        try {
+            await saveOrderToFirebase({
+                customerId: selectedCustomer,
+                customer: { name: customerName, email: customerEmail },
+                items: orderItems.map(i => ({ productId: i.productId, quantity: i.qty, price: i.price })),
+                total,
+                status: 'Pending',
+                deliveryDate,
+                carrier,
+                shippingAddress
+            });
+            setSubmitState('success');
+            setTimeout(() => { onSuccess(); onClose(); }, 1200);
+        } catch (err) {
+            console.error(err);
+            setSubmitState('error');
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 backdrop-blur-sm overflow-y-auto py-8 px-4">
+            <div className="bg-[#fcf8fa] w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden border border-[#c6c6cd]/50 my-auto">
+
+                {/* ── Header ── */}
+                <div className="flex items-center justify-between px-8 py-5 border-b border-[#c6c6cd] bg-white">
+                    <div className="flex items-center gap-3">
+                        <nav className="flex items-center gap-1.5 text-xs text-[#45464d]">
+                            <span className="hover:text-black cursor-pointer transition-colors">Orders</span>
+                            <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+                            <span className="text-black font-semibold">New Order</span>
+                        </nav>
+                    </div>
+                    <button onClick={onClose} className="flex items-center justify-center w-9 h-9 hover:bg-[#eae7e9] rounded-full transition-colors">
+                        <span className="material-symbols-outlined text-[#45464d]">close</span>
+                    </button>
+                </div>
+
+                <div className="px-8 py-6">
+                    <h2 className="text-3xl font-bold text-black tracking-tight mb-8" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>New Order</h2>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+
+                        {/* ── Left column: Order Items + Actions ── */}
+                        <div className="lg:col-span-2 space-y-6">
+
+                            {/* Customer select (mobile-first quick picker) */}
+                            <div className="lg:hidden bg-white border border-[#c6c6cd] rounded-xl p-3 flex items-center gap-3">
+                                <span className="material-symbols-outlined text-[#515f74]">person</span>
+                                <select
+                                    value={selectedCustomer}
+                                    onChange={handleCustomerChange}
+                                    className="flex-1 bg-transparent border-0 font-medium text-sm text-black focus:ring-0 outline-none appearance-none"
+                                >
+                                    <option value="">Select Customer</option>
+                                    {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                </select>
+                                <span className="material-symbols-outlined text-[#76777d] text-[18px]">expand_more</span>
+                            </div>
+
+                            {/* Order Items card */}
+                            <section className="bg-white border border-[#c6c6cd] rounded-xl overflow-hidden shadow-sm">
+                                <div className="px-6 py-4 flex justify-between items-center border-b border-[#c6c6cd] bg-[#f6f3f5]">
+                                    <div className="flex items-center gap-3">
+                                        <span className="material-symbols-outlined text-black">shopping_bag</span>
+                                        <h3 className="text-lg font-bold text-black" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>Order Items</h3>
+                                        {orderItems.length > 0 && (
+                                            <span className="text-xs font-medium text-[#515f74] bg-[#d5e3fd] px-2 py-0.5 rounded-full">
+                                                {orderItems.length} {orderItems.length === 1 ? 'Item' : 'Items'}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <button
+                                        onClick={() => setShowProductPicker(true)}
+                                        className="px-4 py-2 bg-black text-white rounded-lg text-xs font-semibold hover:opacity-80 active:scale-[0.97] transition-all"
+                                    >
+                                        + Add Product
+                                    </button>
+                                </div>
+
+                                {/* Desktop table */}
+                                <div className="hidden md:block overflow-x-auto">
+                                    <table className="w-full text-left">
+                                        <thead className="bg-[#f6f3f5]/50 border-b border-[#c6c6cd]">
+                                            <tr>
+                                                <th className="px-6 py-3 text-[10px] font-bold text-[#45464d] uppercase tracking-widest">Product</th>
+                                                <th className="px-6 py-3 text-[10px] font-bold text-[#45464d] uppercase tracking-widest w-28 text-center">Qty</th>
+                                                <th className="px-6 py-3 text-[10px] font-bold text-[#45464d] uppercase tracking-widest text-right">Price</th>
+                                                <th className="px-2 py-3 w-10"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-[#c6c6cd]/50">
+                                            {orderItems.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan="4" className="px-6 py-12 text-center">
+                                                        <div className="flex flex-col items-center gap-3 text-[#76777d]">
+                                                            <span className="material-symbols-outlined text-4xl opacity-30">shopping_cart</span>
+                                                            <p className="text-sm font-medium">No products added yet</p>
+                                                            <p className="text-xs opacity-70">Click "+ Add Product" to begin</p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ) : orderItems.map(item => (
+                                                <tr key={item.productId} className="hover:bg-[#f6f3f5]/40 transition-colors group">
+                                                    <td className="px-6 py-5 font-semibold text-black text-base" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
+                                                        {item.name}
+                                                    </td>
+                                                    <td className="px-6 py-5 text-center">
+                                                        <input
+                                                            type="number"
+                                                            min="1"
+                                                            value={item.qty}
+                                                            onChange={e => updateQty(item.productId, parseInt(e.target.value) || 1)}
+                                                            className="w-16 bg-[#f6f3f5] border border-[#c6c6cd] rounded-lg py-1.5 text-center text-sm font-medium focus:border-black outline-none transition-colors"
+                                                        />
+                                                    </td>
+                                                    <td className="px-6 py-5 text-right font-bold text-black text-base" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
+                                                        ₹{(item.price * item.qty).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                                    </td>
+                                                    <td className="px-2 py-5">
+                                                        <button onClick={() => removeItem(item.productId)} className="w-7 h-7 flex items-center justify-center rounded-full text-[#76777d] hover:bg-red-50 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
+                                                            <span className="material-symbols-outlined text-[18px]">close</span>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Mobile items list */}
+                                <div className="md:hidden p-4 space-y-4">
+                                    {orderItems.length === 0 ? (
+                                        <div className="py-8 text-center text-[#76777d] text-sm">No products yet. Tap "+ Add Product"</div>
+                                    ) : orderItems.map(item => (
+                                        <div key={item.productId} className="flex justify-between items-start py-2 border-b border-[#c6c6cd]/40 last:border-0">
+                                            <div>
+                                                <p className="font-semibold text-black text-sm">{item.name}</p>
+                                                <p className="text-xs text-[#515f74] mt-0.5">{item.qty} × ₹{item.price.toLocaleString('en-IN')}</p>
+                                            </div>
+                                            <button onClick={() => removeItem(item.productId)} className="p-1 text-[#76777d] hover:text-red-500 transition-colors">
+                                                <span className="material-symbols-outlined text-[20px]">close</span>
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Totals footer */}
+                                {orderItems.length > 0 && (
+                                    <div className="p-6 bg-[#f6f3f5] border-t border-[#c6c6cd]">
+                                        <div className="max-w-xs ml-auto space-y-2.5">
+                                            <div className="flex justify-between text-sm text-[#45464d]">
+                                                <span>Subtotal</span>
+                                                <span className="font-medium">₹{subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                                            </div>
+                                            <div className="flex justify-between text-sm text-[#45464d] pb-3 border-b border-[#c6c6cd]">
+                                                <span>Tax (9%)</span>
+                                                <span className="font-medium">₹{tax.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                                            </div>
+                                            <div className="flex justify-between text-xl font-bold text-black pt-1" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
+                                                <span>Total Amount</span>
+                                                <span>₹{total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </section>
+
+                            {/* Mobile summary */}
+                            <div className="md:hidden flex justify-between items-center px-2">
+                                <span className="text-base text-[#515f74]">Total Amount</span>
+                                <span className="text-xl font-bold text-black" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
+                                    ₹{total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                </span>
+                            </div>
+
+                            {/* CTA buttons */}
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={handleFinalize}
+                                    disabled={isSubmitting}
+                                    className={`flex-1 px-8 py-4 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
+                                        submitState === 'success' ? 'bg-green-500 text-white' :
+                                        submitState === 'error'   ? 'bg-red-500 text-white' :
+                                        'bg-black text-white hover:opacity-85'
+                                    }`}
+                                >
+                                    {submitState === 'loading' && <span className="material-symbols-outlined animate-spin text-[20px]">sync</span>}
+                                    {submitState === 'success' && <span className="material-symbols-outlined text-[20px]">check_circle</span>}
+                                    {submitState === 'idle' && 'Finalize Order'}
+                                    {submitState === 'loading' && 'Saving...'}
+                                    {submitState === 'success' && 'Order Created!'}
+                                    {submitState === 'error' && 'Retry'}
+                                </button>
+                                <button
+                                    onClick={onClose}
+                                    className="px-8 py-4 border border-[#c6c6cd] rounded-xl font-semibold text-[#45464d] hover:bg-[#f6f3f5] transition-colors"
+                                >
+                                    Save as Draft
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* ── Right column: Customer + Logistics ── */}
+                        <div className="hidden lg:flex flex-col gap-6">
+
+                            {/* Customer section */}
+                            <section className="bg-[#f6f3f5]/70 p-6 rounded-xl border border-[#c6c6cd] space-y-5">
+                                <div className="flex items-center gap-2 pb-3 border-b border-[#c6c6cd]">
+                                    <span className="material-symbols-outlined text-[#45464d] text-[18px]">person</span>
+                                    <h4 className="font-semibold text-[#45464d] text-base" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>Customer</h4>
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-bold text-[#45464d] uppercase tracking-widest block" style={{ fontFamily: 'JetBrains Mono, monospace' }}>Select Account</label>
+                                        <select
+                                            value={selectedCustomer}
+                                            onChange={handleCustomerChange}
+                                            className="w-full bg-white border border-[#c6c6cd] rounded-lg px-3 py-2 text-sm outline-none focus:border-black transition-colors appearance-none"
+                                        >
+                                            <option value="">— Select Customer —</option>
+                                            {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-bold text-[#45464d] uppercase tracking-widest block" style={{ fontFamily: 'JetBrains Mono, monospace' }}>Full Name</label>
+                                        <input
+                                            value={customerName}
+                                            onChange={e => setCustomerName(e.target.value)}
+                                            type="text"
+                                            placeholder="Full name"
+                                            className="w-full bg-white border border-[#c6c6cd] rounded-lg px-3 py-2 text-sm outline-none focus:border-black transition-colors"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-bold text-[#45464d] uppercase tracking-widest block" style={{ fontFamily: 'JetBrains Mono, monospace' }}>Email</label>
+                                        <input
+                                            value={customerEmail}
+                                            onChange={e => setCustomerEmail(e.target.value)}
+                                            type="email"
+                                            placeholder="email@example.com"
+                                            className="w-full bg-white border border-[#c6c6cd] rounded-lg px-3 py-2 text-sm outline-none focus:border-black transition-colors"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-bold text-[#45464d] uppercase tracking-widest block" style={{ fontFamily: 'JetBrains Mono, monospace' }}>Shipping Address</label>
+                                        <textarea
+                                            value={shippingAddress}
+                                            onChange={e => setShippingAddress(e.target.value)}
+                                            rows="2"
+                                            placeholder="Street, City, State..."
+                                            className="w-full bg-white border border-[#c6c6cd] rounded-lg px-3 py-2 text-sm outline-none focus:border-black transition-colors resize-none"
+                                        />
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* Logistics section */}
+                            <section className="bg-[#f6f3f5]/70 p-6 rounded-xl border border-[#c6c6cd] space-y-5">
+                                <div className="flex items-center gap-2 pb-3 border-b border-[#c6c6cd]">
+                                    <span className="material-symbols-outlined text-[#45464d] text-[18px]">local_shipping</span>
+                                    <h4 className="font-semibold text-[#45464d] text-base" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>Logistics</h4>
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-bold text-[#45464d] uppercase tracking-widest block" style={{ fontFamily: 'JetBrains Mono, monospace' }}>Delivery Date</label>
+                                        <input
+                                            type="date"
+                                            value={deliveryDate}
+                                            onChange={e => setDeliveryDate(e.target.value)}
+                                            className="w-full bg-white border border-[#c6c6cd] rounded-lg px-3 py-2 text-sm outline-none focus:border-black transition-colors"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-bold text-[#45464d] uppercase tracking-widest block" style={{ fontFamily: 'JetBrains Mono, monospace' }}>Carrier</label>
+                                        <select
+                                            value={carrier}
+                                            onChange={e => setCarrier(e.target.value)}
+                                            className="w-full bg-white border border-[#c6c6cd] rounded-lg px-3 py-2 text-sm outline-none focus:border-black transition-colors"
+                                        >
+                                            <option>Standard Freight</option>
+                                            <option>Priority Express</option>
+                                            <option>Next-Day Air</option>
+                                            <option>Direct Dispatch</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Product Picker Overlay ── */}
+            {showProductPicker && (
+                <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowProductPicker(false)}>
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-[#c6c6cd]" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-[#c6c6cd]">
+                            <h3 className="font-bold text-black text-lg" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>Select a Product</h3>
+                            <button onClick={() => setShowProductPicker(false)} className="w-8 h-8 flex items-center justify-center hover:bg-[#eae7e9] rounded-full transition-colors">
+                                <span className="material-symbols-outlined text-[20px] text-[#45464d]">close</span>
+                            </button>
+                        </div>
+                        <div className="max-h-80 overflow-y-auto divide-y divide-[#c6c6cd]/50">
+                            {products.length === 0 ? (
+                                <p className="p-6 text-center text-sm text-[#76777d]">No products found. Add products first.</p>
+                            ) : products.map(p => (
+                                <button
+                                    key={p.id}
+                                    onClick={() => addProduct(p)}
+                                    className="w-full flex items-center justify-between px-6 py-4 hover:bg-[#f6f3f5] transition-colors text-left group"
+                                >
+                                    <div>
+                                        <p className="font-semibold text-sm text-black group-hover:text-black">{p.name}</p>
+                                        <p className="text-xs text-[#515f74] mt-0.5">Stock: {p.quantity} units</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-bold text-sm text-black">₹{(p.price || 0).toLocaleString('en-IN')}</p>
+                                        <p className="text-[10px] text-[#45464d] mt-0.5">{p.category}</p>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+// ─── Main Orders Page ─────────────────────────────────────────────────────────
+export default function Orders() {
+    const [orders, setOrders] = useState([]);
+    const [customers, setCustomers] = useState([]);
+    const [products, setProducts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [filter, setFilter] = useState('All Orders');
+    const [showNewOrder, setShowNewOrder] = useState(false);
+
+    const fetchData = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const [ordersData, customersData, productsData] = await Promise.all([
+                getOrdersFromFirebase(),
+                getCustomersFromFirebase(),
+                getProductsFromFirebase()
+            ]);
+
+            // Enrich orders with customer names
+            const enriched = ordersData.map(o => {
+                const customer = customersData.find(c => c.id === o.customerId);
+                return { ...o, customer: o.customer || customer || { name: 'Unknown' } };
+            });
+            setOrders(enriched);
+            setCustomers(customersData);
+            setProducts(productsData);
+        } catch (err) {
+            setError(err.message || 'Failed to fetch data');
+        } finally {
+            setIsLoading(false);
+        }
     }, []);
+
+    useEffect(() => { fetchData(); }, [fetchData]);
 
     const filteredOrders = orders.filter(o => {
         if (filter === 'All Orders') return true;
         return o.status === filter;
     });
 
-    const outstandingRevenue = orders
-        .filter(o => o.status === 'Pending')
-        .reduce((sum, o) => sum + (o.total || 0), 0);
+    const outstandingRevenue = orders.filter(o => o.status === 'Pending').reduce((sum, o) => sum + (o.total || 0), 0);
+    const completedRevenue   = orders.filter(o => o.status === 'Completed').reduce((sum, o) => sum + (o.total || 0), 0);
+    const totalOrders        = orders.length;
+    const pendingCount       = orders.filter(o => o.status === 'Pending').length;
+
+    const statusConfig = {
+        Completed: 'bg-green-100 text-green-700',
+        Pending:   'bg-amber-100 text-amber-700',
+        Cancelled: 'bg-red-100 text-red-700',
+    };
 
     return (
         <Layout>
-            <div className="flex justify-between items-end mb-xl">
+            {/* ── Page Header ── */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
                 <div>
-                    <h2 className="font-h1 text-h1 text-on-surface">Orders & Billing</h2>
-                    <p className="font-body-md text-body-md text-on-surface-variant">Manage your transactional history and financial documents.</p>
+                    <h1 className="text-3xl font-bold text-black tracking-tight" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
+                        Orders &amp; Billing
+                    </h1>
+                    <p className="text-sm text-[#45464d] mt-1">Manage transactions, create orders, and track billing.</p>
                 </div>
-                <div className="flex gap-sm">
-                    <button className="flex items-center gap-xs px-4 py-2 bg-white border border-outline-variant text-on-surface font-label-md rounded-lg hover:bg-surface-container-low transition-all">
-                        <span className="material-symbols-outlined text-[20px]">file_download</span>
+                <div className="flex gap-3">
+                    <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#c6c6cd] text-[#45464d] text-sm font-semibold rounded-xl hover:bg-[#f6f3f5] transition-all">
+                        <span className="material-symbols-outlined text-[18px]">file_download</span>
                         Export
                     </button>
-                    <button className="flex items-center gap-xs px-4 py-2 bg-primary text-on-primary font-label-md rounded-lg hover:opacity-90 transition-all shadow-md">
-                        <span className="material-symbols-outlined text-[20px]">add</span>
+                    <button
+                        onClick={() => setShowNewOrder(true)}
+                        className="flex items-center gap-2 px-4 py-2.5 bg-black text-white text-sm font-semibold rounded-xl hover:opacity-80 transition-all shadow-md active:scale-[0.97]"
+                    >
+                        <span className="material-symbols-outlined text-[18px]">add</span>
                         New Order
                     </button>
                 </div>
             </div>
 
             {error && (
-                <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 border border-red-200">
-                    {error}
+                <div className="bg-red-50 text-red-700 p-4 rounded-xl mb-6 border border-red-200 text-sm font-medium">
+                    ⚠ {error}
                 </div>
             )}
 
-            <div className="grid grid-cols-12 gap-lg">
-                <div className="col-span-12 xl:col-span-8 space-y-lg">
-                    <div className="flex items-center justify-between p-md bg-white border border-outline-variant rounded-xl shadow-sm">
-                        <div className="flex items-center gap-md">
-                            <div className="flex bg-surface-container-low p-1 rounded-lg">
-                                {['All Orders', 'Pending', 'Completed'].map(f => (
-                                    <button 
-                                        key={f} 
-                                        onClick={() => setFilter(f)}
-                                        className={`px-4 py-1.5 font-label-md rounded-md transition-colors ${filter === f ? 'bg-white text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
-                                    >
-                                        {f}
-                                    </button>
-                                ))}
-                            </div>
+            {/* ── KPI strip ── */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                {[
+                    { label: 'Total Orders',       value: totalOrders,  icon: 'receipt_long',       color: 'text-black',         bg: 'bg-black/5' },
+                    { label: 'Pending',            value: pendingCount, icon: 'pending_actions',    color: 'text-amber-700',     bg: 'bg-amber-50' },
+                    { label: 'Outstanding (₹)',    value: `₹${outstandingRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`, icon: 'account_balance_wallet', color: 'text-blue-700', bg: 'bg-blue-50' },
+                    { label: 'Completed Revenue',  value: `₹${completedRevenue.toLocaleString('en-IN',  { maximumFractionDigits: 0 })}`, icon: 'payments', color: 'text-green-700', bg: 'bg-green-50' },
+                ].map(stat => (
+                    <div key={stat.label} className="bg-white border border-[#c6c6cd] rounded-xl p-5 shadow-sm">
+                        <div className={`w-10 h-10 ${stat.bg} rounded-xl flex items-center justify-center mb-3`}>
+                            <span className={`material-symbols-outlined ${stat.color} text-[20px]`}>{stat.icon}</span>
                         </div>
-                        <div className="text-body-sm text-on-surface-variant">
-                            Showing <span className="font-bold text-on-surface">{filteredOrders.length}</span> orders
-                        </div>
+                        <p className="text-2xl font-bold text-black" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>{stat.value}</p>
+                        <p className="text-xs text-[#45464d] mt-1 uppercase tracking-wider font-medium" style={{ fontFamily: 'JetBrains Mono, monospace' }}>{stat.label}</p>
                     </div>
+                ))}
+            </div>
 
-                    <div className="bg-white border border-outline-variant rounded-xl shadow-sm overflow-hidden">
-                        <table className="w-full border-collapse">
-                            <thead>
-                                <tr className="bg-surface-container-low/50">
-                                    <th className="px-md py-4 text-left font-label-sm text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">Order ID</th>
-                                    <th className="px-md py-4 text-left font-label-sm text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">Customer</th>
-                                    <th className="px-md py-4 text-left font-label-sm text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">Date</th>
-                                    <th className="px-md py-4 text-left font-label-sm text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">Amount</th>
-                                    <th className="px-md py-4 text-left font-label-sm text-on-surface-variant uppercase tracking-wider border-b border-outline-variant">Status</th>
-                                    <th className="px-md py-4 text-right font-label-sm text-on-surface-variant uppercase tracking-wider border-b border-outline-variant"></th>
+            {/* ── Filter bar + Table ── */}
+            <div className="bg-white border border-[#c6c6cd] rounded-2xl shadow-sm overflow-hidden">
+                {/* Filter tabs */}
+                <div className="px-6 py-4 border-b border-[#c6c6cd] flex items-center justify-between bg-[#f6f3f5]/60">
+                    <div className="flex bg-white border border-[#c6c6cd] rounded-xl p-1 gap-1 shadow-sm">
+                        {['All Orders', 'Pending', 'Completed', 'Cancelled'].map(f => (
+                            <button
+                                key={f}
+                                onClick={() => setFilter(f)}
+                                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                                    filter === f
+                                        ? 'bg-black text-white shadow-sm'
+                                        : 'text-[#45464d] hover:text-black hover:bg-[#eae7e9]'
+                                }`}
+                                style={{ fontFamily: 'JetBrains Mono, monospace' }}
+                            >
+                                {f}
+                            </button>
+                        ))}
+                    </div>
+                    <span className="text-xs text-[#45464d]" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                        <span className="font-bold text-black">{filteredOrders.length}</span> orders
+                    </span>
+                </div>
+
+                {/* Table */}
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="bg-[#f6f3f5]/50 border-b border-[#c6c6cd]">
+                                {['Order ID', 'Customer', 'Date', 'Amount', 'Status', ''].map(h => (
+                                    <th key={h} className={`px-6 py-4 text-[10px] font-bold text-[#45464d] uppercase tracking-widest ${h === '' ? 'text-right' : ''}`} style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                                        {h}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#c6c6cd]/40">
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan="6" className="px-6 py-16 text-center">
+                                        <div className="flex flex-col items-center gap-3 text-[#76777d]">
+                                            <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                                            <p className="text-sm">Loading orders...</p>
+                                        </div>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody className="divide-y divide-surface-variant">
-                                {isLoading ? (
-                                    <tr><td colSpan="6" className="p-8 text-center text-on-surface-variant">Loading orders...</td></tr>
-                                ) : filteredOrders.map(o => {
-                                    const customerName = o.customer?.name || 'Unknown';
-                                    const dateStr = new Date(o.createdAt).toLocaleDateString();
-                                    return (
-                                    <tr key={o.id || o._id} className="hover:bg-surface-container-lowest transition-colors group">
-                                        <td className="px-md py-4 font-label-md text-on-surface">#{(o.id || o._id || '').substring(0, 6).toUpperCase()}</td>
-                                        <td className="px-md py-4">
-                                            <div className="flex items-center gap-sm">
-                                                <div className={`h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold bg-primary-container text-on-primary-container`}>
+                            ) : filteredOrders.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" className="px-6 py-16 text-center">
+                                        <div className="flex flex-col items-center gap-3 text-[#76777d]">
+                                            <span className="material-symbols-outlined text-4xl opacity-30">receipt_long</span>
+                                            <p className="text-sm font-medium">No {filter === 'All Orders' ? '' : filter.toLowerCase()} orders yet</p>
+                                            <button onClick={() => setShowNewOrder(true)} className="mt-2 px-4 py-2 bg-black text-white text-xs font-bold rounded-lg hover:opacity-80 transition-all">
+                                                + Create First Order
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : filteredOrders.map(o => {
+                                const customerName = o.customer?.name || 'Unknown';
+                                const dateStr = o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+                                return (
+                                    <tr key={o.id || o._id} className="hover:bg-[#f6f3f5]/40 transition-colors group cursor-pointer">
+                                        <td className="px-6 py-4">
+                                            <span className="text-xs font-bold text-black bg-[#e4e2e4] px-2 py-1 rounded-md" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                                                #{(o.id || o._id || '').substring(0, 6).toUpperCase()}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-8 w-8 rounded-full bg-[#dae2fd] text-[#3f465c] flex items-center justify-center text-xs font-bold flex-shrink-0">
                                                     {customerName.substring(0, 2).toUpperCase()}
                                                 </div>
-                                                <span className="font-body-md text-on-surface">{customerName}</span>
+                                                <span className="text-sm font-medium text-black">{customerName}</span>
                                             </div>
                                         </td>
-                                        <td className="px-md py-4 text-body-sm text-on-surface-variant">{dateStr}</td>
-                                        <td className="px-md py-4 font-label-md text-on-surface">₹{(o.total || 0).toFixed(2)}</td>
-                                        <td className="px-md py-4">
-                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                                                o.status === 'Completed' ? 'bg-green-100 text-green-700' : 
-                                                (o.status === 'Pending' ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700')
-                                            }`}>
+                                        <td className="px-6 py-4 text-xs text-[#45464d]" style={{ fontFamily: 'JetBrains Mono, monospace' }}>{dateStr}</td>
+                                        <td className="px-6 py-4 text-sm font-bold text-black" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
+                                            ₹{(o.total || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${statusConfig[o.status] || 'bg-gray-100 text-gray-700'}`}>
+                                                <span className={`w-1.5 h-1.5 rounded-full ${o.status === 'Completed' ? 'bg-green-500' : o.status === 'Pending' ? 'bg-amber-500' : 'bg-red-500'}`} />
                                                 {o.status}
                                             </span>
                                         </td>
-                                        <td className="px-md py-4 text-right">
-                                            <button className="material-symbols-outlined text-outline group-hover:text-primary transition-colors">more_vert</button>
+                                        <td className="px-6 py-4 text-right">
+                                            <button className="w-8 h-8 flex items-center justify-center rounded-full text-[#76777d] hover:bg-[#eae7e9] hover:text-black transition-all opacity-0 group-hover:opacity-100">
+                                                <span className="material-symbols-outlined text-[18px]">more_vert</span>
+                                            </button>
                                         </td>
                                     </tr>
-                                )})}
-                            </tbody>
-                        </table>
-                        {!isLoading && filteredOrders.length === 0 && (
-                            <div className="p-8 text-center text-on-surface-variant">No orders match the selected filter.</div>
-                        )}
-                        <div className="p-md bg-surface-container-lowest flex items-center justify-between">
-                            <span className="text-body-sm text-on-surface-variant">Page 1 of 1</span>
-                            <div className="flex gap-sm">
-                                <button className="px-3 py-1 border border-outline-variant rounded-lg text-body-sm opacity-50 cursor-not-allowed">Previous</button>
-                                <button className="px-3 py-1 border border-outline-variant rounded-lg text-body-sm hover:bg-surface-container-high transition-colors">Next</button>
-                            </div>
-                        </div>
-                    </div>
+                                );
+                            })}
+                        </tbody>
+                    </table>
                 </div>
 
-                <div className="col-span-12 xl:col-span-4 space-y-lg">
-                    <div className="bg-white border border-outline-variant rounded-xl shadow-sm overflow-hidden p-xl space-y-md">
-                        <div className="flex justify-between items-start">
-                            <h3 className="font-h3 text-h3 text-on-surface">Quick Billing</h3>
-                            <span className="material-symbols-outlined text-primary">account_balance_wallet</span>
-                        </div>
-                        <div className="space-y-sm">
-                            <div className="flex justify-between items-center text-body-sm">
-                                <span className="text-on-surface-variant">Outstanding Revenue</span>
-                                <span className="font-bold text-on-surface">₹{outstandingRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                            </div>
-                        </div>
+                {/* Pagination */}
+                <div className="px-6 py-4 border-t border-[#c6c6cd] flex items-center justify-between bg-[#f6f3f5]/40">
+                    <span className="text-xs text-[#45464d]" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                        Showing {filteredOrders.length} of {orders.length}
+                    </span>
+                    <div className="flex gap-2">
+                        <button className="px-3 py-1.5 border border-[#c6c6cd] rounded-lg text-xs font-medium text-[#45464d] opacity-50 cursor-not-allowed">Previous</button>
+                        <button className="px-3 py-1.5 border border-[#c6c6cd] rounded-lg text-xs font-medium text-[#45464d] hover:bg-[#eae7e9] transition-colors">Next</button>
                     </div>
                 </div>
             </div>
+
+            {/* ── New Order Modal ── */}
+            {showNewOrder && (
+                <NewOrderModal
+                    customers={customers}
+                    products={products}
+                    onClose={() => setShowNewOrder(false)}
+                    onSuccess={fetchData}
+                />
+            )}
         </Layout>
     );
 }

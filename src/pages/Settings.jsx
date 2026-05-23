@@ -12,8 +12,34 @@ export default function Settings() {
         company: 'JJ Painting'
     });
 
-    const handleSaveProfile = () => {
-        alert('Profile saving is disabled in this version.');
+    const handleSaveProfile = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:5005/api/v1/auth/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify({
+                    name: localProfile.name,
+                    email: localProfile.email,
+                    company: localProfile.company
+                })
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.message || 'Failed to save profile');
+            }
+
+            alert('Profile saved successfully!');
+            // Ideally, we'd update global state here, but simple reload or alert is fine for now
+            // window.location.reload(); 
+        } catch (error) {
+            console.error('Error saving profile:', error);
+            alert(`Error: ${error.message}`);
+        }
     };
 
     const handleReset = async () => {
