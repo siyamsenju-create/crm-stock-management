@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>JJ Painting &amp; Hardware - Business Intelligence</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-error-container": "#93000a",
+                      "error-container": "#ffdad6",
+                      "on-primary-fixed-variant": "#2228cc",
+                      "surface": "#f9f9ff",
+                      "on-surface-variant": "#454555",
+                      "inverse-on-surface": "#ecf1ff",
+                      "secondary-container": "#6063ee",
+                      "primary-fixed-dim": "#bfc2ff",
+                      "on-primary": "#ffffff",
+                      "surface-bright": "#f9f9ff",
+                      "tertiary-fixed": "#6ffbbe",
+                      "secondary-fixed": "#e1e0ff",
+                      "surface-container": "#e7eeff",
+                      "secondary": "#4648d4",
+                      "inverse-primary": "#bfc2ff",
+                      "on-secondary-container": "#fffbff",
+                      "on-secondary-fixed": "#07006c",
+                      "background": "#f9f9ff",
+                      "outline": "#767687",
+                      "on-tertiary-fixed-variant": "#005236",
+                      "on-primary-container": "#b7bbff",
+                      "surface-container-low": "#f0f3ff",
+                      "on-secondary-fixed-variant": "#2f2ebe",
+                      "on-primary-fixed": "#00006e",
+                      "surface-bright": "#f9f9ff",
+                      "on-secondary": "#ffffff",
+                      "surface-tint": "#4048e3",
+                      "on-tertiary": "#ffffff",
+                      "primary-container": "#2d34d3",
+                      "surface-container-lowest": "#ffffff",
+                      "error": "#ba1a1a",
+                      "secondary-fixed-dim": "#c0c1ff",
+                      "outline-variant": "#c6c5d8",
+                      "on-error": "#ffffff",
+                      "surface-container-high": "#dee8ff",
+                      "inverse-surface": "#263143",
+                      "surface-variant": "#d8e3fb",
+                      "primary-fixed": "#e0e0ff",
+                      "on-tertiary-container": "#46d89d",
+                      "tertiary-container": "#005a3c",
+                      "tertiary": "#00402a",
+                      "on-surface": "#111c2d",
+                      "tertiary-fixed-dim": "#4edea3",
+                      "primary": "#0605bf",
+                      "surface-dim": "#cfdaf2",
+                      "on-background": "#111c2d"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-lg": "1.5rem",
+                      "gutter-mobile": "1rem",
+                      "stack-sm": "0.5rem",
+                      "margin-mobile": "1.25rem",
+                      "stack-md": "1rem"
+              },
+              "fontFamily": {
+                      "data-lg": ["Plus Jakarta Sans"],
+                      "label-caps": ["JetBrains Mono"],
+                      "headline-lg": ["Plus Jakarta Sans"],
+                      "headline-md": ["Plus Jakarta Sans"],
+                      "display-sm": ["Plus Jakarta Sans"],
+                      "body-md": ["Inter"],
+                      "body-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "data-lg": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                      "headline-lg": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                      "headline-md": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                      "display-sm": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .chart-gradient-area {
+            background: linear-gradient(180deg, rgba(6, 5, 191, 0.1) 0%, rgba(6, 5, 191, 0) 100%);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d8e3fb; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md">
+<!-- Side Navigation Drawer -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface shadow-sm flex flex-col h-full py-6 px-4 z-50">
+<div class="mb-10 px-2 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined">format_paint</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md text-primary leading-tight">JJ Painting</h1>
+<p class="text-[10px] font-label-caps uppercase tracking-widest text-on-surface-variant">Business Intelligence</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Active Tab: Dashboard -->
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-high transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-body-md">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="font-body-md">Sales</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-body-md">Personnel</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="format_paint">format_paint</span>
+<span class="font-body-md">Projects</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-2">
+<button class="w-full py-3 px-4 bg-primary text-white rounded-xl font-headline-md text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity active:scale-95 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-sm">auto_graph</span>
+                Generate Report
+            </button>
+</div>
+</aside>
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 w-full z-40 flex justify-between items-center h-16 px-8 ml-64 bg-surface/80 backdrop-blur-md shadow-sm border-b border-surface-container-highest">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search analytics, products, or reports..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4">
+<button class="relative p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-all">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-all">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-outline-variant mx-2"></div>
+<div class="flex items-center gap-3 cursor-pointer group">
+<div class="text-right">
+<p class="font-headline-md text-sm leading-none">James J. Manager</p>
+<p class="font-label-caps text-[9px] text-outline uppercase tracking-wider">System Administrator</p>
+</div>
+<img alt="Manager Profile" class="w-9 h-9 rounded-full bg-surface-container-highest border border-outline-variant group-hover:border-primary transition-colors" data-alt="A professional studio portrait of a corporate executive for a profile picture. The lighting is bright and even, typical of a high-end office environment. The subject is a middle-aged man with a confident, friendly expression. The background is a soft, out-of-focus modern office interior with hints of navy blue and white, matching the professional analytics brand aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxzW8aBQa7f4gT_zPe_Ld9bYS_tiPEy5r2v4PSe0m-rTUm82fWxX0Xvkb2l_d8YgzA1vhR1Xqy81-viIDy0mPYr23FR_8Caqse6PvQ3zasIr-5SQ2RySFsli3Xtv_oeNsMY6iPbyB5vO8y5bTzEC7ewWAFUodRtAQtFiBTpCnsipK0z3j7Olkv_6BGWey3B8YPIQQpxELLB_U1WLQWdhuS-vSq8jkH8dCG62hLEQHVZ4JMrqJB_i7SBVoNvc70yfhrmIX8pDuaF_lZ"/>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-64 p-8 min-h-screen">
+<!-- Welcome Section -->
+<div class="mb-stack-lg flex justify-between items-end">
+<div>
+<h2 class="font-display-sm text-display-sm text-on-surface">Executive Overview</h2>
+<p class="text-on-surface-variant font-body-md mt-1">Real-time performance metrics for JJ Painting &amp; Hardware Corp.</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex bg-surface-container-low p-1 rounded-lg border border-outline-variant/30">
+<button class="px-4 py-1.5 rounded-md bg-white shadow-sm font-label-caps text-xs text-primary">DAILY</button>
+<button class="px-4 py-1.5 rounded-md font-label-caps text-xs text-outline hover:text-on-surface">WEEKLY</button>
+<button class="px-4 py-1.5 rounded-md font-label-caps text-xs text-outline hover:text-on-surface">MONTHLY</button>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 border border-outline-variant rounded-lg font-headline-md text-sm hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-base">calendar_today</span>
+                    Oct 12 - Oct 19
+                </button>
+</div>
+</div>
+<!-- 4-Column KPI Grid -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-stack-lg">
+<!-- Total Revenue -->
+<div class="bg-white p-5 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex flex-col justify-between group hover:shadow-xl transition-shadow duration-300">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2.5 bg-primary/5 rounded-xl text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<div class="flex items-center gap-1 text-tertiary-container font-bold text-xs bg-tertiary-fixed/20 px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+                        +12.4%
+                    </div>
+</div>
+<div>
+<span class="font-label-caps text-outline uppercase">Total Revenue</span>
+<h3 class="font-data-lg text-data-lg mt-1">$142,580.00</h3>
+</div>
+</div>
+<!-- Avg Order Value -->
+<div class="bg-white p-5 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex flex-col justify-between group hover:shadow-xl transition-shadow duration-300">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2.5 bg-secondary/5 rounded-xl text-secondary group-hover:bg-secondary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">shopping_bag</span>
+</div>
+<div class="flex items-center gap-1 text-tertiary-container font-bold text-xs bg-tertiary-fixed/20 px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+                        +3.2%
+                    </div>
+</div>
+<div>
+<span class="font-label-caps text-outline uppercase">Avg Order Value</span>
+<h3 class="font-data-lg text-data-lg mt-1">$482.50</h3>
+</div>
+</div>
+<!-- Profit Margin -->
+<div class="bg-white p-5 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex flex-col justify-between group hover:shadow-xl transition-shadow duration-300">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2.5 bg-tertiary-container/5 rounded-xl text-tertiary-container group-hover:bg-tertiary-container group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<div class="flex items-center gap-1 text-error font-bold text-xs bg-error-container/20 px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[14px]">trending_down</span>
+                        -0.5%
+                    </div>
+</div>
+<div>
+<span class="font-label-caps text-outline uppercase">Profit Margin</span>
+<h3 class="font-data-lg text-data-lg mt-1">28.4%</h3>
+</div>
+</div>
+<!-- Customer LTV -->
+<div class="bg-white p-5 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex flex-col justify-between group hover:shadow-xl transition-shadow duration-300">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2.5 bg-inverse-surface/5 rounded-xl text-inverse-surface group-hover:bg-inverse-surface group-hover:text-white transition-colors">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<div class="flex items-center gap-1 text-tertiary-container font-bold text-xs bg-tertiary-fixed/20 px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+                        +18.1%
+                    </div>
+</div>
+<div>
+<span class="font-label-caps text-outline uppercase">Customer LTV</span>
+<h3 class="font-data-lg text-data-lg mt-1">$4,120.00</h3>
+</div>
+</div>
+</div>
+<!-- Middle Section: Projection + Efficiency -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-stack-lg">
+<!-- Sales Projection Area Chart -->
+<div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-white">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h4 class="font-headline-md text-headline-md">Sales Projection Model</h4>
+<p class="text-on-surface-variant text-sm">Revenue forecast based on historical 24-month cycle</p>
+</div>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="text-xs font-label-caps text-outline">ACTUAL</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full border-2 border-primary/40 border-dashed"></span>
+<span class="text-xs font-label-caps text-outline">PROJECTED</span>
+</div>
+</div>
+</div>
+<div class="h-64 relative flex items-end justify-between gap-1 overflow-hidden">
+<!-- Fake Chart Grid Lines -->
+<div class="absolute inset-0 flex flex-col justify-between opacity-5">
+<div class="border-t border-on-surface h-0"></div>
+<div class="border-t border-on-surface h-0"></div>
+<div class="border-t border-on-surface h-0"></div>
+<div class="border-t border-on-surface h-0"></div>
+</div>
+<!-- SVG Area Chart Concept (Represented by div heights for simplicity in layout) -->
+<div class="w-full h-full flex items-end gap-1.5 px-2 relative z-10">
+<!-- Bar representations for visualized projection -->
+<div class="flex-1 bg-primary/10 rounded-t h-[40%] hover:bg-primary/20 transition-all"></div>
+<div class="flex-1 bg-primary/15 rounded-t h-[55%] hover:bg-primary/20 transition-all"></div>
+<div class="flex-1 bg-primary/20 rounded-t h-[48%] hover:bg-primary/20 transition-all"></div>
+<div class="flex-1 bg-primary/30 rounded-t h-[65%] hover:bg-primary/40 transition-all"></div>
+<div class="flex-1 bg-primary/40 rounded-t h-[72%] hover:bg-primary/50 transition-all"></div>
+<div class="flex-1 bg-primary/60 rounded-t h-[85%] hover:bg-primary/70 transition-all"></div>
+<div class="flex-1 bg-primary rounded-t h-[78%] group relative">
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-inverse-surface text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">$142k</div>
+</div>
+<!-- Projection bars -->
+<div class="flex-1 border-2 border-primary/20 border-dashed rounded-t h-[82%]"></div>
+<div class="flex-1 border-2 border-primary/20 border-dashed rounded-t h-[90%]"></div>
+<div class="flex-1 border-2 border-primary/20 border-dashed rounded-t h-[88%]"></div>
+<div class="flex-1 border-2 border-primary/20 border-dashed rounded-t h-[95%]"></div>
+<div class="flex-1 border-2 border-primary/20 border-dashed rounded-t h-[84%]"></div>
+</div>
+</div>
+<div class="flex justify-between mt-4 px-2">
+<span class="text-[10px] font-label-caps text-outline">APR</span>
+<span class="text-[10px] font-label-caps text-outline">MAY</span>
+<span class="text-[10px] font-label-caps text-outline">JUN</span>
+<span class="text-[10px] font-label-caps text-outline">JUL</span>
+<span class="text-[10px] font-label-caps text-outline">AUG</span>
+<span class="text-[10px] font-label-caps text-outline">SEP</span>
+<span class="text-[10px] font-label-caps text-primary font-bold">OCT</span>
+<span class="text-[10px] font-label-caps text-outline">NOV</span>
+<span class="text-[10px] font-label-caps text-outline">DEC</span>
+<span class="text-[10px] font-label-caps text-outline">JAN</span>
+<span class="text-[10px] font-label-caps text-outline">FEB</span>
+<span class="text-[10px] font-label-caps text-outline">MAR</span>
+</div>
+</div>
+<!-- Efficiency Indices -->
+<div class="bg-white p-6 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+<h4 class="font-headline-md text-headline-md mb-6">Efficiency Indices</h4>
+<div class="space-y-8">
+<!-- Inventory Turnover -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<div>
+<p class="font-label-caps text-outline uppercase">Inventory Turnover</p>
+<p class="font-headline-lg text-headline-lg mt-1">6.2x</p>
+</div>
+<span class="text-tertiary-container text-xs font-bold">+1.2 vs. prev qtr</span>
+</div>
+<div class="w-full h-2.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all duration-1000" style="width: 72%"></div>
+</div>
+<div class="flex justify-between mt-2 text-[10px] font-label-caps text-outline">
+<span>0.0x</span>
+<span>Target: 8.0x</span>
+</div>
+</div>
+<!-- Gross Margin -->
+<div>
+<div class="flex justify-between items-end mb-2">
+<div>
+<p class="font-label-caps text-outline uppercase">Gross Margin %</p>
+<p class="font-headline-lg text-headline-lg mt-1">42.8%</p>
+</div>
+<span class="text-error text-xs font-bold">-2.1% target gap</span>
+</div>
+<div class="w-full h-2.5 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full transition-all duration-1000" style="width: 42.8%"></div>
+</div>
+<div class="flex justify-between mt-2 text-[10px] font-label-caps text-outline">
+<span>0%</span>
+<span>Target: 45.0%</span>
+</div>
+</div>
+<!-- Fulfillment Efficiency -->
+<div class="pt-4 border-t border-surface-container-highest">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full border-4 border-primary border-r-surface-container flex items-center justify-center">
+<span class="text-[10px] font-bold">75%</span>
+</div>
+<div>
+<p class="font-label-caps text-outline text-[10px]">Avg Fulfillment Time</p>
+<p class="font-headline-md text-sm">2.4 Days</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Section: Sales by Category + Transaction Log -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Sales by Category (Donut Chart Section) -->
+<div class="bg-white p-6 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+<h4 class="font-headline-md text-headline-md mb-6">Sales by Category</h4>
+<div class="flex items-center gap-6">
+<div class="relative w-32 h-32">
+<!-- Simulated Donut Chart using Conic Gradient -->
+<div class="w-full h-full rounded-full" style="background: conic-gradient(#0605bf 0% 45%, #4648d4 45% 75%, #4edea3 75% 90%, #d8e3fb 90% 100%)"></div>
+<div class="absolute inset-4 bg-white rounded-full flex items-center justify-center">
+<span class="font-data-lg text-sm">TOTAL</span>
+</div>
+</div>
+<div class="flex-1 space-y-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="text-xs font-body-md">Exterior Paint</span>
+</div>
+<span class="text-xs font-bold">45%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-xs font-body-md">Hardware</span>
+</div>
+<span class="text-xs font-bold">30%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span>
+<span class="text-xs font-body-md">Interior Paint</span>
+</div>
+<span class="text-xs font-bold">15%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-surface-variant"></span>
+<span class="text-xs font-body-md">Accessories</span>
+</div>
+<span class="text-xs font-bold">10%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Activity List -->
+<div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+<div class="flex justify-between items-center mb-6">
+<h4 class="font-headline-md text-headline-md">Recent Transactions</h4>
+<button class="text-primary text-sm font-headline-md hover:underline">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="border-b border-surface-container-highest">
+<th class="pb-3 font-label-caps text-outline text-[10px] uppercase">Transaction ID</th>
+<th class="pb-3 font-label-caps text-outline text-[10px] uppercase">Customer</th>
+<th class="pb-3 font-label-caps text-outline text-[10px] uppercase">Category</th>
+<th class="pb-3 font-label-caps text-outline text-[10px] uppercase">Amount</th>
+<th class="pb-3 font-label-caps text-outline text-[10px] uppercase text-right">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low">
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="py-4 font-label-caps text-xs">#INV-9021</td>
+<td class="py-4 flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-secondary/10 flex items-center justify-center text-secondary font-bold text-[10px]">BW</div>
+<span class="text-sm">Bradley Walsh</span>
+</td>
+<td class="py-4">
+<span class="px-2 py-1 rounded-md bg-surface-container-low text-[10px] font-bold">Exterior Paint</span>
+</td>
+<td class="py-4 font-bold text-sm">$1,240.00</td>
+<td class="py-4 text-right">
+<span class="px-2 py-1 rounded-md bg-tertiary-fixed/20 text-tertiary-container text-[10px] font-bold">COMPLETED</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="py-4 font-label-caps text-xs">#INV-9022</td>
+<td class="py-4 flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[10px]">SM</div>
+<span class="text-sm">Sarah Miller</span>
+</td>
+<td class="py-4">
+<span class="px-2 py-1 rounded-md bg-surface-container-low text-[10px] font-bold">Hardware</span>
+</td>
+<td class="py-4 font-bold text-sm">$420.50</td>
+<td class="py-4 text-right">
+<span class="px-2 py-1 rounded-md bg-tertiary-fixed/20 text-tertiary-container text-[10px] font-bold">COMPLETED</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors group">
+<td class="py-4 font-label-caps text-xs">#INV-9023</td>
+<td class="py-4 flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-tertiary-fixed-dim/10 flex items-center justify-center text-tertiary-container font-bold text-[10px]">RH</div>
+<span class="text-sm">Robert House</span>
+</td>
+<td class="py-4">
+<span class="px-2 py-1 rounded-md bg-surface-container-low text-[10px] font-bold">Interior Paint</span>
+</td>
+<td class="py-4 font-bold text-sm">$2,890.00</td>
+<td class="py-4 text-right">
+<span class="px-2 py-1 rounded-md bg-surface-container-high text-outline text-[10px] font-bold">PENDING</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+<!-- Background Decoration for Glassmorphism Feel -->
+<div class="fixed top-0 right-0 -z-10 w-96 h-96 bg-primary/5 blur-[120px] rounded-full"></div>
+<div class="fixed bottom-0 left-64 -z-10 w-64 h-64 bg-secondary/5 blur-[100px] rounded-full"></div>
+<script>
+        // Micro-interactions for KPI cards
+        document.querySelectorAll('.bg-white.p-5').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-4px)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0px)';
+            });
+        });
+
+        // Simple real-time update simulation
+        setInterval(() => {
+            const revenueValue = document.querySelector('h3.font-data-lg');
+            if (revenueValue) {
+                const current = parseFloat(revenueValue.innerText.replace('$', '').replace(',', ''));
+                const next = current + (Math.random() * 10 - 5);
+                revenueValue.innerText = '$' + next.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            }
+        }, 5000);
+    </script>
+</body></html>

@@ -50,6 +50,7 @@ function App() {
             <Route path="/customers"     element={<ProtectedRoute><Customers /></ProtectedRoute>} />
             <Route path="/products"      element={<ProtectedRoute><Products /></ProtectedRoute>} />
             <Route path="/products/add"  element={<ProtectedRoute><AddProduct /></ProtectedRoute>} />
+            <Route path="/products/edit/:id" element={<ProtectedRoute><AddProduct /></ProtectedRoute>} />
             <Route path="/inventory"     element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
             <Route path="/orders"        element={<ProtectedRoute><Orders /></ProtectedRoute>} />
             <Route path="/transactions"  element={<ProtectedRoute><Transactions /></ProtectedRoute>} />

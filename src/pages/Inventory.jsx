@@ -35,7 +35,8 @@ export default function Inventory() {
                 price: p.price,
                 stock: p.quantity,
                 status: getStatus(p.quantity, p.lowStockThreshold || 20),
-                lowStockThreshold: p.lowStockThreshold || 20
+                lowStockThreshold: p.lowStockThreshold || 20,
+                image: p.image || null
             }));
             setProducts(mapped);
             

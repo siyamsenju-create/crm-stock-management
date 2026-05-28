@@ -3,6 +3,7 @@ import {
   addDoc, 
   getDocs, 
   doc, 
+  getDoc,
   updateDoc, 
   deleteDoc, 
   query, 
@@ -22,6 +23,9 @@ export const saveProductToFirebase = async (productData) => {
       price: Number(productData.price),
       quantity: Number(productData.quantity),
       category: productData.category,
+      sku: productData.sku || "",
+      description: productData.description || "",
+      image: productData.image || null,
       lowStockThreshold: Number(productData.lowStockThreshold || 10),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -43,6 +47,21 @@ export const getProductsFromFirebase = async () => {
   }
 };
 
+export const getProductFromFirebase = async (productId) => {
+  try {
+    const productRef = doc(db, "products", productId);
+    const docSnap = await getDoc(productRef);
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() };
+    } else {
+      throw new Error("Product not found");
+    }
+  } catch (error) {
+    console.error("Error loading product from Firebase:", error);
+    throw error;
+  }
+};
+
 export const updateProductInFirebase = async (productId, updateData) => {
   try {
     const productRef = doc(db, "products", productId);
@@ -51,6 +70,9 @@ export const updateProductInFirebase = async (productId, updateData) => {
     if (updateData.price !== undefined) cleanedUpdates.price = Number(updateData.price);
     if (updateData.quantity !== undefined) cleanedUpdates.quantity = Number(updateData.quantity);
     if (updateData.category !== undefined) cleanedUpdates.category = updateData.category;
+    if (updateData.sku !== undefined) cleanedUpdates.sku = updateData.sku;
+    if (updateData.description !== undefined) cleanedUpdates.description = updateData.description;
+    if (updateData.image !== undefined) cleanedUpdates.image = updateData.image;
     if (updateData.lowStockThreshold !== undefined) cleanedUpdates.lowStockThreshold = Number(updateData.lowStockThreshold);
     cleanedUpdates.updatedAt = new Date().toISOString();
 
@@ -135,16 +157,22 @@ export const updateCustomerInFirebase = async (customerId, updateData) => {
 export const saveOrderToFirebase = async (orderData) => {
   try {
     const docRef = await addDoc(collection(db, "orders"), {
-      customerId: orderData.customerId,
-      total: Number(orderData.total),
-      status: orderData.status || "Pending",
-      items: orderData.items.map(item => ({
+      customerId:      orderData.customerId || '',
+      customer:        orderData.customer   || {},
+      subtotal:        Number(orderData.subtotal || 0),
+      tax:             Number(orderData.tax      || 0),
+      total:           Number(orderData.total    || 0),
+      status:          orderData.status          || "Pending",
+      shippingAddress: orderData.shippingAddress || '',
+      deliveryDate:    orderData.deliveryDate    || '',
+      carrier:         orderData.carrier         || '',
+      items: (orderData.items || []).map(item => ({
         productId: item.productId,
-        quantity: Number(item.quantity),
-        price: Number(item.price)
+        quantity:  Number(item.quantity),
+        price:     Number(item.price)
       })),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      createdAt:  new Date().toISOString(),
+      updatedAt:  new Date().toISOString()
     });
     return { success: true, id: docRef.id };
   } catch (error) {

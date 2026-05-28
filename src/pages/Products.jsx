@@ -306,7 +306,7 @@ export default function Products() {
                         <button onClick={closeDrawer} className="flex-1 py-2.5 border border-outline-variant rounded-xl text-sm font-semibold text-on-surface hover:bg-white transition-colors">
                             Close
                         </button>
-                        <button className="flex-1 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold hover:brightness-110 transition-all flex items-center justify-center gap-2">
+                        <button onClick={() => navigate(`/products/edit/${selectedProduct.id}`)} className="flex-1 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold hover:brightness-110 transition-all flex items-center justify-center gap-2">
                             <span className="material-symbols-outlined text-[16px]">edit</span> Edit
                         </button>
                     </div>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Customer Management | Insight Mobile</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#f9f9ff",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "outline-variant": "#c6c5d8",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#6063ee",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#2d34d3",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#002113",
+                        "tertiary-container": "#005a3c",
+                        "on-background": "#111c2d",
+                        "tertiary": "#00402a",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "surface-tint": "#4048e3",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed": "#00006e",
+                        "surface-variant": "#d8e3fb",
+                        "surface-bright": "#f9f9ff",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#dee8ff",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#454555",
+                        "on-primary-fixed-variant": "#2228cc",
+                        "surface-container-highest": "#d8e3fb",
+                        "on-tertiary-container": "#46d89d",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#bfc2ff",
+                        "inverse-surface": "#263143",
+                        "inverse-on-surface": "#ecf1ff",
+                        "secondary-fixed": "#e1e0ff",
+                        "error": "#ba1a1a",
+                        "inverse-primary": "#bfc2ff",
+                        "surface-dim": "#cfdaf2",
+                        "surface-container": "#e7eeff",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "surface": "#f9f9ff",
+                        "secondary": "#4648d4",
+                        "primary-fixed": "#e0e0ff",
+                        "on-surface": "#111c2d",
+                        "on-secondary-fixed": "#07006c",
+                        "on-primary-container": "#b7bbff",
+                        "tertiary-fixed": "#6ffbbe",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "surface-container-low": "#f0f3ff",
+                        "on-secondary-container": "#fffbff",
+                        "primary": "#0605bf",
+                        "outline": "#767687"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "1.25rem",
+                        "stack-lg": "1.5rem",
+                        "stack-md": "1rem",
+                        "gutter-mobile": "1rem",
+                        "stack-sm": "0.5rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "display-sm": ["Plus Jakarta Sans"],
+                        "data-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "headline-lg": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                        "display-sm": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "data-lg": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm px-margin-mobile h-16 flex justify-between items-center">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-white">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">menu</span>
+</div>
+<span class="text-headline-lg font-headline-lg font-bold text-primary">Insight Mobile</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+<div class="w-8 h-8 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed font-bold text-xs">
+                AD
+            </div>
+</div>
+</header>
+<main class="pt-20 px-margin-mobile">
+<!-- Search Bar Section -->
+<section class="mt-stack-lg">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-xl py-4 pl-12 pr-4 text-body-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-sm" placeholder="Search customers, emails, or phone..." type="text"/>
+</div>
+</section>
+<!-- Stats Overview - Bento Layout -->
+<section class="mt-stack-lg grid grid-cols-2 gap-4">
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/10">
+<div class="flex justify-between items-start mb-2">
+<div class="p-2 bg-primary-fixed rounded-lg">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">groups</span>
+</div>
+<span class="text-tertiary text-label-caps font-semibold">+4.2%</span>
+</div>
+<div class="text-data-lg font-data-lg text-on-surface">1,284</div>
+<div class="text-label-caps text-on-surface-variant mt-1 uppercase tracking-wider">Total Customers</div>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/10">
+<div class="flex justify-between items-start mb-2">
+<div class="p-2 bg-secondary-fixed rounded-lg">
+<span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<span class="text-on-surface-variant text-label-caps">Today</span>
+</div>
+<div class="text-data-lg font-data-lg text-on-surface">42</div>
+<div class="text-label-caps text-on-surface-variant mt-1 uppercase tracking-wider">Active Today</div>
+</div>
+</section>
+<!-- Filter Chips -->
+<section class="mt-stack-lg">
+<div class="flex gap-2 overflow-x-auto hide-scrollbar pb-2">
+<button class="whitespace-nowrap px-6 py-2 rounded-full bg-primary text-on-primary text-label-caps font-bold transition-all shadow-md active:scale-95">All</button>
+<button class="whitespace-nowrap px-6 py-2 rounded-full bg-surface-container border border-outline-variant text-on-surface-variant text-label-caps font-bold hover:bg-surface-container-high transition-all active:scale-95">Active</button>
+<button class="whitespace-nowrap px-6 py-2 rounded-full bg-surface-container border border-outline-variant text-on-surface-variant text-label-caps font-bold hover:bg-surface-container-high transition-all active:scale-95">New</button>
+<button class="whitespace-nowrap px-6 py-2 rounded-full bg-surface-container border border-outline-variant text-on-surface-variant text-label-caps font-bold hover:bg-surface-container-high transition-all active:scale-95">Inactive</button>
+</div>
+</section>
+<!-- Customer List -->
+<section class="mt-stack-lg space-y-4">
+<div class="flex items-center justify-between px-1">
+<h2 class="text-headline-md font-headline-md text-on-surface">Customer Directory</h2>
+<span class="text-label-caps text-primary cursor-pointer font-bold">SORT BY: RECENT</span>
+</div>
+<!-- Customer Card 1 -->
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/10 flex items-center justify-between hover:bg-surface-container-low transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img alt="Customer" class="w-12 h-12 rounded-full object-cover border-2 border-primary-fixed shadow-sm" data-alt="A professional headshot of a middle-aged businessman with a warm, confident expression. He is set against a soft-focus office background with natural window lighting that fits a high-end corporate mobile UI. The colors are crisp and natural, highlighting professional customer service and business reliability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOpEJoBRrXrK2otugfpzuSIghFUbvgTGSNU2GFhCQ2SQMaxjSdq9XxPQpeSlz5PNAp8N4pCbdANg_zZyjU3uQYqUv0HJvOzgfHFbv2H7FRMS-i-rRXMTHRDkyJEBUQFzjh399be6ClW14xXUVp7CQAP7XAsKc4CNWU4OEtYoI5aUEtVL2CmZCAKUG5r5r-hQyT_LUXvkY2MYBxxZW-p1s1p6EcLrgHKIZAnaNbVDo1PMNLXBd2l-t5WJ4EmKyCCl25Ea5Z5YJulCCq"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-tertiary-fixed-dim rounded-full border-2 border-white"></div>
+</div>
+<div>
+<div class="text-body-lg font-bold text-on-surface">Marcus Holloway</div>
+<div class="text-label-caps text-on-surface-variant mt-0.5">Last Order: Oct 24, 2023</div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-body-lg font-bold text-primary">₹14,200</div>
+<div class="text-[10px] font-label-caps text-on-tertiary-fixed-variant bg-tertiary-fixed/30 px-2 rounded-full mt-1">LIFETIME</div>
+</div>
+</div>
+<!-- Customer Card 2 -->
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/10 flex items-center justify-between hover:bg-surface-container-low transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img alt="Customer" class="w-12 h-12 rounded-full object-cover border-2 border-outline-variant shadow-sm" data-alt="A high-quality portrait of a smiling young professional woman wearing modern business attire. The setting is a bright, minimalist studio with subtle cool blue lighting accents that match the Insight Mobile design system. The mood is friendly and approachable, representing a modern customer relationship management experience." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhbQergN_vQilqtjrmMfZWukkwzvkqNdFs9ufG021nqZqyZ1WAxJk-ApPwGcb8kfA68C7yItxwgTUnCiiaoYdQPo6geRKpwfnUsfXYtCV6RhLuytMvsHVYgQBHWRYSpda5ZmG6ugL6J9JdkJ1WDvLFhTKKaqTWTGjBAxxUd-Q8mOlHzBOWFmEzbvnFIHMpEXFEHW_TwaEAk-1yJFq7Q2ZRgaXIVjWecbS2StDKRou2BafSFKY6iUCkSs_KebCKJUMuCNIT7o3J7MyA"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-outline-variant rounded-full border-2 border-white"></div>
+</div>
+<div>
+<div class="text-body-lg font-bold text-on-surface">Sarah Jenkins</div>
+<div class="text-label-caps text-on-surface-variant mt-0.5">Last Order: Oct 22, 2023</div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-body-lg font-bold text-primary">₹8,450</div>
+<div class="text-[10px] font-label-caps text-on-surface-variant bg-surface-container px-2 rounded-full mt-1 uppercase">Standard</div>
+</div>
+</div>
+<!-- Customer Card 3 -->
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/10 flex items-center justify-between hover:bg-surface-container-low transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed font-headline-md shadow-sm">
+                        JD
+                    </div>
+<div>
+<div class="text-body-lg font-bold text-on-surface">Jameson Design Studio</div>
+<div class="text-label-caps text-on-surface-variant mt-0.5">Last Order: Oct 20, 2023</div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-body-lg font-bold text-primary">₹42,000</div>
+<div class="text-[10px] font-label-caps text-on-tertiary-fixed-variant bg-tertiary-fixed/30 px-2 rounded-full mt-1">LIFETIME</div>
+</div>
+</div>
+<!-- Customer Card 4 -->
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-outline-variant/10 flex items-center justify-between opacity-70">
+<div class="flex items-center gap-4">
+<div class="relative">
+<img alt="Customer" class="w-12 h-12 rounded-full object-cover border-2 border-outline-variant filter grayscale" data-alt="A portrait of a male interior designer in a creative workshop environment. The lighting is warm and artistic, with golden hour sunlight streaming in. The image has a professional yet slightly muted tone to represent an inactive account state, maintaining the aesthetic of JJ Painting's business tools." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBenPY-yvaxS_QI7-Jjjnm0feZE097z_-sTgkeRtDAz8iT0X6Aixoym7SGAQYadIWW9msMJiB7s5jVLwz_36ZSAONcJZ2LDF22Ml55phqzAe0onl2l8ykr-GGPfdeQ5FM_6rLn5T_SBktDAdfGrYvXXRrNSwOBwJeBnfe9RJeBq9jLGs2Y4nnUvUoCV96Vz0HDk8ZU8gqGviudYoQPHt3ZqnhlH_nTgLR1CPiGiZMFKqNNyrmzmjFZFI_qS6VYH2uR3pC_imkTLAUB1"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-error rounded-full border-2 border-white"></div>
+</div>
+<div>
+<div class="text-body-lg font-bold text-on-surface">Alex Rivera</div>
+<div class="text-label-caps text-on-surface-variant mt-0.5">Last Order: Sep 12, 2023</div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-body-lg font-bold text-on-surface-variant">₹2,100</div>
+<div class="text-[10px] font-label-caps text-on-error-container bg-error-container px-2 rounded-full mt-1">INACTIVE</div>
+</div>
+</div>
+</section>
+<!-- Contextual FAB -->
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-105 active:scale-90 transition-all z-40">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">person_add</span>
+</button>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full h-20 bg-surface/90 backdrop-blur-xl flex justify-around items-center px-4 pb-safe z-50 rounded-t-xl shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-label-caps font-label-caps mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary bg-secondary-fixed/30 rounded-full px-4 py-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">groups</span>
+<span class="text-label-caps font-label-caps mt-1">Customers</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="text-label-caps font-label-caps mt-1">Inventory</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant opacity-70 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-label-caps font-label-caps mt-1">Settings</span>
+</a>
+</nav>
+<script>
+        // Simple Interaction logic for chips
+        const chips = document.querySelectorAll('button.rounded-full');
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                chips.forEach(c => {
+                    c.classList.remove('bg-primary', 'text-on-primary');
+                    c.classList.add('bg-surface-container', 'text-on-surface-variant', 'border-outline-variant');
+                });
+                chip.classList.remove('bg-surface-container', 'text-on-surface-variant', 'border-outline-variant');
+                chip.classList.add('bg-primary', 'text-on-primary');
+            });
+        });
+
+        // Search highlight effect
+        const searchInput = document.querySelector('input');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('scale-[1.01]');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('scale-[1.01]');
+        });
+    </script>
+</body></html>

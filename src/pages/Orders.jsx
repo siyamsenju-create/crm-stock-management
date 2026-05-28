@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import Layout from '../components/Layout';
 import {
     getOrdersFromFirebase,
@@ -37,11 +38,12 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
     };
 
     const addProduct = (product) => {
+        const price = Number(product.price) || 0;
         const existing = orderItems.find(i => i.productId === product.id);
         if (existing) {
             setOrderItems(items => items.map(i => i.productId === product.id ? { ...i, qty: i.qty + 1 } : i));
         } else {
-            setOrderItems(items => [...items, { productId: product.id, name: product.name, price: product.price || 0, qty: 1 }]);
+            setOrderItems(items => [...items, { productId: product.id, name: product.name, image: product.image || '', price, qty: 1 }]);
         }
         setShowProductPicker(false);
     };
@@ -67,6 +69,8 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                 customerId: selectedCustomer,
                 customer: { name: customerName, email: customerEmail },
                 items: orderItems.map(i => ({ productId: i.productId, quantity: i.qty, price: i.price })),
+                subtotal,
+                tax,
                 total,
                 status: 'Pending',
                 deliveryDate,
@@ -82,8 +86,35 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
         }
     };
 
+    const handleSaveDraft = async () => {
+        if (orderItems.length === 0 && !selectedCustomer) {
+            alert('Add at least a customer or product before saving a draft.');
+            return;
+        }
+        try {
+            await saveOrderToFirebase({
+                customerId: selectedCustomer || '',
+                customer: { name: customerName, email: customerEmail },
+                items: orderItems.map(i => ({ productId: i.productId, quantity: i.qty, price: i.price })),
+                subtotal,
+                tax,
+                total,
+                status: 'Draft',
+                deliveryDate,
+                carrier,
+                shippingAddress
+            });
+            onSuccess();
+            onClose();
+        } catch (err) {
+            console.error('Draft save error:', err);
+            alert('Failed to save draft. Please try again.');
+        }
+    };
+
     return (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 backdrop-blur-sm overflow-y-auto py-8 px-4">
+        <>
+            <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 backdrop-blur-sm overflow-y-auto py-8 px-4">
             <div className="bg-[#fcf8fa] w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden border border-[#c6c6cd]/50 my-auto">
 
                 {/* ── Header ── */}
@@ -209,36 +240,46 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                                     ))}
                                 </div>
 
-                                {/* Totals footer */}
-                                {orderItems.length > 0 && (
-                                    <div className="p-6 bg-[#f6f3f5] border-t border-[#c6c6cd]">
-                                        <div className="max-w-xs ml-auto space-y-2.5">
-                                            <div className="flex justify-between text-sm text-[#45464d]">
-                                                <span>Subtotal</span>
-                                                <span className="font-medium">₹{subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                                            </div>
-                                            <div className="flex justify-between text-sm text-[#45464d] pb-3 border-b border-[#c6c6cd]">
-                                                <span>Tax (9%)</span>
-                                                <span className="font-medium">₹{tax.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                                            </div>
-                                            <div className="flex justify-between text-xl font-bold text-black pt-1" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
-                                                <span>Total Amount</span>
-                                                <span>₹{total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
                             </section>
 
-                            {/* Mobile summary */}
-                            <div className="md:hidden flex justify-between items-center px-2">
-                                <span className="text-base text-[#515f74]">Total Amount</span>
-                                <span className="text-xl font-bold text-black" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
-                                    ₹{total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                                </span>
-                            </div>
+                            {/* ── Order Summary Card ── */}
+                            <section className="bg-white border border-[#c6c6cd] rounded-xl shadow-sm overflow-hidden">
+                                <div className="px-6 py-4 bg-[#f6f3f5] border-b border-[#c6c6cd] flex items-center gap-3">
+                                    <span className="material-symbols-outlined text-black text-[20px]">receipt_long</span>
+                                    <h3 className="text-lg font-bold text-black" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>Order Summary</h3>
+                                </div>
+                                <div className="px-6 py-5 space-y-3">
+                                    <div className="flex justify-between items-center text-sm text-[#45464d]">
+                                        <span>Subtotal</span>
+                                        <span className="font-semibold text-black">₹{subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-sm text-[#45464d]">
+                                        <span className="flex items-center gap-1.5">
+                                            Tax
+                                            <span className="text-[10px] font-mono bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold">9%</span>
+                                        </span>
+                                        <span className="font-semibold text-black">₹{tax.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-sm text-[#45464d]">
+                                        <span className="flex items-center gap-1.5">
+                                            Shipping
+                                            <span className="text-[10px] font-mono bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-bold">FREE</span>
+                                        </span>
+                                        <span className="font-semibold text-black">₹0.00</span>
+                                    </div>
+                                    <div className="pt-3 border-t border-[#c6c6cd] flex justify-between items-center">
+                                        <span className="text-base font-bold text-black" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>Total Amount</span>
+                                        <span className="text-2xl font-black text-black" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
+                                            ₹{total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                        </span>
+                                    </div>
+                                    {orderItems.length === 0 && (
+                                        <p className="text-xs text-center text-[#76777d] pt-1">Add products to see the total</p>
+                                    )}
+                                </div>
+                            </section>
 
-                            {/* CTA buttons */}
+                            {/* ── CTA buttons ── */}
                             <div className="flex gap-3">
                                 <button
                                     onClick={handleFinalize}
@@ -257,9 +298,10 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                                     {submitState === 'error' && 'Retry'}
                                 </button>
                                 <button
-                                    onClick={onClose}
-                                    className="px-8 py-4 border border-[#c6c6cd] rounded-xl font-semibold text-[#45464d] hover:bg-[#f6f3f5] transition-colors"
+                                    onClick={handleSaveDraft}
+                                    className="px-6 py-4 border border-[#c6c6cd] rounded-xl font-semibold text-[#45464d] hover:bg-[#f6f3f5] transition-colors flex items-center gap-2 text-sm"
                                 >
+                                    <span className="material-symbols-outlined text-[18px]">save</span>
                                     Save as Draft
                                 </button>
                             </div>
@@ -354,41 +396,83 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                     </div>
                 </div>
             </div>
+        </div>
 
-            {/* ── Product Picker Overlay ── */}
-            {showProductPicker && (
-                <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowProductPicker(false)}>
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-[#c6c6cd]" onClick={e => e.stopPropagation()}>
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-[#c6c6cd]">
-                            <h3 className="font-bold text-black text-lg" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>Select a Product</h3>
-                            <button onClick={() => setShowProductPicker(false)} className="w-8 h-8 flex items-center justify-center hover:bg-[#eae7e9] rounded-full transition-colors">
-                                <span className="material-symbols-outlined text-[20px] text-[#45464d]">close</span>
+        {/* ── Product Picker Overlay ── */}
+            {showProductPicker && createPortal(
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4" onClick={() => setShowProductPicker(false)}>
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl min-w-[90vw] md:min-w-[900px] max-h-[85vh] overflow-hidden flex flex-col border border-gray-200" onClick={e => e.stopPropagation()}>
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-6 py-5 border-b bg-white shrink-0">
+                            <div>
+                                <h2 className="text-xl font-bold text-black tracking-tight" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
+                                    Select a Product
+                                </h2>
+                                <p className="text-xs text-gray-500 mt-0.5">{products.length} products available</p>
+                            </div>
+                            <button onClick={() => setShowProductPicker(false)} className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors active:scale-90">
+                                <span className="material-symbols-outlined text-[18px]">close</span>
                             </button>
                         </div>
-                        <div className="max-h-80 overflow-y-auto divide-y divide-[#c6c6cd]/50">
+
+                        {/* List */}
+                        <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
                             {products.length === 0 ? (
-                                <p className="p-6 text-center text-sm text-[#76777d]">No products found. Add products first.</p>
-                            ) : products.map(p => (
-                                <button
-                                    key={p.id}
-                                    onClick={() => addProduct(p)}
-                                    className="w-full flex items-center justify-between px-6 py-4 hover:bg-[#f6f3f5] transition-colors text-left group"
-                                >
-                                    <div>
-                                        <p className="font-semibold text-sm text-black group-hover:text-black">{p.name}</p>
-                                        <p className="text-xs text-[#515f74] mt-0.5">Stock: {p.quantity} units</p>
+                                <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                                    <span className="material-symbols-outlined text-5xl mb-3 opacity-30">inventory_2</span>
+                                    <p className="text-sm font-medium">No products found</p>
+                                    <p className="text-xs mt-1 opacity-70">Add products first from the Products page.</p>
+                                </div>
+                            ) : products.map(p => {
+                                const qty = isNaN(Number(p.quantity)) ? 0 : Number(p.quantity);
+                                const isLow = qty > 0 && qty < (p.lowStockThreshold || 20);
+                                const isOut = qty <= 0;
+                                return (
+                                    <div key={p.id} className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50 transition-colors group">
+                                        {/* Image */}
+                                        <div className="w-16 h-16 rounded-xl overflow-hidden border border-gray-100 bg-gray-50 shrink-0">
+                                            {p.image ? (
+                                                <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center bg-primary/5">
+                                                    <span className="material-symbols-outlined text-primary text-[28px]">format_paint</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Info */}
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-semibold text-sm text-black group-hover:text-primary transition-colors truncate">{p.name}</p>
+                                            <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                                <span className="text-[10px] font-mono bg-gray-100 px-2 py-0.5 rounded-full text-gray-600 font-bold uppercase">{p.category}</span>
+                                                <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${isOut ? 'bg-red-100 text-red-700' : isLow ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>
+                                                    {isOut ? 'Out of stock' : `${qty} in stock`}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* Price + Add */}
+                                        <div className="flex items-center gap-4 shrink-0">
+                                            <p className="text-base font-black text-black" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
+                                                ₹{Number(p.price || 0).toLocaleString('en-IN')}
+                                            </p>
+                                            <button
+                                                onClick={() => addProduct(p)}
+                                                className="px-4 py-2 bg-black text-white text-xs font-bold rounded-lg hover:opacity-80 active:scale-95 transition-all flex items-center gap-1.5"
+                                            >
+                                                <span className="material-symbols-outlined text-[14px]">add</span>
+                                                Add
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="font-bold text-sm text-black">₹{(p.price || 0).toLocaleString('en-IN')}</p>
-                                        <p className="text-[10px] text-[#45464d] mt-0.5">{p.category}</p>
-                                    </div>
-                                </button>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
-        </div>
+        </>
     );
 }
 
@@ -443,6 +527,7 @@ export default function Orders() {
         Completed: 'bg-green-100 text-green-700',
         Pending:   'bg-amber-100 text-amber-700',
         Cancelled: 'bg-red-100 text-red-700',
+        Draft:     'bg-gray-100 text-gray-600',
     };
 
     return (
@@ -499,7 +584,7 @@ export default function Orders() {
                 {/* Filter tabs */}
                 <div className="px-6 py-4 border-b border-[#c6c6cd] flex items-center justify-between bg-[#f6f3f5]/60">
                     <div className="flex bg-white border border-[#c6c6cd] rounded-xl p-1 gap-1 shadow-sm">
-                        {['All Orders', 'Pending', 'Completed', 'Cancelled'].map(f => (
+                        {['All Orders', 'Pending', 'Completed', 'Draft', 'Cancelled'].map(f => (
                             <button
                                 key={f}
                                 onClick={() => setFilter(f)}
