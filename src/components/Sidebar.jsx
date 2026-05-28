@@ -51,10 +51,10 @@ export default function Sidebar() {
             <div className="pt-4 border-t border-outline-variant mt-4 px-6">
                 <Link to="/settings" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                     <div className="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center text-on-primary font-bold text-sm">
-                        {user?.name ? user.name.substring(0, 2).toUpperCase() : 'AD'}
+                        {user?.name ? user.name.substring(0, 2).toUpperCase() : 'AJ'}
                     </div>
                     <div className="min-w-0">
-                        <p className="font-semibold text-on-surface text-sm truncate">{user?.name || 'Admin'}</p>
+                        <p className="font-semibold text-on-surface text-sm truncate">{user?.name || 'Arokiya Jegan'}</p>
                         <p className="text-xs text-outline">{user?.role === 'admin' ? 'Admin Access' : 'User Access'}</p>
                     </div>
                 </Link>

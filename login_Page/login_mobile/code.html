@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Insight Mobile - Login</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#6ffbbe",
+                    "surface-container": "#e7eeff",
+                    "on-tertiary": "#ffffff",
+                    "outline-variant": "#c6c5d8",
+                    "inverse-primary": "#bfc2ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-fixed": "#07006c",
+                    "tertiary-container": "#005a3c",
+                    "on-tertiary-fixed-variant": "#005236",
+                    "inverse-surface": "#263143",
+                    "on-tertiary-container": "#46d89d",
+                    "secondary-container": "#6063ee",
+                    "surface-bright": "#f9f9ff",
+                    "error-container": "#ffdad6",
+                    "surface-container-high": "#dee8ff",
+                    "on-primary-fixed-variant": "#2228cc",
+                    "surface-dim": "#cfdaf2",
+                    "primary": "#0605bf",
+                    "inverse-on-surface": "#ecf1ff",
+                    "surface-container-highest": "#d8e3fb",
+                    "on-background": "#111c2d",
+                    "secondary": "#4648d4",
+                    "surface-variant": "#d8e3fb",
+                    "surface": "#f9f9ff",
+                    "secondary-fixed-dim": "#c0c1ff",
+                    "on-surface-variant": "#454555",
+                    "on-secondary-fixed-variant": "#2f2ebe",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#00402a",
+                    "on-surface": "#111c2d",
+                    "on-primary-fixed": "#00006e",
+                    "surface-tint": "#4048e3",
+                    "on-secondary-container": "#fffbff",
+                    "background": "#f9f9ff",
+                    "on-tertiary-fixed": "#002113",
+                    "primary-container": "#2d34d3",
+                    "on-primary": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed-dim": "#bfc2ff",
+                    "secondary-fixed": "#e1e0ff",
+                    "on-error": "#ffffff",
+                    "primary-fixed": "#e0e0ff",
+                    "on-primary-container": "#b7bbff",
+                    "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "1rem",
+                    "margin-mobile": "1.25rem",
+                    "stack-sm": "0.5rem",
+                    "stack-lg": "1.5rem",
+                    "gutter-mobile": "1rem"
+            },
+            "fontFamily": {
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "display-sm": ["Plus Jakarta Sans"],
+                    "data-lg": ["Plus Jakarta Sans"],
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-md": ["Inter"],
+                    "label-caps": ["JetBrains Mono"]
+            },
+            "fontSize": {
+                    "headline-md": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "display-sm": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "data-lg": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .floating-label-group {
+            position: relative;
+        }
+        .floating-label-group input:focus ~ label,
+        .floating-label-group input:not(:placeholder-shown) ~ label {
+            top: -0.5rem;
+            left: 0.75rem;
+            font-size: 11px;
+            background: #ffffff;
+            padding: 0 0.25rem;
+            color: #0605bf;
+        }
+        .floating-label-group label {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            pointer-events: none;
+            transition: all 0.2s ease;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col items-center justify-center font-body-md overflow-x-hidden">
+<!-- Atmospheric Background Decoration -->
+<div class="fixed inset-0 z-0 pointer-events-none">
+<div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/5 rounded-full blur-[120px]"></div>
+</div>
+<!-- Main Content Canvas -->
+<main class="relative z-10 w-full max-w-[400px] px-margin-mobile py-stack-lg flex flex-col items-center">
+<!-- Brand Identity Section -->
+<header class="w-full flex flex-col items-center mb-10 text-center">
+<div class="w-16 h-16 bg-primary rounded-xl flex items-center justify-center shadow-lg mb-6 active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-on-primary text-4xl" data-icon="insights">insights</span>
+</div>
+<h1 class="font-display-sm text-display-sm text-primary tracking-tight">JJ Painting</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant mt-1">INSIGHT MOBILE</p>
+</header>
+<!-- Login Container -->
+<section class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+<div class="mb-8">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-2">Welcome Back</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Access your business intelligence portal.</p>
+</div>
+<!-- Login Form -->
+<form class="space-y-stack-md" id="loginForm" onsubmit="return false;">
+<!-- Email Input -->
+<div class="floating-label-group">
+<input class="w-full h-14 bg-surface-container-low border border-outline-variant rounded-lg px-4 pt-2 font-body-lg text-body-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" id="email" placeholder=" " type="email"/>
+<label class="font-label-caps text-label-caps text-outline" for="email">EMAIL ADDRESS</label>
+</div>
+<!-- Password Input -->
+<div class="floating-label-group">
+<input class="w-full h-14 bg-surface-container-low border border-outline-variant rounded-lg px-4 pt-2 font-body-lg text-body-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" id="password" placeholder=" " type="password"/>
+<label class="font-label-caps text-label-caps text-outline" for="password">PASSWORD</label>
+<button class="absolute right-3 top-4 text-outline hover:text-primary" onclick="togglePassword()" type="button">
+<span class="material-symbols-outlined" data-icon="visibility" id="eyeIcon">visibility</span>
+</button>
+</div>
+<!-- Forgot Password -->
+<div class="flex justify-end">
+<a class="font-label-caps text-label-caps text-secondary hover:text-primary transition-colors" href="#">Forgot Password?</a>
+</div>
+<!-- Sign In Button -->
+<button class="w-full h-12 bg-primary text-on-primary font-headline-md text-headline-md rounded-lg shadow-md active:scale-[0.98] transition-all hover:bg-primary/90 mt-2" type="submit">
+                    Sign In
+                </button>
+</form>
+<!-- Divider -->
+<div class="flex items-center my-stack-lg">
+<div class="flex-grow h-px bg-outline-variant/40"></div>
+<span class="px-4 font-label-caps text-label-caps text-outline">OR</span>
+<div class="flex-grow h-px bg-outline-variant/40"></div>
+</div>
+<!-- Google Login -->
+<button class="w-full h-12 bg-surface-bright border border-outline-variant text-on-surface font-headline-md text-headline-md rounded-lg flex items-center justify-center gap-3 active:scale-[0.98] transition-all hover:bg-surface-container-high">
+<img alt="Google Logo" class="w-5 h-5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAogXWKntDaFR6s8Y0EPX1n3JdkBAbxziHXd4G0HnEaors8uOTQgfqnPf5LhjNWR-wi_2RrH2Muc8pyv84A-3BnjvobIdge4GhSETwpfoG7A33VRFH39UHGi93qcj3eQePOvzwG6Vk_wbtPoeFSNSun6luBk79ktqVhYSc5iG6Sj6q5gva7X-gAwI55mY3GaI5wQSFl7pG9TIm_9MjJ0IMh6x0x_gwThPXdFjIbitbs16ZU04qPndX03zijTZjpyOv3GerOCMS_2HWP"/>
+                Continue with Google
+            </button>
+</section>
+<!-- Footer Links -->
+<footer class="mt-8 text-center">
+<p class="font-body-md text-body-md text-on-surface-variant">
+                Don't have an account? 
+                <a class="font-headline-md text-headline-md text-primary ml-1 hover:underline decoration-2 underline-offset-4" href="#">Sign Up</a>
+</p>
+</footer>
+<!-- Legal/Help -->
+<div class="mt-12 flex gap-4">
+<a class="font-label-caps text-label-caps text-outline hover:text-on-surface transition-colors" href="#">Privacy Policy</a>
+<span class="text-outline-variant">•</span>
+<a class="font-label-caps text-label-caps text-outline hover:text-on-surface transition-colors" href="#">Support</a>
+</div>
+</main>
+<script>
+        function togglePassword() {
+            const pwdInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            if (pwdInput.type === 'password') {
+                pwdInput.type = 'text';
+                eyeIcon.innerText = 'visibility_off';
+            } else {
+                pwdInput.type = 'password';
+                eyeIcon.innerText = 'visibility';
+            }
+        }
+
+        // Micro-interaction for form submission simulation
+        const loginForm = document.getElementById('loginForm');
+        loginForm.addEventListener('submit', (e) => {
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin" data-icon="progress_activity">progress_activity</span>';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.disabled = false;
+                // Add a small bounce/success pulse
+                btn.classList.add('bg-tertiary-container', 'text-on-tertiary-container');
+                setTimeout(() => {
+                    btn.classList.remove('bg-tertiary-container', 'text-on-tertiary-container');
+                }, 1000);
+            }, 1500);
+        });
+    </script>
+</body></html>

@@ -35,7 +35,7 @@ export default function TopBar() {
     return (
         <header className="flex justify-between items-center px-8 sticky top-0 z-40 ml-64 w-[calc(100%-16rem)] h-16 bg-white/90 backdrop-blur-md shadow-sm border-b border-outline-variant">
             <div className="flex items-center gap-4 flex-1">
-                <div className="relative w-full max-w-lg">
+                <div className="relative w-full max-w-[512px]">
                     <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
                     <input
                         value={search}
@@ -62,15 +62,15 @@ export default function TopBar() {
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
                         className="w-9 h-9 rounded-full bg-primary-container text-on-primary font-bold text-sm flex items-center justify-center ring-2 ring-outline-variant hover:ring-primary transition-all"
                     >
-                        {user?.name ? user.name.substring(0, 2).toUpperCase() : 'AD'}
+                        {user?.name ? user.name.substring(0, 2).toUpperCase() : 'AJ'}
                     </button>
                     
                     {/* Dropdown Menu */}
                     {isDropdownOpen && (
                         <div className="absolute right-0 mt-2 w-48 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-lg overflow-hidden py-1 z-50">
                             <div className="px-4 py-3 border-b border-outline-variant">
-                                <p className="text-sm font-label-md text-on-surface truncate">{user?.name || 'Admin'}</p>
-                                <p className="text-xs font-body-sm text-on-surface-variant truncate">{user?.email || 'admin@example.com'}</p>
+                                <p className="text-sm font-label-md text-on-surface truncate">{user?.name || 'Arokiya Jegan'}</p>
+                                <p className="text-xs font-body-sm text-on-surface-variant truncate">{user?.email || 'jjpaintinghaedwares@gmail.com'}</p>
                             </div>
                             <button
                                 onClick={() => { setIsDropdownOpen(false); navigate('/settings'); }}

@@ -22,7 +22,11 @@ const PageLoader = () => (
 );
 
 const ProtectedRoute = ({ children }) => {
-  return children; // Auth bypass — toggle when ready
+  const { isAuthenticated } = useStore();
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
 };
 
 const AuthRoute = ({ children }) => {

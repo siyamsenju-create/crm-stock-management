@@ -9,7 +9,7 @@ export default function Customers() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isAdding, setIsAdding] = useState(false);
-    const [newCustomer, setNewCustomer] = useState({ name: '', email: '', location: '' });
+    const [newCustomer, setNewCustomer] = useState({ name: '', phone: '', location: '' });
 
     const fetchCustomers = async () => {
         setIsLoading(true);
@@ -31,7 +31,7 @@ export default function Customers() {
     const handleExport = () => {
         const csv = Papa.unparse(customers.map(c => ({
             Name: c.name,
-            Email: c.email,
+            Phone: c.phone || '',
             Location: c.location,
             'Total Orders': c.ordersCount,
             'Total Spent': c.totalSpent,
@@ -51,7 +51,7 @@ export default function Customers() {
         try {
             await saveCustomerToFirebase(newCustomer);
             setIsAdding(false);
-            setNewCustomer({ name: '', email: '', location: '' });
+            setNewCustomer({ name: '', phone: '', location: '' });
             fetchCustomers();
         } catch (err) {
             alert(err.message || 'Failed to add customer');
@@ -92,8 +92,8 @@ export default function Customers() {
                             <input required value={newCustomer.name} onChange={e => setNewCustomer({...newCustomer, name: e.target.value})} className="w-full border border-outline-variant rounded-lg px-3 py-2" placeholder="e.g. Acme Corp" />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-on-surface-variant mb-1">Email</label>
-                            <input required type="email" value={newCustomer.email} onChange={e => setNewCustomer({...newCustomer, email: e.target.value})} className="w-full border border-outline-variant rounded-lg px-3 py-2" placeholder="e.g. contact@acme.com" />
+                            <label className="block text-sm font-medium text-on-surface-variant mb-1">Phone Number</label>
+                            <input required type="tel" value={newCustomer.phone} onChange={e => setNewCustomer({...newCustomer, phone: e.target.value})} className="w-full border border-outline-variant rounded-lg px-3 py-2" placeholder="e.g. +91 98765 43210" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-on-surface-variant mb-1">Location</label>
@@ -141,7 +141,7 @@ export default function Customers() {
                             <tr className="bg-gray-50 text-on-surface-variant text-[11px] font-bold uppercase tracking-widest border-b border-gray-100">
                                 <th className="px-lg py-4">ID</th>
                                 <th className="px-lg py-4">Name</th>
-                                <th className="px-lg py-4">Email</th>
+                                <th className="px-lg py-4">Phone Number</th>
                                 <th className="px-lg py-4">Location</th>
                                 <th className="px-lg py-4">Total Orders</th>
                                 <th className="px-lg py-4">Status</th>
@@ -162,7 +162,7 @@ export default function Customers() {
                                                 <span className="font-semibold text-on-surface">{c.name}</span>
                                             </div>
                                         </td>
-                                        <td className="px-lg py-4 text-on-surface-variant font-body-sm">{c.email}</td>
+                                        <td className="px-lg py-4 text-on-surface-variant font-body-sm">{c.phone || c.email || '—'}</td>
                                         <td className="px-lg py-4 text-on-surface-variant font-body-sm">{c.location}</td>
                                         <td className="px-lg py-4 text-on-surface font-semibold">{c.ordersCount || 0} Orders</td>
                                         <td className="px-lg py-4">

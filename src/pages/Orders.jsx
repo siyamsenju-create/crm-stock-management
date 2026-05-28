@@ -21,11 +21,8 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitState, setSubmitState] = useState('idle'); // idle | loading | success | error
 
-    const TAX_RATE = 0.09;
-
     const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
-    const tax = subtotal * TAX_RATE;
-    const total = subtotal + tax;
+    const total = subtotal;
 
     const handleCustomerChange = (e) => {
         const cid = e.target.value;
@@ -70,7 +67,6 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                 customer: { name: customerName, email: customerEmail },
                 items: orderItems.map(i => ({ productId: i.productId, quantity: i.qty, price: i.price })),
                 subtotal,
-                tax,
                 total,
                 status: 'Pending',
                 deliveryDate,
@@ -97,7 +93,6 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                 customer: { name: customerName, email: customerEmail },
                 items: orderItems.map(i => ({ productId: i.productId, quantity: i.qty, price: i.price })),
                 subtotal,
-                tax,
                 total,
                 status: 'Draft',
                 deliveryDate,
@@ -253,13 +248,7 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                                         <span>Subtotal</span>
                                         <span className="font-semibold text-black">₹{subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                                     </div>
-                                    <div className="flex justify-between items-center text-sm text-[#45464d]">
-                                        <span className="flex items-center gap-1.5">
-                                            Tax
-                                            <span className="text-[10px] font-mono bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold">9%</span>
-                                        </span>
-                                        <span className="font-semibold text-black">₹{tax.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-                                    </div>
+
                                     <div className="flex justify-between items-center text-sm text-[#45464d]">
                                         <span className="flex items-center gap-1.5">
                                             Shipping

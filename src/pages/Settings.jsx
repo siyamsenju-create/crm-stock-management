@@ -7,8 +7,8 @@ export default function Settings() {
     const navigate = useNavigate();
     const { user } = useStore();
     const [localProfile, setLocalProfile] = useState({
-        name: user?.name || 'Admin',
-        email: user?.email || 'admin@example.com',
+        name: user?.name || 'Arokiya Jegan',
+        email: user?.email || 'jjpaintinghaedwares@gmail.com',
         company: 'JJ Painting'
     });
 
@@ -166,7 +166,7 @@ export default function Settings() {
             </div>
 
             {/* Mobile Main Content Wrapper */}
-            <main className="md:hidden pt-24 pb-32 px-md space-y-lg max-w-md mx-auto">
+            <main className="md:hidden pt-24 pb-32 px-md space-y-lg max-w-[448px] mx-auto">
                 <section className="space-y-md">
                     <h2 className="font-h2 text-h2 text-on-surface px-xs">Profile Settings</h2>
                     <div className="bg-surface-container-lowest rounded-xl border border-outline-variant p-md shadow-sm space-y-md">

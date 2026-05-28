@@ -277,7 +277,7 @@ export default function AddProduct() {
             </div>
 
             {/* Mobile form */}
-            <main className="md:hidden px-4 pt-4 pb-32 space-y-6 max-w-md mx-auto">
+            <main className="md:hidden px-4 pt-4 pb-32 space-y-6 max-w-[448px] mx-auto">
                 <div>
                     <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-1">General Information</p>
                     <div className="h-0.5 w-8 bg-primary rounded-full mb-4"/>
