@@ -1,8 +1,9 @@
 const express = require('express');
-const { register, login, refreshToken, getMe, logout, updateProfile } = require('../controllers/auth.controller');
+const { register, login, googleLogin, refreshToken, getMe, logout, updateProfile } = require('../controllers/auth.controller');
 const { protect } = require('../middlewares/auth.middleware');
 const validate = require('../middlewares/validate.middleware');
 const authSchemas = require('../validations/auth.validation');
+
 
 const router = express.Router();
 
@@ -76,6 +77,33 @@ router.post('/register', validate(authSchemas.register), register);
  *         description: Invalid credentials
  */
 router.post('/login', validate(authSchemas.login), login);
+
+/**
+ * @swagger
+ * /auth/google:
+ *   post:
+ *     summary: Login/Register via Google SSO
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [idToken]
+ *             properties:
+ *               idToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       400:
+ *         description: Invalid input or missing email
+ *       401:
+ *         description: Invalid Firebase ID token
+ */
+router.post('/google', validate(authSchemas.googleLogin), googleLogin);
+
 
 /**
  * @swagger

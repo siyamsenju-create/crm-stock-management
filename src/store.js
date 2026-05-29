@@ -27,6 +27,21 @@ export const useStore = create(
                 return false;
             },
 
+            loginWithGoogle: async (idToken) => {
+                console.log("Sending Google token to backend");
+                console.log(idToken);
+                const response = await api.post('/auth/google', { idToken });
+                if (response.success && response.data) {
+                    const { accessToken, ...userData } = response.data;
+                    get().setToken(accessToken);
+                    set({ user: userData });
+                    return true;
+                }
+                return false;
+            },
+
+
+
             logout: async () => {
                 try {
                     await api.post('/auth/logout');

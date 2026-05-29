@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { auth } from '../utils/firebase';
+
+
 
 export default function Login() {
   const navigate = useNavigate();
@@ -45,6 +49,8 @@ export default function Login() {
   };
 
   const loginAction = useStore((state) => state.login);
+  const loginWithGoogleAction = useStore((state) => state.loginWithGoogle);
+
 
   const handleLogin = async (e) => {
     if (e) e.preventDefault();
@@ -74,13 +80,40 @@ export default function Login() {
     }
   };
 
-  const handleGoogleSSO = () => {
-    setToast({
-      show: true,
-      message: 'Google Single Sign-On (SSO) is not active for this enterprise channel. Please sign in using your corporate credentials.',
-      type: 'error'
-    });
+  const handleGoogleSSO = async () => {
+    setIsLoading(true);
+    setErrors({});
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      
+      const result = await signInWithPopup(auth, provider);
+      const idToken = await result.user.getIdToken();
+      
+      console.log("Firebase ID Token:", idToken);
+      console.log("User Email:", result.user.email);
+
+      const success = await loginWithGoogleAction(idToken);
+      if (success) {
+        setToast({ show: true, message: 'Successfully logged in with Google!', type: 'success' });
+        setTimeout(() => navigate('/'), 1000);
+      } else {
+        throw new Error('Failed to authenticate with backend.');
+      }
+    } catch (error) {
+      console.error('Google SSO error:', error);
+      let errorMsg = 'Google authentication was cancelled or failed.';
+      if (error.code === 'auth/popup-closed-by-user') {
+        errorMsg = 'Google sign-in popup was closed before completing.';
+      } else if (error.message) {
+        errorMsg = error.message;
+      }
+      setToast({ show: true, message: errorMsg, type: 'error' });
+    } finally {
+      setIsLoading(false);
+    }
   };
+
 
   const handleForgotPassword = (e) => {
     e.preventDefault();

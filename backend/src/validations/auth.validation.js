@@ -56,6 +56,16 @@ const authSchemas = {
       }).optional()
     }).min(1), // Require at least one field to be updated
   },
+
+  googleLogin: {
+    body: Joi.object({
+      idToken: Joi.string().required().messages({
+        'any.required': 'Firebase ID token is required',
+        'string.empty': 'Firebase ID token cannot be empty',
+      }),
+    }),
+  },
 };
 
 module.exports = authSchemas;
+
