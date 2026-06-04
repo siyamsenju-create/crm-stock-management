@@ -18,26 +18,31 @@ export const useStore = create(
 
             login: async (email, password) => {
                 const response = await api.post('/auth/login', { email, password });
+                console.log('[login] backend response:', response);
                 if (response.success && response.data) {
                     const { accessToken, ...userData } = response.data;
                     get().setToken(accessToken);
                     set({ user: userData });
                     return true;
                 }
-                return false;
+                // Surface the actual backend error message to the UI
+                throw new Error(response.message || response.error || 'Invalid email or password.');
             },
 
             loginWithGoogle: async (idToken) => {
-                console.log("Sending Google token to backend");
-                console.log(idToken);
+                console.log('[STORE] loginWithGoogle called');
+                console.log('[STORE] token length:', idToken?.length);
+                console.log('[loginWithGoogle] sending Firebase ID token to backend...');
                 const response = await api.post('/auth/google', { idToken });
+                console.log('[loginWithGoogle] backend response:', response);
                 if (response.success && response.data) {
                     const { accessToken, ...userData } = response.data;
                     get().setToken(accessToken);
                     set({ user: userData });
                     return true;
                 }
-                return false;
+                // Surface the actual backend error message to the UI
+                throw new Error(response.message || response.error || 'Google authentication failed. You may not have access.');
             },
 
 

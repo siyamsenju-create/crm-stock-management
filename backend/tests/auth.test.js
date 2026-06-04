@@ -3,6 +3,11 @@ const app = require('../src/app');
 const mongoose = require('mongoose');
 const User = require('../src/models/User');
 const Product = require('../src/models/Product');
+const { verifyFirebaseIdToken } = require('../src/utils/firebaseAuth');
+
+jest.mock('../src/utils/firebaseAuth', () => ({
+  verifyFirebaseIdToken: jest.fn(),
+}));
 
 // ── Test helpers ──────────────────────────────────────────────────────────────
 
@@ -142,5 +147,71 @@ describe('🔐 Auth — GET /api/v1/auth/me', () => {
       .get('/api/v1/auth/me')
       .set('Authorization', 'Bearer not.a.valid.token');
     expect(res.statusCode).toBe(401);
+  });
+});
+
+describe('🔐 Auth — POST /api/v1/auth/google', () => {
+  it('200 — registers and logs in a new user with valid Firebase ID token', async () => {
+    const email = `test.google.new.${Date.now()}@test.com`;
+    verifyFirebaseIdToken.mockResolvedValue({
+      email,
+      name: 'Google New User',
+    });
+
+    const res = await request(app).post('/api/v1/auth/google').send({
+      idToken: 'mock_valid_token_new',
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('accessToken');
+    expect(res.body.data).toHaveProperty('refreshToken');
+    expect(res.body.data.email).toBe(email);
+
+    // Verify user was actually created in MongoDB
+    const userInDb = await User.findOne({ email });
+    expect(userInDb).toBeDefined();
+    expect(userInDb.name).toBe('Google New User');
+  });
+
+  it('200 — logs in an existing user with valid Firebase ID token', async () => {
+    const email = `test.google.exist.${Date.now()}@test.com`;
+    await User.create({
+      name: 'Existing Google User',
+      email,
+      password: 'some-random-password',
+      role: 'User',
+    });
+
+    verifyFirebaseIdToken.mockResolvedValue({
+      email,
+      name: 'Existing Google User',
+    });
+
+    const res = await request(app).post('/api/v1/auth/google').send({
+      idToken: 'mock_valid_token_existing',
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.email).toBe(email);
+  });
+
+  it('401 — rejects invalid Firebase ID token', async () => {
+    const error = new Error('Invalid token signature');
+    error.statusCode = 401;
+    verifyFirebaseIdToken.mockRejectedValue(error);
+
+    const res = await request(app).post('/api/v1/auth/google').send({
+      idToken: 'mock_invalid_token',
+    });
+
+    expect(res.statusCode).toBe(401);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('422 — rejects missing idToken', async () => {
+    const res = await request(app).post('/api/v1/auth/google').send({});
+    expect(res.statusCode).toBe(422);
   });
 });
