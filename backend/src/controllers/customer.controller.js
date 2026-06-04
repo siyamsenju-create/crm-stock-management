@@ -1,4 +1,5 @@
 const Customer = require('../models/Customer');
+const validator = require('validator');
 const asyncHandler = require('../utils/asyncHandler');
 const AppError = require('../utils/AppError');
 const { sendSuccess } = require('../utils/apiResponse');
@@ -98,7 +99,10 @@ exports.updateCustomer = asyncHandler(async (req, res) => {
     const v = req.body.email;
     if (!isSafePrimitive(v)) throw AppError.badRequest('Field "email" must be a string or null.');
     const sanitised = sanitiseString(v, 'email');
-    if (sanitised !== null && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitised)) {
+    // Use validator.isEmail() — a proven, ReDoS-safe library function.
+    // Avoids the polynomial backtracking risk of inline character-class regexes
+    // that CodeQL flags as CWE-730 (Polynomial ReDoS).
+    if (sanitised !== null && !validator.isEmail(sanitised, { allow_utf8_local_part: false })) {
       throw AppError.badRequest('Field "email" must be a valid email address.');
     }
     safeUpdates.email = sanitised;
