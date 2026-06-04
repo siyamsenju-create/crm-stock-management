@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login | JJ Painting &amp; Hardware Business Intelligence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#6ffbbe",
+                        "surface-container": "#e7eeff",
+                        "on-tertiary": "#ffffff",
+                        "outline-variant": "#c6c5d8",
+                        "inverse-primary": "#bfc2ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#07006c",
+                        "tertiary-container": "#005a3c",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "inverse-surface": "#263143",
+                        "on-tertiary-container": "#46d89d",
+                        "secondary-container": "#6063ee",
+                        "surface-bright": "#f9f9ff",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#dee8ff",
+                        "on-primary-fixed-variant": "#2228cc",
+                        "surface-dim": "#cfdaf2",
+                        "primary": "#0605bf",
+                        "inverse-on-surface": "#ecf1ff",
+                        "surface-container-highest": "#d8e3fb",
+                        "on-background": "#111c2d",
+                        "secondary": "#4648d4",
+                        "surface-variant": "#d8e3fb",
+                        "surface": "#f9f9ff",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "on-surface-variant": "#454555",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#00402a",
+                        "on-surface": "#111c2d",
+                        "on-primary-fixed": "#00006e",
+                        "surface-tint": "#4048e3",
+                        "on-secondary-container": "#fffbff",
+                        "background": "#f9f9ff",
+                        "on-tertiary-fixed": "#002113",
+                        "primary-container": "#2d34d3",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#bfc2ff",
+                        "secondary-fixed": "#e1e0ff",
+                        "on-error": "#ffffff",
+                        "primary-fixed": "#e0e0ff",
+                        "on-primary-container": "#b7bbff",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "1rem",
+                        "margin-mobile": "1.25rem",
+                        "stack-sm": "0.5rem",
+                        "stack-lg": "1.5rem",
+                        "gutter-mobile": "1rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "display-sm": ["Plus Jakarta Sans"],
+                        "data-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "display-sm": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "data-lg": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen overflow-hidden">
+<main class="flex h-screen w-full">
+<!-- Left Side: Brand Imagery & Pattern -->
+<section class="hidden lg:flex lg:w-1/2 relative bg-primary overflow-hidden items-center justify-center">
+<!-- Animated Background Pattern -->
+<div class="absolute inset-0 z-0 opacity-20">
+<div class="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-secondary rounded-full blur-[120px]"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-tertiary-container rounded-full blur-[120px]"></div>
+</div>
+<div class="relative z-10 w-full h-full">
+<img alt="Business Intelligence Dashboard" class="w-full h-full object-cover mix-blend-overlay" data-alt="A sophisticated close-up of a high-tech data visualization screen in a dark, professional office environment. The image features glowing blue and purple charts, graphs, and digital metrics that illuminate a sleek glass surface. The lighting is moody and cinematic, emphasizing a futuristic business intelligence aesthetic. The color palette is dominated by deep navy blues and vibrant violet accents, creating a sense of reliability and cutting-edge software technology." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQxZ_SMuayE-sA98rOFeJlSbC2_xm2s5zGyqs_3eLqv9rQC9KyOQuOmV15jqtXsMRtBzIv5ybWvH7L5-gxovBvwbH2Zfc7aisGdcRkn8HxHLJc7Y82zYc344U0va8r2EIsMzx5CS4eQBqkKvBWiesSn-HBCVj8WHgGM_P807IHkh4T1y3zG_tKfzvjv0JoYkf7-E2o2pZBLc2VDOAIwIrpLXlJWYBVyAynul7I52S5fuMhmZ6u1a_E9_8bYG5I0TKqfLri5VTU27Fi"/>
+</div>
+<!-- Content Overlay -->
+<div class="absolute inset-0 z-20 flex flex-col justify-end p-16 bg-gradient-to-t from-primary/80 to-transparent">
+<h1 class="font-display-sm text-[42px] leading-tight text-white mb-4">Precision in Every Stroke. Data in Every Decision.</h1>
+<p class="font-body-lg text-on-primary-container max-w-md">Access real-time inventory, sales performance, and project management tools tailored for the modern hardware enterprise.</p>
+</div>
+</section>
+<!-- Right Side: Login Form -->
+<section class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-surface">
+<div class="w-full max-w-md space-y-stack-lg">
+<!-- Branding -->
+<div class="space-y-stack-sm mb-12">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-white text-3xl" style="font-variation-settings: 'FILL' 1;">format_paint</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-primary tracking-tight">JJ Painting</h2>
+<p class="font-label-caps text-label-caps text-outline uppercase">Business Intelligence</p>
+</div>
+</div>
+<h3 class="font-display-sm text-display-sm text-on-surface">Welcome Back</h3>
+<p class="font-body-md text-on-surface-variant">Please enter your professional credentials to continue.</p>
+</div>
+<!-- Form Content -->
+<form class="space-y-stack-md" onsubmit="event.preventDefault();">
+<!-- Email Field -->
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant block uppercase" for="email">Corporate Email</label>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline group-focus-within:text-primary transition-colors">mail</span>
+</div>
+<input class="block w-full pl-12 pr-4 py-3 bg-surface-container-low border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-on-surface" id="email" name="email" placeholder="manager@jjpainting.com" required="" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-2">
+<div class="flex justify-between items-end">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase" for="password">Security Password</label>
+<a class="font-label-caps text-label-caps text-primary hover:underline transition-all" href="#">Forgot Password?</a>
+</div>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline group-focus-within:text-primary transition-colors">lock</span>
+</div>
+<input class="block w-full pl-12 pr-12 py-3 bg-surface-container-low border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-on-surface" id="password" name="password" placeholder="••••••••" required="" type="password"/>
+<button class="absolute inset-y-0 right-0 pr-4 flex items-center text-outline hover:text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</div>
+<!-- Sign In Button -->
+<button class="w-full bg-primary hover:bg-primary-container text-white font-headline-md py-4 rounded-lg shadow-sm hover:shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-2" type="submit">
+<span>Sign In</span>
+<span class="material-symbols-outlined text-xl">arrow_forward</span>
+</button>
+</form>
+<!-- Divider -->
+<div class="relative py-4">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-outline-variant"></div>
+</div>
+<div class="relative flex justify-center">
+<span class="bg-surface px-4 font-label-caps text-outline text-[10px] uppercase tracking-widest">Enterprise Authentication</span>
+</div>
+</div>
+<!-- Google Auth -->
+<button class="w-full bg-white border border-outline-variant hover:border-primary text-on-surface font-body-md py-3 rounded-lg shadow-sm hover:shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-3" type="button">
+<svg class="w-5 h-5" viewbox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+</svg>
+<span class="font-semibold">Continue with Google</span>
+</button>
+<!-- Footer -->
+<div class="pt-8 text-center">
+<p class="font-body-md text-on-surface-variant">New employee? <a class="text-primary font-semibold hover:underline" href="#">Contact Administrator</a></p>
+</div>
+</div>
+</section>
+</main>
+<!-- Background Decoration Micro-interaction -->
+<script>
+        document.addEventListener('mousemove', (e) => {
+            const blobs = document.querySelectorAll('.bg-secondary, .bg-tertiary-container');
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            blobs.forEach((blob, index) => {
+                const speed = (index + 1) * 20;
+                blob.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+            });
+        });
+    </script>
+</body></html>

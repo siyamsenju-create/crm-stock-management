@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  Admin
+  Manager
+  User
+}
+
+enum OrderStatus {
+  Pending
+  Completed
+  Cancelled
+}
+
+enum TransactionType {
+  IN
+  OUT
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  password     String
+  role         Role     @default(User)
+  refreshToken String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Product {
+  id                String        @id @default(uuid())
+  name              String
+  price             Float
+  quantity          Int
+  category          String
+  lowStockThreshold Int           @default(10)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  orderItems        OrderItem[]
+  transactions      Transaction[]
+}
+
+model Customer {
+  id          String   @id @default(uuid())
+  name        String
+  email       String
+  phone       String?
+  location    String?
+  status      String   @default("Active")
+  ordersCount Int      @default(0)
+  totalSpent  Float    @default(0.0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  orders      Order[]
+}
+
+model Order {
+  id         String      @id @default(uuid())
+  customerId String
+  customer   Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  total      Float
+  status     OrderStatus @default(Pending)
+  items      OrderItem[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int
+  price     Float
+}
+
+model Transaction {
+  id        String          @id @default(uuid())
+  productId String
+  product   Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type      TransactionType
+  quantity  Int
+  reference String?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}

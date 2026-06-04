@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useStore } from '../store';
 
 export default function Sidebar() {
-    const { profile } = useStore();
+    const { user } = useStore();
     const location = useLocation();
     const [collapsed, setCollapsed] = useState(false);
 
@@ -32,7 +32,7 @@ export default function Sidebar() {
                     <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                         <span className="material-symbols-outlined text-white text-[18px]">format_paint</span>
                     </div>
-                    <span className="text-base font-black tracking-tight text-primary leading-tight">{profile.company}</span>
+                    <span className="text-base font-black tracking-tight text-primary leading-tight">JJ Painting</span>
                 </div>
                 <p className="text-[10px] uppercase tracking-widest text-outline ml-10">Hardware & Paints</p>
             </div>
@@ -51,11 +51,11 @@ export default function Sidebar() {
             <div className="pt-4 border-t border-outline-variant mt-4 px-6">
                 <Link to="/settings" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                     <div className="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center text-on-primary font-bold text-sm">
-                        {profile.name.substring(0, 2).toUpperCase()}
+                        {user?.name ? user.name.substring(0, 2).toUpperCase() : 'AJ'}
                     </div>
                     <div className="min-w-0">
-                        <p className="font-semibold text-on-surface text-sm truncate">{profile.name}</p>
-                        <p className="text-xs text-outline">Admin Access</p>
+                        <p className="font-semibold text-on-surface text-sm truncate">{user?.name || 'Arokiya Jegan'}</p>
+                        <p className="text-xs text-outline">{user?.role === 'admin' ? 'Admin Access' : 'User Access'}</p>
                     </div>
                 </Link>
             </div>

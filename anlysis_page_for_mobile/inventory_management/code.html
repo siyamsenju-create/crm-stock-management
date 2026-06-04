@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Insight Mobile - Inventory Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#f9f9ff",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "outline-variant": "#c6c5d8",
+                        "on-primary": "#ffffff",
+                        "secondary-container": "#6063ee",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#2d34d3",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#002113",
+                        "tertiary-container": "#005a3c",
+                        "on-background": "#111c2d",
+                        "tertiary": "#00402a",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "surface-tint": "#4048e3",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed": "#00006e",
+                        "surface-variant": "#d8e3fb",
+                        "surface-bright": "#f9f9ff",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#dee8ff",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#454555",
+                        "on-primary-fixed-variant": "#2228cc",
+                        "surface-container-highest": "#d8e3fb",
+                        "on-tertiary-container": "#46d89d",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#bfc2ff",
+                        "inverse-surface": "#263143",
+                        "inverse-on-surface": "#ecf1ff",
+                        "secondary-fixed": "#e1e0ff",
+                        "error": "#ba1a1a",
+                        "inverse-primary": "#bfc2ff",
+                        "surface-dim": "#cfdaf2",
+                        "surface-container": "#e7eeff",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "surface": "#f9f9ff",
+                        "secondary": "#4648d4",
+                        "primary-fixed": "#e0e0ff",
+                        "on-surface": "#111c2d",
+                        "on-secondary-fixed": "#07006c",
+                        "on-primary-container": "#b7bbff",
+                        "tertiary-fixed": "#6ffbbe",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "surface-container-low": "#f0f3ff",
+                        "on-secondary-container": "#fffbff",
+                        "primary": "#0605bf",
+                        "outline": "#767687"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "1.25rem",
+                        "stack-lg": "1.5rem",
+                        "stack-md": "1rem",
+                        "gutter-mobile": "1rem",
+                        "stack-sm": "0.5rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "display-sm": ["Plus Jakarta Sans"],
+                        "data-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "headline-lg": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                        "display-sm": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "data-lg": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #f9f9ff;
+            color: #111c2d;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface-container/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm">
+<div class="flex justify-between items-center px-margin-mobile h-16 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="menu">menu</span>
+<h1 class="text-headline-lg font-headline-lg font-bold text-primary">Insight Mobile</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="notifications">notifications</span>
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary font-bold text-xs">
+                    AD
+                </div>
+</div>
+</div>
+</header>
+<main class="pt-20 px-margin-mobile">
+<!-- Header Section -->
+<section class="mt-4 mb-6">
+<h2 class="text-display-sm font-display-sm text-primary">Inventory Hub</h2>
+<p class="text-body-md font-body-md text-on-surface-variant">Real-time SKU monitoring for JJ Painting &amp; Hardware.</p>
+</section>
+<!-- Search & Filter Bar -->
+<section class="mb-stack-lg">
+<div class="flex items-center gap-2 bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-4 py-3 shadow-sm">
+<span class="material-symbols-outlined text-outline" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full text-body-md font-body-md text-on-surface" placeholder="Search SKU, name, or category..." type="text"/>
+</div>
+<div class="flex gap-2 mt-4 overflow-x-auto no-scrollbar pb-1">
+<button class="px-4 py-1.5 rounded-full bg-primary text-on-primary text-label-caps font-label-caps whitespace-nowrap">ALL ITEMS</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant text-label-caps font-label-caps whitespace-nowrap hover:bg-surface-container-high transition-colors">PAINTS</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant text-label-caps font-label-caps whitespace-nowrap hover:bg-surface-container-high transition-colors">HARDWARE</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant text-label-caps font-label-caps whitespace-nowrap hover:bg-surface-container-high transition-colors">TOOLS</button>
+</div>
+</section>
+<!-- Summary Grid (Bento Style) -->
+<section class="grid grid-cols-2 gap-stack-md mb-stack-lg">
+<!-- Total SKUs -->
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/20 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div class="p-2 bg-primary-fixed-dim/20 rounded-lg">
+<span class="material-symbols-outlined text-primary" data-icon="inventory_2">inventory_2</span>
+</div>
+<span class="text-tertiary font-bold text-[10px] bg-tertiary-fixed-dim/20 px-2 py-0.5 rounded-full">+12</span>
+</div>
+<div class="mt-4">
+<span class="text-data-lg font-data-lg text-on-surface">1,248</span>
+<p class="text-label-caps font-label-caps text-on-surface-variant uppercase mt-1">Total SKUs</p>
+</div>
+</div>
+<!-- Stock Value -->
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/20 shadow-[0_4px_20px_rgba(0,0,0,0.05)] flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div class="p-2 bg-secondary-fixed-dim/20 rounded-lg">
+<span class="material-symbols-outlined text-secondary" data-icon="payments">payments</span>
+</div>
+<span class="text-tertiary font-bold text-[10px] bg-tertiary-fixed-dim/20 px-2 py-0.5 rounded-full">Active</span>
+</div>
+<div class="mt-4">
+<span class="text-data-lg font-data-lg text-on-surface">₹42.8L</span>
+<p class="text-label-caps font-label-caps text-on-surface-variant uppercase mt-1">Stock Value</p>
+</div>
+</div>
+</section>
+<!-- Product List -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant/20 shadow-[0_4px_20px_rgba(0,0,0,0.05)] overflow-hidden">
+<div class="px-4 py-3 border-b border-outline-variant/20 flex justify-between items-center bg-surface-container-low/30">
+<h3 class="text-label-caps font-label-caps text-on-surface-variant uppercase">Current Inventory</h3>
+<span class="material-symbols-outlined text-outline text-sm" data-icon="filter_list">filter_list</span>
+</div>
+<div class="divide-y divide-outline-variant/10">
+<!-- Product Item 1 -->
+<div class="p-4 flex items-center gap-4 hover:bg-surface-container-low transition-colors group">
+<div class="w-12 h-12 rounded-lg overflow-hidden bg-surface-variant shrink-0 border border-outline-variant/20">
+<img class="w-full h-full object-cover" data-alt="A close-up shot of a sleek, high-end paint can with professional JJ Painting branding. The lighting is crisp and studio-quality, emphasizing the metallic sheen of the container. The background is a minimalist, clean white surface, aligning with a premium corporate modern aesthetic. The color palette is dominated by deep blues and clean whites." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbp9_o17rGcSq50QJJ8eIvBtZshzlFWyOn92loCI7VJ_ZX5DNDsbSmFFbC6l7ocyYX1s1ArDBSvWyNtEk1yOB5Dv3wh777fu83B1L1gdwz8A-8Sv8N2KSWU4wKQQcxpqUFVPcKcFD4l1i2uPiRE3yizeVYqlF8EDfa_hmcthiTJjF1pgt4ubJrxxBBUjnbf5M3xmOYc3dcgAYDs8Pi7thdpwozB9OyCCQ7Sd2uH_7dQ54IgLawGleKbL4-6Nw9E9ONtIIhjWMl5Rok"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h4 class="text-body-lg font-bold text-on-surface truncate">Sky Blue Satin Enamel</h4>
+<span class="text-body-md font-bold text-on-surface">₹850</span>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-label-caps font-label-caps text-on-surface-variant">PAINTS</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="text-label-caps font-label-caps text-on-tertiary-fixed-variant">IN STOCK (45)</span>
+</div>
+</div>
+</div>
+<!-- Product Item 2 (Low Stock) -->
+<div class="p-4 flex items-center gap-4 hover:bg-surface-container-low transition-colors group">
+<div class="w-12 h-12 rounded-lg overflow-hidden bg-surface-variant shrink-0 border border-outline-variant/20">
+<img class="w-full h-full object-cover" data-alt="A detailed macro photograph of professional-grade metallic hardware components, specifically high-quality brass hinges and screws. The lighting is dramatic, casting soft shadows that highlight the intricate textures and precision engineering. The overall style is clean, modern, and high-contrast, fitting for a sophisticated hardware inventory dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeHKQoZdjcHirbn4VeFH_nJrWLOxwZ4EL_VL9Gq5SXuv1-Is-VRc_HdxmiZVPzAHB6krKRdt0-WlK3ebCs5TSnLNm_ahh0uBGb83VXhPGOHwIzAhKZIm9DKmA3OXC2ziBgQ4iA7vvgSin0kRft9cf2qFUUWABr-iByClUbOZ8Inybi2WnEgtebofO7Eoc8uv7AQYU7YLzQDGTFCaMSjEIB6nVrqO2gdypRK-E4Onk4pNCwFxlLauI33F9WHI5AYOsxAdF5wbI3GCuo"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h4 class="text-body-lg font-bold text-on-surface truncate">Brass Hinge Set (4-pack)</h4>
+<span class="text-body-md font-bold text-on-surface">₹320</span>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-label-caps font-label-caps text-on-surface-variant">HARDWARE</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="text-label-caps font-label-caps text-error font-bold">LOW STOCK (4)</span>
+</div>
+</div>
+</div>
+<!-- Product Item 3 -->
+<div class="p-4 flex items-center gap-4 hover:bg-surface-container-low transition-colors group">
+<div class="w-12 h-12 rounded-lg overflow-hidden bg-surface-variant shrink-0 border border-outline-variant/20">
+<img class="w-full h-full object-cover" data-alt="A professional heavy-duty paintbrush with high-quality synthetic bristles and an ergonomic wooden handle. The brush is captured in a bright, airy setting with natural light, showcasing the premium build quality. The background is blurred to keep focus on the tool, maintaining a professional and empowering brand voice for professional painters." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSaHr70ukF5NmcxBdaI8cUS3NEFCVVXpdSGpwQ3EjVRgx_-LWCZFNw2y1PsscRGuOfLgNS13RjTk4gL3CI27Lupl1a2tOmR4NZ8UhwitDPK1c4XauGsMUgvtplhvUlhO5TAzOEFdNnQO16yRGBIhm3r4JhZ1C4WP2K5bZxia7D7JG8WEu2bqz3ACn4SaY7wkfcqx2SUNxh7ZYS4iandAEPumUtycLIip_557zbv_Epmvle3ABBDTmjvrp08WkEPTcyQPCFsjbVS1Hu"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h4 class="text-body-lg font-bold text-on-surface truncate">Ergo-Grip Brush 4"</h4>
+<span class="text-body-md font-bold text-on-surface">₹1,150</span>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-label-caps font-label-caps text-on-surface-variant">TOOLS</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="text-label-caps font-label-caps text-on-tertiary-fixed-variant">IN STOCK (18)</span>
+</div>
+</div>
+</div>
+<!-- Product Item 4 (Out of Stock) -->
+<div class="p-4 flex items-center gap-4 hover:bg-surface-container-low transition-colors group opacity-70">
+<div class="w-12 h-12 rounded-lg overflow-hidden bg-surface-variant shrink-0 border border-outline-variant/20 grayscale">
+<img class="w-full h-full object-cover" data-alt="A modern industrial-grade power drill placed on a clean workbench. The photo uses a cool color palette with professional blue accents. The lighting is bright and even, highlighting the robust design of the tool. This image represents the high-tech inventory of a modern hardware supplier with a focus on reliability and performance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmX-O_ri-q8WtbfcvENfg9AvnqiSjwe5RVYFqILRFI1wH7mc8acYFPWOocECHc4F_muYKxDPXrZtyCapEsSf3mj0SF8f8MTtSijgjd4Mwv5B6v3O6CP0kLzVXeJDrLgbBAUZPtHjdt_7nw3f0KWxMQEoveuxINM7WdB9iyCzc0qy3MdTiCXzAwjdrOIxYCMvHgksCxGH2Izl_7bBVCaIwAvFk2FumutEzsgIznuo-YA1RQ-hOzm8CoonBdCR8bkuCtxvTXTtlQ5Dcb"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<h4 class="text-body-lg font-bold text-on-surface truncate">Turbo Drill Pro V2</h4>
+<span class="text-body-md font-bold text-on-surface">₹4,500</span>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-label-caps font-label-caps text-on-surface-variant text-outline">TOOLS</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="text-label-caps font-label-caps text-outline uppercase">Out of Stock</span>
+</div>
+</div>
+</div>
+</div>
+<div class="p-4 text-center">
+<button class="text-primary text-label-caps font-label-caps font-bold hover:underline">VIEW ALL 1,248 SKUs</button>
+</div>
+</section>
+<!-- Insights Preview Card (Analytical Feel) -->
+<section class="mt-stack-lg mb-8 bg-primary-container p-5 rounded-2xl text-on-primary shadow-lg overflow-hidden relative">
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-tertiary-fixed" data-icon="auto_awesome">auto_awesome</span>
+<span class="text-label-caps font-label-caps text-tertiary-fixed">SMART INSIGHT</span>
+</div>
+<h3 class="text-headline-md font-headline-md mb-2">Optimized Restock Alert</h3>
+<p class="text-body-md opacity-90 mb-4">"Sky Blue Satin" sales are up 20% this week. We recommend increasing your next order by 15 units to avoid stockouts.</p>
+<button class="bg-on-primary text-primary px-4 py-2 rounded-lg text-label-caps font-label-caps font-bold">VIEW ANALYSIS</button>
+</div>
+<!-- Decorative abstract shape -->
+<div class="absolute -right-10 -bottom-10 w-40 h-40 bg-on-primary/10 rounded-full blur-3xl"></div>
+</section>
+</main>
+<!-- FAB for quick add -->
+<button class="fixed right-6 bottom-24 w-14 h-14 bg-secondary-container text-on-secondary rounded-full shadow-xl flex items-center justify-center active:scale-95 transition-transform z-40">
+<span class="material-symbols-outlined text-2xl" data-icon="add">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full h-20 bg-surface/90 dark:bg-surface-container-highest/90 backdrop-blur-xl flex justify-around items-center px-4 pb-safe z-50 rounded-t-xl shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant opacity-70 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-label-caps font-label-caps mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant opacity-70 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="text-label-caps font-label-caps mt-1">Customers</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim bg-secondary-fixed/30 rounded-full px-4 py-1 scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2" style="font-variation-settings: 'FILL' 1;">inventory_2</span>
+<span class="text-label-caps font-label-caps mt-1">Inventory</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant opacity-70 hover:opacity-100 transition-opacity" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-label-caps font-label-caps mt-1">Settings</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('mousedown', () => {
+                el.classList.add('scale-95');
+                setTimeout(() => el.classList.remove('scale-95'), 150);
+            });
+        });
+
+        // Search highlight simulation
+        const searchInput = document.querySelector('input');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('border-primary');
+            searchInput.parentElement.classList.add('ring-2');
+            searchInput.parentElement.classList.add('ring-primary/10');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('border-primary');
+            searchInput.parentElement.classList.remove('ring-2');
+            searchInput.parentElement.classList.remove('ring-primary/10');
+        });
+    </script>
+</body></html>

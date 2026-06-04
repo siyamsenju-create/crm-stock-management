@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import Layout from '../components/Layout';
-import { useStore } from '../store';
+import api from '../api/client';
+import { saveProductToFirebase, getProductFromFirebase, updateProductInFirebase } from '../utils/firebaseDb';
 
 const CATEGORIES = [
     'Exterior Paints', 'Interior Paints', 'Primers & Undercoats',
@@ -11,13 +12,45 @@ const CATEGORIES = [
 
 export default function AddProduct() {
     const navigate = useNavigate();
-    const { addProduct } = useStore();
+    const { id } = useParams();
+    const isEdit = !!id;
+    
     const [imagePreview, setImagePreview] = useState(null);
     const [product, setProduct] = useState({
         name: '', sku: '', category: 'Interior Paints', description: '',
         price: '', discountPrice: '', stock: '', lowStockAlert: 10,
         enableTracking: true, sellWhenOutOfStock: false, image: null
     });
+
+    useEffect(() => {
+        if (isEdit) {
+            const loadProduct = async () => {
+                try {
+                    const data = await getProductFromFirebase(id);
+                    setProduct({
+                        name: data.name || '',
+                        sku: data.sku || '',
+                        category: data.category || 'Interior Paints',
+                        description: data.description || '',
+                        price: data.price !== undefined ? String(data.price) : '',
+                        discountPrice: data.discountPrice !== undefined ? String(data.discountPrice) : '',
+                        stock: data.quantity !== undefined ? String(data.quantity) : '',
+                        lowStockAlert: data.lowStockThreshold || 10,
+                        enableTracking: data.enableTracking !== undefined ? data.enableTracking : true,
+                        sellWhenOutOfStock: data.sellWhenOutOfStock !== undefined ? data.sellWhenOutOfStock : false,
+                        image: data.image || null
+                    });
+                    if (data.image) {
+                        setImagePreview(data.image);
+                    }
+                } catch (err) {
+                    alert('Failed to load product details: ' + err.message);
+                    navigate('/products');
+                }
+            };
+            loadProduct();
+        }
+    }, [id, isEdit, navigate]);
 
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
@@ -42,10 +75,28 @@ export default function AddProduct() {
         reader.readAsDataURL(file);
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!product.name) { alert('Product name is required.'); return; }
-        addProduct({ ...product, price: Number(product.price), stock: Number(product.stock) });
-        navigate('/products');
+        try {
+            const payload = {
+                name: product.name,
+                sku: product.sku,
+                category: product.category,
+                description: product.description,
+                price: Number(product.price) || 0,
+                quantity: Number(product.stock) || 0,
+                lowStockThreshold: Number(product.lowStockAlert) || 10,
+                image: product.image
+            };
+            if (isEdit) {
+                await updateProductInFirebase(id, payload);
+            } else {
+                await saveProductToFirebase(payload);
+            }
+            navigate('/products');
+        } catch (err) {
+            alert(err.message || 'Failed to save product');
+        }
     };
 
     const upd = (field, val) => setProduct(p => ({ ...p, [field]: val }));
@@ -58,7 +109,7 @@ export default function AddProduct() {
                     <button onClick={() => navigate('/products')} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container">
                         <span className="material-symbols-outlined text-on-surface-variant">close</span>
                     </button>
-                    <h1 className="font-semibold text-lg text-on-surface">Add Product</h1>
+                    <h1 className="font-semibold text-lg text-on-surface">{isEdit ? 'Edit Product' : 'Add Product'}</h1>
                 </div>
                 <button onClick={handleSave} className="px-4 py-1.5 font-semibold text-primary hover:bg-primary/5 rounded-lg text-sm">Save</button>
             </header>
@@ -71,11 +122,11 @@ export default function AddProduct() {
                             <button onClick={() => navigate('/products')} className="text-slate-400 hover:text-primary flex items-center gap-1 text-xs font-semibold uppercase mb-1">
                                 <span className="material-symbols-outlined text-sm">arrow_back</span> Products
                             </button>
-                            <h1 className="text-3xl font-semibold text-on-surface">Add New Product</h1>
+                            <h1 className="text-3xl font-semibold text-on-surface">{isEdit ? 'Edit Product' : 'Add New Product'}</h1>
                         </div>
                         <div className="flex gap-3">
                             <button onClick={() => navigate('/products')} className="px-4 py-2 border border-outline-variant rounded-lg text-sm font-medium hover:bg-surface-container-low">Discard</button>
-                            <button onClick={handleSave} className="px-6 py-2 bg-primary text-white rounded-lg text-sm font-semibold shadow-lg hover:brightness-110 transition-all">Save Product</button>
+                            <button onClick={handleSave} className="px-6 py-2 bg-primary text-white rounded-lg text-sm font-semibold shadow-lg hover:brightness-110 transition-all">{isEdit ? 'Save Changes' : 'Save Product'}</button>
                         </div>
                     </div>
 
@@ -226,7 +277,7 @@ export default function AddProduct() {
             </div>
 
             {/* Mobile form */}
-            <main className="md:hidden px-4 pt-4 pb-32 space-y-6 max-w-md mx-auto">
+            <main className="md:hidden px-4 pt-4 pb-32 space-y-6 max-w-[448px] mx-auto">
                 <div>
                     <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-1">General Information</p>
                     <div className="h-0.5 w-8 bg-primary rounded-full mb-4"/>

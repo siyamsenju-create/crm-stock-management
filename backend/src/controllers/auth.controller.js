@@ -1,9 +1,12 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const asyncHandler = require('../utils/asyncHandler');
 const AppError = require('../utils/AppError');
 const { sendSuccess } = require('../utils/apiResponse');
 const logger = require('../utils/logger');
+const { verifyFirebaseIdToken } = require('../utils/firebaseAuth');
+
 
 // ── Token generation ─────────────────────────────────────────────────────────
 
@@ -83,6 +86,65 @@ exports.login = asyncHandler(async (req, res) => {
 });
 
 /**
+ * @desc    Login/Register user via Google Auth
+ * @route   POST /api/v1/auth/google
+ * @access  Public
+ */
+exports.googleLogin = asyncHandler(async (req, res) => {
+  console.log("Google Login Request Received");
+  console.log(req.body);
+
+  try {
+    const { idToken } = req.body;
+
+    const googleUser = await verifyFirebaseIdToken(idToken);
+    console.log("Verified User:", googleUser);
+    const { email, name } = googleUser;
+
+    if (!email) {
+      throw AppError.badRequest('Google account must provide an email address.');
+    }
+
+    let user = await User.findOne({ email });
+    console.log("Mongo User:", user);
+
+    if (!user) {
+      const randomPassword = crypto.randomBytes(32).toString('hex');
+      user = await User.create({
+        name: name || email.split('@')[0],
+        email,
+        password: randomPassword,
+        role: 'User'
+      });
+      logger.info('Auto-registered new user via Google SSO', { userId: user._id, email: user.email });
+    }
+
+    const { accessToken, refreshToken } = generateTokens(user._id);
+    user.refreshToken = refreshToken;
+    await user.save({ validateBeforeSave: false });
+
+    logger.info('User logged in via Google SSO', { userId: user._id });
+
+    sendSuccess(res, 200, 'Login successful', {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      accessToken,
+      refreshToken,
+    });
+  } catch (error) {
+    console.error("Google Login Error:", error);
+    res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || 'Google Login Failed',
+    });
+  }
+});
+
+
+
+/**
  * @desc    Refresh access token using refresh token
  * @route   POST /api/v1/auth/refresh
  * @access  Public
@@ -139,5 +201,38 @@ exports.getMe = asyncHandler(async (req, res) => {
     email: req.user.email,
     role: req.user.role,
     createdAt: req.user.createdAt,
+  });
+});
+
+/**
+ * @desc    Update current user profile
+ * @route   PUT /api/v1/auth/profile
+ * @access  Private
+ */
+exports.updateProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    throw AppError.notFound('User not found');
+  }
+
+  const updates = Object.keys(req.body);
+  updates.forEach((update) => {
+    user[update] = req.body[update];
+  });
+
+  await user.save();
+
+  logger.info('User profile updated', { userId: user._id });
+
+  sendSuccess(res, 200, 'Profile updated successfully', {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    company: user.company,
+    role: user.role,
+    language: user.language,
+    timezone: user.timezone,
+    notifications: user.notifications
   });
 });

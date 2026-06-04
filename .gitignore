@@ -13,6 +13,7 @@ backend/node_modules/
 dist
 dist-ssr
 *.local
+.env
 backend/.env
 
 # Test coverage
@@ -29,3 +30,5 @@ coverage/
 *.njsproj
 *.sln
 *.sw?
+
+/src/generated/prisma

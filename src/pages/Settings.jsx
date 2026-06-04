@@ -5,12 +5,41 @@ import { useStore } from '../store';
 
 export default function Settings() {
     const navigate = useNavigate();
-    const { profile, updateProfile } = useStore();
-    const [localProfile, setLocalProfile] = useState(profile);
+    const { user } = useStore();
+    const [localProfile, setLocalProfile] = useState({
+        name: user?.name || 'Arokiya Jegan',
+        email: user?.email || 'jjpaintinghaedwares@gmail.com',
+        company: 'JJ Painting'
+    });
 
-    const handleSaveProfile = () => {
-        updateProfile(localProfile);
-        alert('Profile saved successfully!');
+    const handleSaveProfile = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:5005/api/v1/auth/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify({
+                    name: localProfile.name,
+                    email: localProfile.email,
+                    company: localProfile.company
+                })
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.message || 'Failed to save profile');
+            }
+
+            alert('Profile saved successfully!');
+            // Ideally, we'd update global state here, but simple reload or alert is fine for now
+            // window.location.reload(); 
+        } catch (error) {
+            console.error('Error saving profile:', error);
+            alert(`Error: ${error.message}`);
+        }
     };
 
     const handleReset = async () => {
@@ -43,7 +72,7 @@ export default function Settings() {
                     <span className="text-lg font-bold text-primary tracking-tight">Settings</span>
                 </div>
                 <div className="w-8 h-8 rounded-full overflow-hidden border border-outline-variant bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-xs">
-                    {profile.name.substring(0, 2).toUpperCase()}
+                    {localProfile.name.substring(0, 2).toUpperCase()}
                 </div>
             </header>
 
@@ -137,7 +166,7 @@ export default function Settings() {
             </div>
 
             {/* Mobile Main Content Wrapper */}
-            <main className="md:hidden pt-24 pb-32 px-md space-y-lg max-w-md mx-auto">
+            <main className="md:hidden pt-24 pb-32 px-md space-y-lg max-w-[448px] mx-auto">
                 <section className="space-y-md">
                     <h2 className="font-h2 text-h2 text-on-surface px-xs">Profile Settings</h2>
                     <div className="bg-surface-container-lowest rounded-xl border border-outline-variant p-md shadow-sm space-y-md">

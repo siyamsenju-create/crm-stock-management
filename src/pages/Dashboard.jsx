@@ -1,26 +1,109 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import { useStore } from '../store';
+import { getProductsFromFirebase, getOrdersFromFirebase, getCustomersFromFirebase } from '../utils/firebaseDb';
 
 export default function Dashboard() {
-    const { products, customers, orders } = useStore();
+    const [analytics, setAnalytics] = useState(null);
+    const [recentOrders, setRecentOrders] = useState([]);
+    const [lowStockProducts, setLowStockProducts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const totalRevenue = orders.filter(o => o.status === 'Completed').reduce((s, o) => s + o.total, 0);
-    const totalItems = products.reduce((s, p) => s + p.stock, 0);
-    const lowStock = products.filter(p => p.stock < 20 && p.stock > 0).length;
-    const pendingOrders = orders.filter(o => o.status === 'Pending').length;
+    // Mock states for Operational Dashboard features with localStorage persistence
+    const [workingStatus, setWorkingStatus] = useState(() => localStorage.getItem('dashboard_working_status') || 'Active');
+    const [assignedTasks, setAssignedTasks] = useState(() => {
+        const saved = localStorage.getItem('dashboard_tasks');
+        return saved ? JSON.parse(saved) : [
+            { id: 1, title: 'Review monthly sales report', completed: false },
+            { id: 2, title: 'Approve pending leaves', completed: true },
+            { id: 3, title: 'Follow up with supplier A', completed: false }
+        ];
+    });
+    const recruitActivities = [
+        { id: 1, name: 'John Doe', role: 'Sales Executive', status: 'Interviewing', date: 'Oct 24' },
+        { id: 2, name: 'Jane Smith', role: 'Store Manager', status: 'Offered', date: 'Oct 22' },
+        { id: 3, name: 'Mike Ross', role: 'Delivery Agent', status: 'Rejected', date: 'Oct 20' }
+    ];
+
+    useEffect(() => {
+        localStorage.setItem('dashboard_working_status', workingStatus);
+    }, [workingStatus]);
+
+    useEffect(() => {
+        localStorage.setItem('dashboard_tasks', JSON.stringify(assignedTasks));
+    }, [assignedTasks]);
+
+    const toggleTask = (id) => {
+        setAssignedTasks(tasks => tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+    };
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            setIsLoading(true);
+            try {
+                const [products, orders, customers] = await Promise.all([
+                    getProductsFromFirebase(),
+                    getOrdersFromFirebase(),
+                    getCustomersFromFirebase()
+                ]);
+                
+                const totalRevenue = orders.filter(o => o.status === 'Completed').reduce((sum, o) => sum + (o.total || 0), 0);
+                const pendingOrders = orders.filter(o => o.status === 'Pending').length;
+                const totalStockQuantity = products.reduce((sum, p) => sum + (p.quantity || 0), 0);
+                const totalInventoryValue = products.reduce((sum, p) => sum + ((p.quantity || 0) * (p.price || 0)), 0);
+                const lowStockItemsCount = products.filter(p => (p.quantity || 0) < (p.lowStockThreshold || 20) && (p.quantity || 0) > 0).length;
+
+                setAnalytics({
+                    totalRevenue,
+                    activeCustomers: customers.length,
+                    lowStockItems: lowStockItemsCount,
+                    pendingOrders,
+                    totalStockQuantity,
+                    totalProducts: products.length,
+                    totalInventoryValue
+                });
+                
+                const sortedOrders = [...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                setRecentOrders(sortedOrders.slice(0, 5));
+                
+                setLowStockProducts(products.filter(p => (p.quantity || 0) < (p.lowStockThreshold || 20)));
+            } catch (err) {
+                console.error('Failed to fetch dashboard data:', err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, []);
+
+    const totalRevenue = analytics?.totalRevenue || 0;
+    const activeCustomers = analytics?.activeCustomers || 0;
+    const lowStock = analytics?.lowStockItems || 0;
+    const pendingOrders = analytics?.pendingOrders || 0;
+    const totalItems = analytics?.totalStockQuantity || 0;
+    const productLines = analytics?.totalProducts || 0;
+    const totalValue = analytics?.totalInventoryValue || 0;
 
     const statCards = [
-        { label: 'Total Revenue', value: `₹${totalRevenue.toLocaleString('en-IN')}`, icon: 'account_balance_wallet', change: '+12.5%', positive: true, gradient: 'from-primary/20 to-primary/5', border: 'border-primary/20', text: 'text-primary' },
-        { label: 'Active Customers', value: customers.filter(c => c.status === 'Active').length, icon: 'groups', change: '+4 this month', positive: true, gradient: 'from-green-500/20 to-green-500/5', border: 'border-green-500/20', text: 'text-green-600' },
-        { label: 'Products in Stock', value: products.filter(p => p.stock > 0).length, icon: 'inventory_2', change: `${lowStock} low stock`, positive: lowStock === 0, gradient: 'from-blue-500/20 to-blue-500/5', border: 'border-blue-500/20', text: 'text-blue-600' },
+        { label: 'Total Revenue', value: `₹${totalRevenue.toLocaleString('en-IN')}`, icon: 'account_balance_wallet', change: 'Current', positive: true, gradient: 'from-primary/20 to-primary/5', border: 'border-primary/20', text: 'text-primary' },
+        { label: 'Active Customers', value: activeCustomers, icon: 'groups', change: 'Current', positive: true, gradient: 'from-green-500/20 to-green-500/5', border: 'border-green-500/20', text: 'text-green-600' },
+        { label: 'Products in Stock', value: productLines, icon: 'inventory_2', change: `${lowStock} low stock`, positive: lowStock === 0, gradient: 'from-blue-500/20 to-blue-500/5', border: 'border-blue-500/20', text: 'text-blue-600' },
         { label: 'Pending Orders', value: pendingOrders, icon: 'pending_actions', change: 'Needs attention', positive: pendingOrders === 0, gradient: 'from-orange-500/20 to-orange-500/5', border: 'border-orange-500/20', text: 'text-orange-600' },
     ];
+
+    if (isLoading) {
+        return (
+            <Layout>
+                <div className="flex items-center justify-center min-h-[500px]">
+                    <p className="text-on-surface-variant">Loading dashboard...</p>
+                </div>
+            </Layout>
+        );
+    }
 
     return (
         <Layout>
             <div className="relative mb-8 pb-8 border-b border-outline-variant/50">
-                {/* Decorative background glow */}
                 <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
                     <div className="absolute -top-24 -left-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl opacity-50"></div>
                     <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl opacity-50"></div>
@@ -48,11 +131,9 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {statCards.map(card => (
                     <div key={card.label} className="group relative bg-white/70 backdrop-blur-xl p-6 rounded-2xl border border-gray-200/60 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 overflow-hidden">
-                        {/* Hover Gradient Background */}
                         <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out`}></div>
                         
                         <div className="relative z-10">
@@ -74,9 +155,7 @@ export default function Dashboard() {
                 ))}
             </div>
 
-            {/* Main content grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Recent Orders - Spans 2 columns */}
                 <div className="lg:col-span-2">
                     <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden h-full flex flex-col">
                         <div className="px-6 py-5 border-b border-gray-100/80 flex justify-between items-center bg-white/50">
@@ -99,18 +178,20 @@ export default function Dashboard() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50/80">
-                                    {orders.slice(0, 5).map(o => (
-                                        <tr key={o.id} className="hover:bg-primary/5 transition-colors group cursor-pointer">
+                                    {recentOrders.map(o => {
+                                        const customerName = o.customer?.name || 'Unknown';
+                                        return (
+                                        <tr key={o.id || o._id} className="hover:bg-primary/5 transition-colors group cursor-pointer">
                                             <td className="px-6 py-4">
-                                                <span className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">#{o.id}</span>
+                                                <span className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">#{(o.id || o._id || '').substring(0, 6).toUpperCase()}</span>
                                             </td>
                                             <td className="px-6 py-4 flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-xs font-bold text-gray-600 border border-white shadow-sm">
-                                                    {o.customer.substring(0,2).toUpperCase()}
+                                                    {customerName.substring(0,2).toUpperCase()}
                                                 </div>
-                                                <span className="text-sm font-medium text-on-surface">{o.customer}</span>
+                                                <span className="text-sm font-medium text-on-surface">{customerName}</span>
                                             </td>
-                                            <td className="px-6 py-4 text-sm font-bold text-on-surface">₹{Number(o.total).toLocaleString('en-IN')}</td>
+                                            <td className="px-6 py-4 text-sm font-bold text-on-surface">₹{(o.total || 0).toLocaleString('en-IN')}</td>
                                             <td className="px-6 py-4">
                                                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
                                                     o.status === 'Completed' ? 'bg-green-100/80 text-green-700 border border-green-200/50' : 
@@ -122,43 +203,44 @@ export default function Dashboard() {
                                                 </span>
                                             </td>
                                         </tr>
-                                    ))}
+                                    )})}
+                                    {recentOrders.length === 0 && (
+                                        <tr><td colSpan="4" className="p-6 text-center text-on-surface-variant">No recent orders</td></tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                {/* Right sidebar - 1 column */}
                 <div className="lg:col-span-1 space-y-8">
-                    {/* Low stock alert */}
                     <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-red-100 shadow-lg shadow-red-500/5 overflow-hidden">
                         <div className="px-6 py-5 border-b border-red-100 bg-red-50/50 flex justify-between items-center">
                             <h2 className="font-bold text-lg text-red-700 flex items-center gap-2">
                                 <span className="material-symbols-outlined">warning</span>
                                 Action Required
                             </h2>
-                            <span className="bg-red-100 text-red-700 text-xs font-extrabold px-2 py-1 rounded-md">{products.filter(p => p.stock < 20).length} Items</span>
+                            <span className="bg-red-100 text-red-700 text-xs font-extrabold px-2 py-1 rounded-md">{lowStockProducts.length} Items</span>
                         </div>
                         <div className="divide-y divide-gray-50/80 p-2">
-                            {products.filter(p => p.stock < 20).slice(0, 4).map(p => (
-                                <div key={p.id} className="p-4 flex justify-between items-center hover:bg-red-50/30 rounded-xl transition-colors">
+                            {lowStockProducts.slice(0, 4).map(p => (
+                                <div key={p.id || p._id} className="p-4 flex justify-between items-center hover:bg-red-50/30 rounded-xl transition-colors">
                                     <div className="flex items-start gap-3">
-                                        <div className={`w-2 h-2 mt-2 rounded-full ${p.stock <= 0 ? 'bg-red-500 animate-pulse' : 'bg-orange-400'}`}></div>
+                                        <div className={`w-2 h-2 mt-2 rounded-full ${p.quantity <= 0 ? 'bg-red-500 animate-pulse' : 'bg-orange-400'}`}></div>
                                         <div>
                                             <p className="text-sm font-bold text-on-surface line-clamp-1">{p.name}</p>
                                             <p className="text-xs text-on-surface-variant mt-0.5">{p.sku}</p>
                                         </div>
                                     </div>
                                     <div className="text-right pl-3">
-                                        <span className={`block text-lg font-black ${p.stock <= 0 ? 'text-red-600' : 'text-orange-600'}`}>
-                                            {p.stock}
+                                        <span className={`block text-lg font-black ${p.quantity <= 0 ? 'text-red-600' : 'text-orange-600'}`}>
+                                            {p.quantity}
                                         </span>
                                         <span className="text-[10px] uppercase font-bold text-gray-400">Left</span>
                                     </div>
                                 </div>
                             ))}
-                            {products.filter(p => p.stock < 20).length === 0 && (
+                            {lowStockProducts.length === 0 && (
                                 <div className="p-8 text-center flex flex-col items-center gap-3">
                                     <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600">
                                         <span className="material-symbols-outlined text-2xl">check_circle</span>
@@ -172,7 +254,6 @@ export default function Dashboard() {
                         </div>
                     </div>
 
-                    {/* Quick stats summary */}
                     <div className="bg-gradient-to-br from-surface-container to-white rounded-2xl border border-outline-variant/30 shadow-sm p-6 relative overflow-hidden">
                         <div className="absolute -right-10 -bottom-10 opacity-5">
                             <span className="material-symbols-outlined text-[150px]">inventory</span>
@@ -183,7 +264,7 @@ export default function Dashboard() {
                                 <span className="text-sm font-medium text-on-surface-variant flex items-center gap-2">
                                     <span className="material-symbols-outlined text-[16px]">category</span> Product Lines
                                 </span>
-                                <span className="text-sm font-black text-on-surface bg-gray-100 px-2.5 py-1 rounded-md">{products.length}</span>
+                                <span className="text-sm font-black text-on-surface bg-gray-100 px-2.5 py-1 rounded-md">{productLines}</span>
                             </div>
                             <div className="flex justify-between items-center p-3 rounded-xl bg-white/60 border border-gray-100">
                                 <span className="text-sm font-medium text-on-surface-variant flex items-center gap-2">
@@ -195,8 +276,113 @@ export default function Dashboard() {
                                 <span className="text-sm font-bold text-primary flex items-center gap-2">
                                     <span className="material-symbols-outlined text-[18px]">account_balance</span> Total Value
                                 </span>
-                                <span className="text-lg font-black text-primary">₹{products.reduce((s, p) => s + p.price * p.stock, 0).toLocaleString('en-IN')}</span>
+                                <span className="text-lg font-black text-primary">₹{totalValue.toLocaleString('en-IN')}</span>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+                {/* Working Status & Assigned Tasks */}
+                <div className="lg:col-span-1 space-y-8">
+                    {/* Working Status Card */}
+                    <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-gray-200/60 shadow-sm p-6">
+                        <h2 className="font-bold text-lg text-on-surface mb-4 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-primary">person_check</span>
+                            My Working Status
+                        </h2>
+                        <div className="flex flex-col gap-3">
+                            {['Active', 'In a Meeting', 'On Leave'].map(status => (
+                                <button
+                                    key={status}
+                                    onClick={() => setWorkingStatus(status)}
+                                    className={`flex items-center justify-between p-3 rounded-xl border transition-all duration-300 ${
+                                        workingStatus === status 
+                                            ? 'bg-primary/10 border-primary text-primary font-bold shadow-sm' 
+                                            : 'bg-surface border-outline-variant text-on-surface-variant hover:bg-surface-variant/50'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <div className={`w-2.5 h-2.5 rounded-full ${status === 'Active' ? 'bg-green-500' : status === 'In a Meeting' ? 'bg-orange-500' : 'bg-red-500'}`}></div>
+                                        {status}
+                                    </div>
+                                    {workingStatus === status && <span className="material-symbols-outlined text-[18px]">check_circle</span>}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Assigned Tasks Card */}
+                    <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden flex flex-col h-[350px]">
+                        <div className="px-6 py-5 border-b border-gray-100/80 bg-white/50 flex justify-between items-center shrink-0">
+                            <h2 className="font-bold text-lg text-on-surface flex items-center gap-2">
+                                <span className="material-symbols-outlined text-primary">task</span>
+                                Assigned Tasks
+                            </h2>
+                        </div>
+                        <div className="p-4 space-y-2 overflow-y-auto flex-1">
+                            {assignedTasks.map(task => (
+                                <div key={task.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-surface-variant/50 transition-colors group cursor-pointer" onClick={() => toggleTask(task.id)}>
+                                    <div className={`flex items-center justify-center w-6 h-6 rounded-md border ${task.completed ? 'bg-primary border-primary text-white' : 'border-outline-variant text-transparent'} transition-colors`}>
+                                        <span className="material-symbols-outlined text-[16px]">{task.completed ? 'check' : ''}</span>
+                                    </div>
+                                    <span className={`text-sm font-medium ${task.completed ? 'text-on-surface-variant line-through' : 'text-on-surface'}`}>{task.title}</span>
+                                </div>
+                            ))}
+                            {assignedTasks.length === 0 && (
+                                <p className="text-center text-sm text-on-surface-variant mt-4">No pending tasks!</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Recruit Activities Card */}
+                <div className="lg:col-span-2">
+                    <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden h-full flex flex-col">
+                        <div className="px-6 py-5 border-b border-gray-100/80 bg-white/50 flex justify-between items-center shrink-0">
+                            <h2 className="font-bold text-lg text-on-surface flex items-center gap-2">
+                                <span className="material-symbols-outlined text-primary">how_to_reg</span>
+                                Recruit Activities
+                            </h2>
+                            <button className="text-primary text-sm font-bold hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-colors">
+                                Add Candidate
+                            </button>
+                        </div>
+                        <div className="overflow-x-auto flex-1">
+                            <table className="w-full text-left">
+                                <thead>
+                                    <tr className="bg-gray-50/50 text-[11px] font-extrabold uppercase tracking-widest text-on-surface-variant/80 border-b border-gray-100/80">
+                                        <th className="px-6 py-4">Candidate</th>
+                                        <th className="px-6 py-4">Role</th>
+                                        <th className="px-6 py-4">Date</th>
+                                        <th className="px-6 py-4">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50/80">
+                                    {recruitActivities.map(activity => (
+                                        <tr key={activity.id} className="hover:bg-primary/5 transition-colors group">
+                                            <td className="px-6 py-4 flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-xs font-bold text-indigo-700">
+                                                    {activity.name.substring(0,2).toUpperCase()}
+                                                </div>
+                                                <span className="text-sm font-medium text-on-surface">{activity.name}</span>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-on-surface-variant">{activity.role}</td>
+                                            <td className="px-6 py-4 text-sm text-on-surface-variant">{activity.date}</td>
+                                            <td className="px-6 py-4">
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                                                    activity.status === 'Offered' ? 'bg-green-100 text-green-700' :
+                                                    activity.status === 'Interviewing' ? 'bg-blue-100 text-blue-700' :
+                                                    'bg-gray-100 text-gray-700'
+                                                }`}>
+                                                    {activity.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

@@ -1,5 +1,7 @@
 const Product = require('../models/Product');
 const Transaction = require('../models/Transaction');
+const Order = require('../models/Order');
+const Customer = require('../models/Customer');
 const asyncHandler = require('../utils/asyncHandler');
 const { sendSuccess } = require('../utils/apiResponse');
 
@@ -9,7 +11,7 @@ const { sendSuccess } = require('../utils/apiResponse');
  * @access  Private
  */
 exports.getDashboardAnalytics = asyncHandler(async (req, res) => {
-  const [totalProducts, lowStockItems, inventoryStats, transactionStats, recentActivity] =
+  const [totalProducts, lowStockItems, inventoryStats, transactionStats, recentActivity, orderStats, activeCustomers, pendingOrders] =
     await Promise.all([
       Product.countDocuments(),
       Product.countDocuments({
@@ -33,6 +35,12 @@ exports.getDashboardAnalytics = asyncHandler(async (req, res) => {
         },
       ]),
       Product.find().sort('-createdAt').limit(5).select('name quantity category createdAt'),
+      Order.aggregate([
+        { $match: { status: 'Completed' } },
+        { $group: { _id: null, totalRevenue: { $sum: '$total' } } }
+      ]),
+      Customer.countDocuments({ status: 'Active' }),
+      Order.countDocuments({ status: 'Pending' })
     ]);
 
   const { totalInventoryValue = 0, totalStockQuantity = 0 } =
@@ -54,5 +62,8 @@ exports.getDashboardAnalytics = asyncHandler(async (req, res) => {
     totalStockOutflow,
     netInventoryMovement: totalStockInflow - totalStockOutflow,
     recentActivity,
+    totalRevenue: orderStats[0]?.totalRevenue || 0,
+    activeCustomers,
+    pendingOrders
   });
 });

@@ -39,6 +39,33 @@ const authSchemas = {
       }),
     }),
   },
+
+  updateProfile: {
+    body: Joi.object({
+      name: Joi.string().trim().min(2).max(80).optional(),
+      email: Joi.string().trim().email().lowercase().optional(),
+      company: Joi.string().trim().allow('', null).optional(),
+      role: Joi.string().valid('Admin', 'Manager', 'User').optional(),
+      language: Joi.string().trim().optional(),
+      timezone: Joi.string().trim().optional(),
+      password: Joi.string().min(6).max(72).optional(),
+      notifications: Joi.object({
+        email: Joi.boolean().optional(),
+        push: Joi.boolean().optional(),
+        sms: Joi.boolean().optional()
+      }).optional()
+    }).min(1), // Require at least one field to be updated
+  },
+
+  googleLogin: {
+    body: Joi.object({
+      idToken: Joi.string().required().messages({
+        'any.required': 'Firebase ID token is required',
+        'string.empty': 'Firebase ID token cannot be empty',
+      }),
+    }),
+  },
 };
 
 module.exports = authSchemas;
+

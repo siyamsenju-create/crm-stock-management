@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import TopBar from '../components/TopBar';
+import { getTransactionsFromFirebase } from '../utils/firebaseDb';
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([]);
@@ -14,15 +15,10 @@ export default function Transactions() {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:5005/api/v1/transactions');
-      if (!res.ok) {
-        throw new Error('Failed to fetch transactions');
-      }
-      const json = await res.json();
+      const data = await getTransactionsFromFirebase();
       
-      // Handle "Cannot read property 'map' of undefined" by setting to json.data
-      if (json.success && Array.isArray(json.data)) {
-        setTransactions(json.data);
+      if (Array.isArray(data)) {
+        setTransactions(data);
       } else {
         setTransactions([]);
       }
@@ -83,7 +79,7 @@ export default function Transactions() {
                   </tr>
                 ) : (
                   transactions.map((txn) => (
-                    <tr key={txn._id} className="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
+                    <tr key={txn.id || txn._id} className="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap text-on-surface-variant">
                         {formatDate(txn.createdAt)}
                       </td>
