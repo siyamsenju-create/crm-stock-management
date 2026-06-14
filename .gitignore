@@ -32,3 +32,9 @@ coverage/
 *.sw?
 
 /src/generated/prisma
+
+# Firebase Service Account Keys
+*service-account.json
+backend/*-firebase-adminsdk-*.json
+backend/crm-project-management-f21f3-firebase-adminsdk-fbsvc-aaa00d527b.json
+

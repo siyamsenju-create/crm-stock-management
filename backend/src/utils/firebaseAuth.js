@@ -1,8 +1,9 @@
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
 const AppError = require('./AppError');
+const logger = require('./logger');
 
-// Correct Firebase public certificate endpoint
+// Firebase public certificate endpoint (Google-maintained)
 const FIREBASE_CERT_URL =
   'https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com';
 
@@ -10,28 +11,24 @@ let cachedCerts = {};
 let certsExpiry = 0;
 
 /**
- * Fetch Google's public certificates for Firebase token validation using axios.
+ * Fetch Google's public certificates for Firebase token validation.
  * Caches certs according to the Cache-Control max-age header.
  */
 async function getGooglePublicCerts() {
   const now = Date.now();
 
   if (Object.keys(cachedCerts).length > 0 && now < certsExpiry) {
-    console.log('[firebaseAuth] Using cached Firebase public certificates');
+    logger.debug('[firebaseAuth] Using cached Firebase public certificates');
     return cachedCerts;
   }
 
-  console.log('[firebaseAuth] Fetching Firebase public certificates...');
-  console.log('[firebaseAuth] Certificate URL:', FIREBASE_CERT_URL);
+  logger.debug('[firebaseAuth] Fetching Firebase public certificates');
 
   try {
     const response = await axios.get(FIREBASE_CERT_URL, {
       timeout: 10000,
       headers: { Accept: 'application/json' },
     });
-
-    console.log('[firebaseAuth] Certificate fetch success');
-    console.log('[firebaseAuth] Certificates received:', Object.keys(response.data));
 
     // Parse cache expiry from Cache-Control header
     const cacheControl = response.headers['cache-control'] || '';
@@ -43,12 +40,17 @@ async function getGooglePublicCerts() {
 
     cachedCerts = response.data;
     certsExpiry = now + maxAge * 1000;
+
+    logger.debug('[firebaseAuth] Firebase certificates refreshed', {
+      keyCount: Object.keys(cachedCerts).length,
+      expiresInSeconds: maxAge,
+    });
+
     return cachedCerts;
   } catch (error) {
-    console.error(
-      '[firebaseAuth] Firebase public key fetch error:',
-      error.response?.data || error.message
-    );
+    logger.error('[firebaseAuth] Failed to fetch Firebase public certificates', {
+      message: error.message,
+    });
     throw new Error(`Failed to fetch Firebase public certificates: ${error.message}`);
   }
 }
@@ -61,39 +63,30 @@ async function getGooglePublicCerts() {
  * @returns {Promise<Object>} Verified payload containing email, name, etc.
  */
 async function verifyFirebaseIdToken(idToken) {
+  // Decode header to get the key ID (kid) — no secrets logged here
+  const decodedHeader = jwt.decode(idToken, { complete: true });
+  if (!decodedHeader || !decodedHeader.header || !decodedHeader.header.kid) {
+    throw AppError.unauthorized('Invalid ID token format: missing key ID (kid).');
+  }
+
+  const kid = decodedHeader.header.kid;
+
+  const projectId =
+    process.env.FIREBASE_PROJECT_ID ||
+    'crm-project-management-f21f3';
+
+  const certs = await getGooglePublicCerts();
+  const cert = certs[kid];
+
+  if (!cert) {
+    logger.error('[firebaseAuth] Signing key not found in Google certificates', {
+      requestedKid: kid,
+      availableKids: Object.keys(certs),
+    });
+    throw AppError.unauthorized('Invalid ID token: signing key not found.');
+  }
+
   try {
-    // Decode header to get the key ID (kid)
-    const decodedHeader = jwt.decode(idToken, { complete: true });
-    if (!decodedHeader || !decodedHeader.header || !decodedHeader.header.kid) {
-      throw new Error('Invalid ID token format: missing key ID (kid).');
-    }
-
-    const kid = decodedHeader.header.kid;
-
-    // Decode payload for diagnostic logging
-    const decodedToken = jwt.decode(idToken);
-
-    const projectId =
-      process.env.FIREBASE_PROJECT_ID ||
-      process.env.VITE_FIREBASE_PROJECT_ID ||
-      'crm-project-management-f21f3';
-
-    console.log('[firebaseAuth] Expected Project ID:', projectId);
-    if (decodedToken) {
-      console.log('[firebaseAuth] Decoded Token Audience:', decodedToken.aud);
-      console.log('[firebaseAuth] Decoded Token Issuer:', decodedToken.iss);
-      console.log('[firebaseAuth] Token Key ID (kid):', kid);
-    }
-
-    const certs = await getGooglePublicCerts();
-    const cert = certs[kid];
-
-    if (!cert) {
-      console.error('[firebaseAuth] Available cert keys:', Object.keys(certs));
-      console.error('[firebaseAuth] Requested kid:', kid);
-      throw new Error('Invalid ID token: signing key not found in Google certificates.');
-    }
-
     // Cryptographically verify signature, audience, and issuer
     const payload = jwt.verify(idToken, cert, {
       algorithms: ['RS256'],
@@ -101,17 +94,14 @@ async function verifyFirebaseIdToken(idToken) {
       issuer: `https://securetoken.google.com/${projectId}`,
     });
 
-    console.log('[firebaseAuth] Token verified successfully for:', payload.email);
+    logger.debug('[firebaseAuth] Firebase token verified successfully');
     return payload;
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
       throw AppError.unauthorized('Firebase ID token has expired. Please sign in again.');
     }
-    if (error instanceof AppError) {
-      throw error;
-    }
-    console.error('[firebaseAuth] Token verification failed:', error.message);
-    throw AppError.unauthorized(`Firebase token verification failed: ${error.message}`);
+    logger.error('[firebaseAuth] Token verification failed', { message: error.message });
+    throw AppError.unauthorized('Firebase token verification failed.');
   }
 }
 

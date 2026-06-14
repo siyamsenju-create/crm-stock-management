@@ -1,4 +1,6 @@
-const mongoose = require('mongoose');
+function isValidId(id) {
+  return typeof id === 'string' && /^[a-zA-Z0-9_-]{10,36}$/.test(id);
+}
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const Customer = require('../models/Customer');
@@ -44,7 +46,7 @@ function validateOrderItem(item, index) {
   if (typeof item.product !== 'string') {
     throw AppError.badRequest(`items[${index}]: "product" must be a string.`);
   }
-  if (!mongoose.isValidObjectId(item.product)) {
+  if (!isValidId(item.product)) {
     throw AppError.badRequest(`items[${index}]: "product" is not a valid ObjectId.`);
   }
 
@@ -68,7 +70,7 @@ exports.createOrder = asyncHandler(async (req, res) => {
   const { customer, items, status } = req.body;
 
   // ── Validate customer id ──────────────────────────────────────────────────
-  if (typeof customer !== 'string' || !mongoose.isValidObjectId(customer)) {
+  if (typeof customer !== 'string' || !isValidId(customer)) {
     throw AppError.badRequest('Invalid customer id.');
   }
 

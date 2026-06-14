@@ -86,60 +86,47 @@ exports.login = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc    Login/Register user via Google Auth
+ * @desc    Login/Register user via Google Auth (Firebase ID token)
  * @route   POST /api/v1/auth/google
  * @access  Public
  */
 exports.googleLogin = asyncHandler(async (req, res) => {
-  console.log("Google Login Request Received");
-  console.log(req.body);
+  const { idToken } = req.body;
 
-  try {
-    const { idToken } = req.body;
+  const googleUser = await verifyFirebaseIdToken(idToken);
+  const { email, name } = googleUser;
 
-    const googleUser = await verifyFirebaseIdToken(idToken);
-    console.log("Verified User:", googleUser);
-    const { email, name } = googleUser;
-
-    if (!email) {
-      throw AppError.badRequest('Google account must provide an email address.');
-    }
-
-    let user = await User.findOne({ email });
-    console.log("Mongo User:", user);
-
-    if (!user) {
-      const randomPassword = crypto.randomBytes(32).toString('hex');
-      user = await User.create({
-        name: name || email.split('@')[0],
-        email,
-        password: randomPassword,
-        role: 'User'
-      });
-      logger.info('Auto-registered new user via Google SSO', { userId: user._id, email: user.email });
-    }
-
-    const { accessToken, refreshToken } = generateTokens(user._id);
-    user.refreshToken = refreshToken;
-    await user.save({ validateBeforeSave: false });
-
-    logger.info('User logged in via Google SSO', { userId: user._id });
-
-    sendSuccess(res, 200, 'Login successful', {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      accessToken,
-      refreshToken,
-    });
-  } catch (error) {
-    console.error("Google Login Error:", error);
-    res.status(error.statusCode || 500).json({
-      success: false,
-      message: error.message || 'Google Login Failed',
-    });
+  if (!email) {
+    throw AppError.badRequest('Google account must provide an email address.');
   }
+
+  let user = await User.findOne({ email });
+
+  if (!user) {
+    const randomPassword = crypto.randomBytes(32).toString('hex');
+    user = await User.create({
+      name: name || email.split('@')[0],
+      email,
+      password: randomPassword,
+      role: 'User',
+    });
+    logger.info('Auto-registered new user via Google SSO', { userId: user._id });
+  }
+
+  const { accessToken, refreshToken } = generateTokens(user._id);
+  user.refreshToken = refreshToken;
+  await user.save({ validateBeforeSave: false });
+
+  logger.info('User logged in via Google SSO', { userId: user._id });
+
+  sendSuccess(res, 200, 'Login successful', {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    accessToken,
+    refreshToken,
+  });
 });
 
 
@@ -208,18 +195,45 @@ exports.getMe = asyncHandler(async (req, res) => {
  * @desc    Update current user profile
  * @route   PUT /api/v1/auth/profile
  * @access  Private
+ *
+ * Security (H-01): Uses an explicit allowlist to prevent mass assignment.
+ * 'role' is intentionally excluded — it cannot be self-updated.
+ * Password changes require the user to supply their current password.
  */
 exports.updateProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
+  const user = await User.findById(req.user._id).select('+password');
 
   if (!user) {
     throw AppError.notFound('User not found');
   }
 
-  const updates = Object.keys(req.body);
-  updates.forEach((update) => {
-    user[update] = req.body[update];
+  // ── Explicit allowlist (H-01) ─────────────────────────────────────────────
+  // Only these fields may be updated via this endpoint. 'role', 'refreshToken',
+  // '_id', '__v' and any other Mongoose internal are intentionally excluded.
+  const ALLOWED_FIELDS = ['name', 'company', 'language', 'timezone', 'notifications'];
+
+  ALLOWED_FIELDS.forEach((field) => {
+    if (req.body[field] !== undefined) {
+      user[field] = req.body[field];
+    }
   });
+
+  // Email change: verify new address is not already taken
+  if (req.body.email && req.body.email !== user.email) {
+    const emailTaken = await User.findOne({ email: req.body.email });
+    if (emailTaken) throw AppError.conflict('That email address is already in use.');
+    user.email = req.body.email;
+  }
+
+  // Password change: requires current password to prevent account takeover
+  // Joi schema enforces that 'currentPassword' is always present with 'password'
+  if (req.body.password) {
+    const isMatch = await user.matchPassword(req.body.currentPassword);
+    if (!isMatch) {
+      throw AppError.unauthorized('Current password is incorrect.');
+    }
+    user.password = req.body.password;
+  }
 
   await user.save();
 
@@ -233,6 +247,6 @@ exports.updateProfile = asyncHandler(async (req, res) => {
     role: user.role,
     language: user.language,
     timezone: user.timezone,
-    notifications: user.notifications
+    notifications: user.notifications,
   });
 });

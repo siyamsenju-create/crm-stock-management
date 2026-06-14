@@ -104,10 +104,17 @@ const options = {
 const swaggerSpec = swaggerJSDoc(options);
 
 /**
- * Register Swagger UI at /api-docs
+ * Register Swagger UI at /api-docs — disabled in production.
  * @param {import('express').Application} app
  */
 const setupSwagger = (app) => {
+  // M-01 (Security Audit): Never expose API documentation in production.
+  // Full endpoint schemas, auth mechanisms, and request examples would be
+  // handed directly to attackers. Swagger is development/staging only.
+  if (process.env.NODE_ENV === 'production') {
+    return;
+  }
+
   app.use(
     '/api-docs',
     swaggerUi.serve,
@@ -128,7 +135,7 @@ const setupSwagger = (app) => {
     })
   );
 
-  // Serve raw JSON spec
+  // Serve raw JSON spec (development / staging only)
   app.get('/api-docs.json', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.send(swaggerSpec);

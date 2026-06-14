@@ -13,11 +13,57 @@ import {
 import { db } from "./firebase";
 
 // ==========================================
+// --- Caching Helpers ---
+// ==========================================
+
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in ms
+
+const getCachedData = (key) => {
+  try {
+    const cached = sessionStorage.getItem(key);
+    if (!cached) return null;
+    const { timestamp, data } = JSON.parse(cached);
+    if (Date.now() - timestamp > CACHE_TTL) {
+      sessionStorage.removeItem(key);
+      return null;
+    }
+    return data;
+  } catch (error) {
+    console.warn(`Cache read error for key "${key}":`, error);
+    return null;
+  }
+};
+
+const setCachedData = (key, data) => {
+  try {
+    sessionStorage.setItem(key, JSON.stringify({
+      timestamp: Date.now(),
+      data
+    }));
+  } catch (error) {
+    console.warn(`Cache write error for key "${key}":`, error);
+  }
+};
+
+export const clearAllCaches = () => {
+  try {
+    sessionStorage.removeItem("crm_cache_products");
+    sessionStorage.removeItem("crm_cache_orders");
+    sessionStorage.removeItem("crm_cache_customers");
+    sessionStorage.removeItem("crm_cache_transactions");
+    console.log("[Cache] All CRM caches invalidated");
+  } catch (error) {
+    console.warn("Failed to clear cache:", error);
+  }
+};
+
+// ==========================================
 // --- Product Database Operations ---
 // ==========================================
 
 export const saveProductToFirebase = async (productData) => {
   try {
+    clearAllCaches();
     const docRef = await addDoc(collection(db, "products"), {
       name: productData.name,
       price: Number(productData.price),
@@ -38,9 +84,17 @@ export const saveProductToFirebase = async (productData) => {
 };
 
 export const getProductsFromFirebase = async () => {
+  const cacheKey = "crm_cache_products";
+  const cached = getCachedData(cacheKey);
+  if (cached) {
+    console.log("[Cache] Served products from cache");
+    return cached;
+  }
   try {
     const querySnapshot = await getDocs(collection(db, "products"));
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setCachedData(cacheKey, data);
+    return data;
   } catch (error) {
     console.error("Error loading products from Firebase:", error);
     throw error;
@@ -64,6 +118,7 @@ export const getProductFromFirebase = async (productId) => {
 
 export const updateProductInFirebase = async (productId, updateData) => {
   try {
+    clearAllCaches();
     const productRef = doc(db, "products", productId);
     const cleanedUpdates = {};
     if (updateData.name !== undefined) cleanedUpdates.name = updateData.name;
@@ -86,6 +141,7 @@ export const updateProductInFirebase = async (productId, updateData) => {
 
 export const deleteProductFromFirebase = async (productId) => {
   try {
+    clearAllCaches();
     const productRef = doc(db, "products", productId);
     await deleteDoc(productRef);
     return { success: true };
@@ -101,6 +157,7 @@ export const deleteProductFromFirebase = async (productId) => {
 
 export const saveCustomerToFirebase = async (customerData) => {
   try {
+    clearAllCaches();
     const docRef = await addDoc(collection(db, "customers"), {
       name: customerData.name,
       email: customerData.email,
@@ -120,9 +177,17 @@ export const saveCustomerToFirebase = async (customerData) => {
 };
 
 export const getCustomersFromFirebase = async () => {
+  const cacheKey = "crm_cache_customers";
+  const cached = getCachedData(cacheKey);
+  if (cached) {
+    console.log("[Cache] Served customers from cache");
+    return cached;
+  }
   try {
     const querySnapshot = await getDocs(collection(db, "customers"));
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setCachedData(cacheKey, data);
+    return data;
   } catch (error) {
     console.error("Error loading customers from Firebase:", error);
     throw error;
@@ -131,6 +196,7 @@ export const getCustomersFromFirebase = async () => {
 
 export const updateCustomerInFirebase = async (customerId, updateData) => {
   try {
+    clearAllCaches();
     const customerRef = doc(db, "customers", customerId);
     const cleanedUpdates = {};
     if (updateData.name !== undefined) cleanedUpdates.name = updateData.name;
@@ -156,6 +222,7 @@ export const updateCustomerInFirebase = async (customerId, updateData) => {
 
 export const saveOrderToFirebase = async (orderData) => {
   try {
+    clearAllCaches();
     const docRef = await addDoc(collection(db, "orders"), {
       customerId:      orderData.customerId || '',
       customer:        orderData.customer   || {},
@@ -182,9 +249,17 @@ export const saveOrderToFirebase = async (orderData) => {
 };
 
 export const getOrdersFromFirebase = async () => {
+  const cacheKey = "crm_cache_orders";
+  const cached = getCachedData(cacheKey);
+  if (cached) {
+    console.log("[Cache] Served orders from cache");
+    return cached;
+  }
   try {
     const querySnapshot = await getDocs(collection(db, "orders"));
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setCachedData(cacheKey, data);
+    return data;
   } catch (error) {
     console.error("Error loading orders from Firebase:", error);
     throw error;
@@ -197,6 +272,7 @@ export const getOrdersFromFirebase = async () => {
 
 export const saveTransactionToFirebase = async (txData) => {
   try {
+    clearAllCaches();
     const docRef = await addDoc(collection(db, "transactions"), {
       productId: txData.productId,
       type: txData.type, // 'IN' or 'OUT'
@@ -212,9 +288,17 @@ export const saveTransactionToFirebase = async (txData) => {
 };
 
 export const getTransactionsFromFirebase = async () => {
+  const cacheKey = "crm_cache_transactions";
+  const cached = getCachedData(cacheKey);
+  if (cached) {
+    console.log("[Cache] Served transactions from cache");
+    return cached;
+  }
   try {
     const querySnapshot = await getDocs(collection(db, "transactions"));
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setCachedData(cacheKey, data);
+    return data;
   } catch (error) {
     console.error("Error loading transactions from Firebase:", error);
     throw error;

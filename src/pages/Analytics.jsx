@@ -166,15 +166,15 @@ export default function Analytics() {
     /* DESKTOP VIEW                                                            */
     /* ═══════════════════════════════════════════════════════════════════════ */
     return (
-        <div className="min-h-screen" style={{ background: C.surface, color: C.onSurface, fontFamily: 'Inter, sans-serif' }}>
+        <Layout>
+            <div className="min-h-screen -m-4 md:-m-8" style={{ background: C.surface, color: C.onSurface, fontFamily: 'Inter, sans-serif' }}>
 
-            {/* ── Ambient glow decorations ── */}
-            <div className="fixed top-0 right-0 -z-10 w-96 h-96 rounded-full blur-[120px]" style={{ background: `${C.primary}08` }} />
-            <div className="fixed bottom-0 left-64 -z-10 w-64 h-64 rounded-full blur-[100px]" style={{ background: `${C.secondary}08` }} />
+                {/* ── Ambient glow decorations ── */}
+                <div className="fixed top-0 right-0 -z-10 w-96 h-96 rounded-full blur-[120px]" style={{ background: `${C.primary}08` }} />
+                <div className="fixed bottom-0 left-64 -z-10 w-64 h-64 rounded-full blur-[100px]" style={{ background: `${C.secondary}08` }} />
 
-            {/* ── DESKTOP ── */}
-            <div className="hidden md:block">
-                <Layout>
+                {/* ── DESKTOP ── */}
+                <div className="hidden md:block p-8">
 
                     {/* ── Page Header ── */}
                     <div className="flex justify-between items-end mb-8">
@@ -491,30 +491,11 @@ export default function Analytics() {
                             </div>
                         </div>
                     </div>
+                </div>
 
-                </Layout>
-            </div>
-
-            {/* ═══════════════════════════════════════════════════════════════════════ */}
-            {/* MOBILE VIEW (Insight Mobile)                                          */}
-            {/* ═══════════════════════════════════════════════════════════════════════ */}
-            <div className="md:hidden flex flex-col pb-24 min-h-screen" style={{ background: C.surface }}>
-
-                {/* Mobile TopAppBar */}
-                <header className="fixed top-0 w-full z-50 flex justify-between items-center h-16 px-5 border-b backdrop-blur-md" style={{ background: `${C.surface}CC`, borderColor: `${C.outlineVar}40` }}>
-                    <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white shadow-sm" style={{ background: C.primaryCont }}>
-                            <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>insights</span>
-                        </div>
-                        <span className="text-lg font-bold tracking-tight" style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', color: C.primary }}>Insight Mobile</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <span className="material-symbols-outlined text-[22px]" style={{ color: C.onSurfaceVar }}>notifications</span>
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-xs border" style={{ background: '#e1e0ff', color: '#07006c', borderColor: C.outlineVar }}>AD</div>
-                    </div>
-                </header>
-
-                <main className="pt-20 px-5 flex-1 flex flex-col gap-4">
+                {/* ── MOBILE VIEW ── */}
+                <div className="md:hidden flex flex-col pb-24 min-h-screen p-4" style={{ background: C.surface }}>
+                    <main className="flex-1 flex flex-col gap-4 mt-2">
 
                     {/* ── OVERVIEW TAB ── */}
                     {mobileTab === 'overview' && (
@@ -789,7 +770,8 @@ export default function Analytics() {
                         );
                     })}
                 </nav>
+                </div>
             </div>
-        </div>
+        </Layout>
     );
 }

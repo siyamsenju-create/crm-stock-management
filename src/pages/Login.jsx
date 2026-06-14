@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
-import { signInWithPopup, GoogleAuthProvider, getAuth } from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '../utils/firebase';
 
 
@@ -23,31 +23,6 @@ export default function Login() {
       return () => clearTimeout(timer);
     }
   }, [toast.show]);
-
-  // ── Diagnostic: log Firebase config + currentUser state on mount ────────
-  useEffect(() => {
-    const logDiagnostics = async () => {
-      console.log('[FIREBASE CONFIG]', {
-        apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
-        authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-        projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
-        storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-        messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-        appId:             import.meta.env.VITE_FIREBASE_APP_ID,
-      });
-      console.log('[FIREBASE AUTH OPTIONS]', auth?.app?.options);
-      console.log('[AUTH currentUser]', auth.currentUser);
-      // Check whether Firebase has a session even when redirect result is null
-      try {
-        const token = await getAuth().currentUser?.getIdToken();
-        console.log('[AUTH currentUser idToken length]', token?.length ?? 'no token — currentUser is null');
-      } catch (e) {
-        console.error('[AUTH currentUser getIdToken error]', e);
-      }
-    };
-    logDiagnostics();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Micro-interaction mouse parallax effect for desktop visual block
   useEffect(() => {
@@ -113,23 +88,13 @@ export default function Login() {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
 
-      // ── DIAGNOSTIC: using signInWithPopup to isolate the redirect bug ──
-      // If popup succeeds and /api/v1/auth/google is called, redirect flow
-      // is the confirmed root cause (sessionStorage cleared by router).
-      console.log('[POPUP TEST] signInWithPopup starting...');
       const result = await signInWithPopup(auth, provider);
-      console.log('[POPUP TEST] signInWithPopup result:', result);
-      console.log('[POPUP TEST] User:', result.user.email);
-
       const idToken = await result.user.getIdToken();
-      console.log('[POPUP TEST] idToken length:', idToken?.length);
 
       await loginWithGoogleAction(idToken);
-      console.log('[POPUP TEST] Backend auth completed — navigating to dashboard');
 
       window.location.replace('/');
     } catch (error) {
-      console.error('[POPUP TEST] signInWithPopup error:', error);
       setToast({ show: true, message: error.message || 'Google authentication failed.', type: 'error' });
       setGoogleLoading(false);
     }

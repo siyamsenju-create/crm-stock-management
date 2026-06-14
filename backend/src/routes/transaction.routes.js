@@ -1,6 +1,6 @@
 const express = require('express');
 const { addTransaction, getTransactions } = require('../controllers/transaction.controller');
-const { protect } = require('../middlewares/auth.middleware');
+const { protect, authorize } = require('../middlewares/auth.middleware');
 const validate = require('../middlewares/validate.middleware');
 const paginate = require('../middlewares/paginate.middleware');
 const transactionSchemas = require('../validations/transaction.validation');
@@ -80,7 +80,7 @@ router.use(protect);
  *         description: Transactions list
  */
 router.route('/')
-  .post(validate(transactionSchemas.create), addTransaction)
+  .post(authorize('Admin', 'Manager'), validate(transactionSchemas.create), addTransaction)
   .get(validate(transactionSchemas.list), paginate, getTransactions);
 
 module.exports = router;

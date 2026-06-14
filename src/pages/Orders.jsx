@@ -109,11 +109,11 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
 
     return (
         <>
-            <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 backdrop-blur-sm overflow-y-auto py-8 px-4">
-            <div className="bg-[#fcf8fa] w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden border border-[#c6c6cd]/50 my-auto">
+            <div className="fixed inset-0 z-50 flex items-stretch md:items-start justify-center bg-black/40 backdrop-blur-sm overflow-y-auto md:py-8 md:px-4">
+            <div className="bg-[#fcf8fa] w-full md:max-w-4xl md:rounded-2xl shadow-2xl overflow-hidden border border-[#c6c6cd]/50 flex flex-col md:my-auto">
 
                 {/* ── Header ── */}
-                <div className="flex items-center justify-between px-8 py-5 border-b border-[#c6c6cd] bg-white">
+                <div className="flex items-center justify-between px-8 py-5 border-b border-[#c6c6cd] bg-white shrink-0">
                     <div className="flex items-center gap-3">
                         <nav className="flex items-center gap-1.5 text-xs text-[#45464d]">
                             <span className="hover:text-black cursor-pointer transition-colors">Orders</span>
@@ -126,27 +126,13 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                     </button>
                 </div>
 
-                <div className="px-8 py-6">
+                <div className="px-8 py-6 overflow-y-auto flex-1">
                     <h2 className="text-3xl font-bold text-black tracking-tight mb-8" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>New Order</h2>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
 
                         {/* ── Left column: Order Items + Actions ── */}
                         <div className="lg:col-span-2 space-y-6">
-
-                            {/* Customer select (mobile-first quick picker) */}
-                            <div className="lg:hidden bg-white border border-[#c6c6cd] rounded-xl p-3 flex items-center gap-3">
-                                <span className="material-symbols-outlined text-[#515f74]">person</span>
-                                <select
-                                    value={selectedCustomer}
-                                    onChange={handleCustomerChange}
-                                    className="flex-1 bg-transparent border-0 font-medium text-sm text-black focus:ring-0 outline-none appearance-none"
-                                >
-                                    <option value="">Select Customer</option>
-                                    {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                </select>
-                                <span className="material-symbols-outlined text-[#76777d] text-[18px]">expand_more</span>
-                            </div>
 
                             {/* Order Items card */}
                             <section className="bg-white border border-[#c6c6cd] rounded-xl overflow-hidden shadow-sm">
@@ -162,7 +148,7 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                                     </div>
                                     <button
                                         onClick={() => setShowProductPicker(true)}
-                                        className="px-4 py-2 bg-black text-white rounded-lg text-xs font-semibold hover:opacity-80 active:scale-[0.97] transition-all"
+                                        className="px-4 py-2.5 bg-black text-white rounded-lg text-xs font-semibold hover:opacity-80 active:scale-[0.97] transition-all min-h-[40px]"
                                     >
                                         + Add Product
                                     </button>
@@ -201,7 +187,7 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                                                             min="1"
                                                             value={item.qty}
                                                             onChange={e => updateQty(item.productId, parseInt(e.target.value) || 1)}
-                                                            className="w-16 bg-[#f6f3f5] border border-[#c6c6cd] rounded-lg py-1.5 text-center text-sm font-medium focus:border-black outline-none transition-colors"
+                                                            className="w-16 bg-[#f6f3f5] border border-[#c6c6cd] rounded-lg py-2 text-center text-sm font-medium focus:border-black outline-none transition-colors min-h-[36px]"
                                                         />
                                                     </td>
                                                     <td className="px-6 py-5 text-right font-bold text-black text-base" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
@@ -228,7 +214,7 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                                                 <p className="font-semibold text-black text-sm">{item.name}</p>
                                                 <p className="text-xs text-[#515f74] mt-0.5">{item.qty} × ₹{item.price.toLocaleString('en-IN')}</p>
                                             </div>
-                                            <button onClick={() => removeItem(item.productId)} className="p-1 text-[#76777d] hover:text-red-500 transition-colors">
+                                            <button onClick={() => removeItem(item.productId)} className="p-1 text-[#76777d] hover:text-red-500 transition-colors flex items-center justify-center">
                                                 <span className="material-symbols-outlined text-[20px]">close</span>
                                             </button>
                                         </div>
@@ -273,7 +259,7 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                                 <button
                                     onClick={handleFinalize}
                                     disabled={isSubmitting}
-                                    className={`flex-1 px-8 py-4 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
+                                    className={`flex-1 px-8 py-4 rounded-xl font-bold text-base flex items-center justify-center gap-2 transition-all active:scale-[0.98] min-h-[48px] ${
                                         submitState === 'success' ? 'bg-green-500 text-white' :
                                         submitState === 'error'   ? 'bg-red-500 text-white' :
                                         'bg-black text-white hover:opacity-85'
@@ -288,7 +274,7 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                                 </button>
                                 <button
                                     onClick={handleSaveDraft}
-                                    className="px-6 py-4 border border-[#c6c6cd] rounded-xl font-semibold text-[#45464d] hover:bg-[#f6f3f5] transition-colors flex items-center gap-2 text-sm"
+                                    className="px-6 py-4 border border-[#c6c6cd] rounded-xl font-semibold text-[#45464d] hover:bg-[#f6f3f5] transition-colors flex items-center gap-2 text-sm min-h-[48px]"
                                 >
                                     <span className="material-symbols-outlined text-[18px]">save</span>
                                     Save as Draft
@@ -297,7 +283,7 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                         </div>
 
                         {/* ── Right column: Customer + Logistics ── */}
-                        <div className="hidden lg:flex flex-col gap-6">
+                        <div className="flex flex-col gap-6 lg:col-span-1">
 
                             {/* Customer section */}
                             <section className="bg-[#f6f3f5]/70 p-6 rounded-xl border border-[#c6c6cd] space-y-5">
@@ -311,7 +297,7 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                                         <select
                                             value={selectedCustomer}
                                             onChange={handleCustomerChange}
-                                            className="w-full bg-white border border-[#c6c6cd] rounded-lg px-3 py-2 text-sm outline-none focus:border-black transition-colors appearance-none"
+                                            className="w-full bg-white border border-[#c6c6cd] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-black transition-colors min-h-[44px]"
                                         >
                                             <option value="">— Select Customer —</option>
                                             {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -324,7 +310,7 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                                             onChange={e => setCustomerName(e.target.value)}
                                             type="text"
                                             placeholder="Full name"
-                                            className="w-full bg-white border border-[#c6c6cd] rounded-lg px-3 py-2 text-sm outline-none focus:border-black transition-colors"
+                                            className="w-full bg-white border border-[#c6c6cd] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-black transition-colors min-h-[44px]"
                                         />
                                     </div>
                                     <div className="space-y-1.5">
@@ -334,7 +320,7 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                                             onChange={e => setCustomerEmail(e.target.value)}
                                             type="email"
                                             placeholder="email@example.com"
-                                            className="w-full bg-white border border-[#c6c6cd] rounded-lg px-3 py-2 text-sm outline-none focus:border-black transition-colors"
+                                            className="w-full bg-white border border-[#c6c6cd] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-black transition-colors min-h-[44px]"
                                         />
                                     </div>
                                     <div className="space-y-1.5">
@@ -344,7 +330,7 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                                             onChange={e => setShippingAddress(e.target.value)}
                                             rows="2"
                                             placeholder="Street, City, State..."
-                                            className="w-full bg-white border border-[#c6c6cd] rounded-lg px-3 py-2 text-sm outline-none focus:border-black transition-colors resize-none"
+                                            className="w-full bg-white border border-[#c6c6cd] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-black transition-colors resize-none min-h-[64px]"
                                         />
                                     </div>
                                 </div>
@@ -363,7 +349,7 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                                             type="date"
                                             value={deliveryDate}
                                             onChange={e => setDeliveryDate(e.target.value)}
-                                            className="w-full bg-white border border-[#c6c6cd] rounded-lg px-3 py-2 text-sm outline-none focus:border-black transition-colors"
+                                            className="w-full bg-white border border-[#c6c6cd] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-black transition-colors min-h-[44px]"
                                         />
                                     </div>
                                     <div className="space-y-1.5">
@@ -371,7 +357,7 @@ function NewOrderModal({ customers, products, onClose, onSuccess }) {
                                         <select
                                             value={carrier}
                                             onChange={e => setCarrier(e.target.value)}
-                                            className="w-full bg-white border border-[#c6c6cd] rounded-lg px-3 py-2 text-sm outline-none focus:border-black transition-colors"
+                                            className="w-full bg-white border border-[#c6c6cd] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-black transition-colors min-h-[44px]"
                                         >
                                             <option>Standard Freight</option>
                                             <option>Priority Express</option>
@@ -522,21 +508,21 @@ export default function Orders() {
     return (
         <Layout>
             {/* ── Page Header ── */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-black tracking-tight" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
                         Orders &amp; Billing
                     </h1>
                     <p className="text-sm text-[#45464d] mt-1">Manage transactions, create orders, and track billing.</p>
                 </div>
-                <div className="flex gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#c6c6cd] text-[#45464d] text-sm font-semibold rounded-xl hover:bg-[#f6f3f5] transition-all">
+                <div className="flex gap-3 w-full sm:w-auto">
+                    <button className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-[#c6c6cd] text-[#45464d] text-sm font-semibold rounded-xl hover:bg-[#f6f3f5] transition-all min-h-[44px]">
                         <span className="material-symbols-outlined text-[18px]">file_download</span>
                         Export
                     </button>
                     <button
                         onClick={() => setShowNewOrder(true)}
-                        className="flex items-center gap-2 px-4 py-2.5 bg-black text-white text-sm font-semibold rounded-xl hover:opacity-80 transition-all shadow-md active:scale-[0.97]"
+                        className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 bg-black text-white text-sm font-semibold rounded-xl hover:opacity-80 transition-all shadow-md active:scale-[0.97] min-h-[44px]"
                     >
                         <span className="material-symbols-outlined text-[18px]">add</span>
                         New Order
@@ -551,7 +537,7 @@ export default function Orders() {
             )}
 
             {/* ── KPI strip ── */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 {[
                     { label: 'Total Orders',       value: totalOrders,  icon: 'receipt_long',       color: 'text-black',         bg: 'bg-black/5' },
                     { label: 'Pending',            value: pendingCount, icon: 'pending_actions',    color: 'text-amber-700',     bg: 'bg-amber-50' },
@@ -571,17 +557,17 @@ export default function Orders() {
             {/* ── Filter bar + Table ── */}
             <div className="bg-white border border-[#c6c6cd] rounded-2xl shadow-sm overflow-hidden">
                 {/* Filter tabs */}
-                <div className="px-6 py-4 border-b border-[#c6c6cd] flex items-center justify-between bg-[#f6f3f5]/60">
-                    <div className="flex bg-white border border-[#c6c6cd] rounded-xl p-1 gap-1 shadow-sm">
+                <div className="px-4 sm:px-6 py-4 border-b border-[#c6c6cd] flex flex-col sm:flex-row gap-4 justify-between sm:items-center bg-[#f6f3f5]/60">
+                    <div className="flex bg-white border border-[#c6c6cd] rounded-xl p-1 gap-1 shadow-sm overflow-x-auto scrollbar-none max-w-full">
                         {['All Orders', 'Pending', 'Completed', 'Draft', 'Cancelled'].map(f => (
                             <button
                                 key={f}
                                 onClick={() => setFilter(f)}
-                                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${
                                     filter === f
                                         ? 'bg-black text-white shadow-sm'
                                         : 'text-[#45464d] hover:text-black hover:bg-[#eae7e9]'
-                                }`}
+                                    }`}
                                 style={{ fontFamily: 'JetBrains Mono, monospace' }}
                             >
                                 {f}
@@ -593,8 +579,8 @@ export default function Orders() {
                     </span>
                 </div>
 
-                {/* Table */}
-                <div className="overflow-x-auto">
+                {/* Desktop Table */}
+                <div className="hidden md:block overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>
                             <tr className="bg-[#f6f3f5]/50 border-b border-[#c6c6cd]">
@@ -665,6 +651,53 @@ export default function Orders() {
                             })}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Mobile Card List */}
+                <div className="md:hidden divide-y divide-[#c6c6cd]/40">
+                    {isLoading ? (
+                        <div className="px-6 py-16 text-center text-[#76777d]">
+                            <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                            <p className="text-sm">Loading orders...</p>
+                        </div>
+                    ) : filteredOrders.length === 0 ? (
+                        <div className="px-6 py-16 text-center text-[#76777d]">
+                            <span className="material-symbols-outlined text-4xl opacity-30">receipt_long</span>
+                            <p className="text-sm font-medium mt-2">No {filter === 'All Orders' ? '' : filter.toLowerCase()} orders yet</p>
+                        </div>
+                    ) : filteredOrders.map(o => {
+                        const customerName = o.customer?.name || 'Unknown';
+                        const dateStr = o.createdAt ? new Date(o.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+                        return (
+                            <div key={o.id || o._id} className="p-4 flex flex-col gap-3 hover:bg-[#f6f3f5]/20 transition-colors">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-xs font-bold text-black bg-[#e4e2e4] px-2 py-1 rounded-md" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+                                        #{(o.id || o._id || '').substring(0, 6).toUpperCase()}
+                                    </span>
+                                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${statusConfig[o.status] || 'bg-gray-100 text-gray-700'}`}>
+                                        <span className={`w-1.5 h-1.5 rounded-full ${o.status === 'Completed' ? 'bg-green-500' : o.status === 'Pending' ? 'bg-amber-500' : 'bg-red-500'}`} />
+                                        {o.status}
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-end">
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-8 w-8 rounded-full bg-[#dae2fd] text-[#3f465c] flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                            {customerName.substring(0, 2).toUpperCase()}
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-semibold text-black">{customerName}</p>
+                                            <p className="text-xs text-[#45464d]" style={{ fontFamily: 'JetBrains Mono, monospace' }}>{dateStr}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-base font-bold text-black" style={{ fontFamily: 'Hanken Grotesk, sans-serif' }}>
+                                            ₹{(o.total || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
 
                 {/* Pagination */}

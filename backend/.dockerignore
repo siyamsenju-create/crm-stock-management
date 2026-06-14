@@ -7,3 +7,5 @@ coverage
 *.log
 dist
 tests
+# Firebase Service Account Keys — never include in Docker images
+*service-account.json

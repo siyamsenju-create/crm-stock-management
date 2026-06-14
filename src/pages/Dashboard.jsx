@@ -1,12 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Layout from '../components/Layout';
 import { getProductsFromFirebase, getOrdersFromFirebase, getCustomersFromFirebase } from '../utils/firebaseDb';
 
 export default function Dashboard() {
-    const [analytics, setAnalytics] = useState(null);
-    const [recentOrders, setRecentOrders] = useState([]);
-    const [lowStockProducts, setLowStockProducts] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+    // Split states for performance optimization, skeletons, and retry capabilities
+    const [productsState, setProductsState] = useState({ data: [], isLoading: true, error: null });
+    const [ordersState, setOrdersState] = useState({ data: [], isLoading: true, error: null });
+    const [customersState, setCustomersState] = useState({ data: [], isLoading: true, error: null });
+
+    // Performance tracking
+    const mountTimeRef = useRef(performance.now());
+    const [performanceMetrics, setPerformanceMetrics] = useState({
+        productsTime: null,
+        ordersTime: null,
+        customersTime: null,
+        totalTime: null,
+    });
 
     // Mock states for Operational Dashboard features with localStorage persistence
     const [workingStatus, setWorkingStatus] = useState(() => localStorage.getItem('dashboard_working_status') || 'Active');
@@ -36,70 +45,73 @@ export default function Dashboard() {
         setAssignedTasks(tasks => tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
     };
 
+    const fetchProductsData = async () => {
+        setProductsState(prev => ({ ...prev, isLoading: true, error: null }));
+        const start = performance.now();
+        try {
+            const products = await getProductsFromFirebase();
+            const duration = performance.now() - start;
+            setProductsState({ data: products, isLoading: false, error: null });
+            setPerformanceMetrics(m => ({ ...m, productsTime: duration }));
+        } catch (error) {
+            console.error('Failed to fetch products:', error);
+            setProductsState({ data: [], isLoading: false, error: error.message || 'Failed to load products' });
+        }
+    };
+
+    const fetchOrdersData = async () => {
+        setOrdersState(prev => ({ ...prev, isLoading: true, error: null }));
+        const start = performance.now();
+        try {
+            const orders = await getOrdersFromFirebase();
+            const duration = performance.now() - start;
+            setOrdersState({ data: orders, isLoading: false, error: null });
+            setPerformanceMetrics(m => ({ ...m, ordersTime: duration }));
+        } catch (error) {
+            console.error('Failed to fetch orders:', error);
+            setOrdersState({ data: [], isLoading: false, error: error.message || 'Failed to load orders' });
+        }
+    };
+
+    const fetchCustomersData = async () => {
+        setCustomersState(prev => ({ ...prev, isLoading: true, error: null }));
+        const start = performance.now();
+        try {
+            const customers = await getCustomersFromFirebase();
+            const duration = performance.now() - start;
+            setCustomersState({ data: customers, isLoading: false, error: null });
+            setPerformanceMetrics(m => ({ ...m, customersTime: duration }));
+        } catch (error) {
+            console.error('Failed to fetch customers:', error);
+            setCustomersState({ data: [], isLoading: false, error: error.message || 'Failed to load customers' });
+        }
+    };
+
+    // Mount loads
     useEffect(() => {
-        const fetchDashboardData = async () => {
-            setIsLoading(true);
-            try {
-                const [products, orders, customers] = await Promise.all([
-                    getProductsFromFirebase(),
-                    getOrdersFromFirebase(),
-                    getCustomersFromFirebase()
-                ]);
-                
-                const totalRevenue = orders.filter(o => o.status === 'Completed').reduce((sum, o) => sum + (o.total || 0), 0);
-                const pendingOrders = orders.filter(o => o.status === 'Pending').length;
-                const totalStockQuantity = products.reduce((sum, p) => sum + (p.quantity || 0), 0);
-                const totalInventoryValue = products.reduce((sum, p) => sum + ((p.quantity || 0) * (p.price || 0)), 0);
-                const lowStockItemsCount = products.filter(p => (p.quantity || 0) < (p.lowStockThreshold || 20) && (p.quantity || 0) > 0).length;
-
-                setAnalytics({
-                    totalRevenue,
-                    activeCustomers: customers.length,
-                    lowStockItems: lowStockItemsCount,
-                    pendingOrders,
-                    totalStockQuantity,
-                    totalProducts: products.length,
-                    totalInventoryValue
-                });
-                
-                const sortedOrders = [...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                setRecentOrders(sortedOrders.slice(0, 5));
-                
-                setLowStockProducts(products.filter(p => (p.quantity || 0) < (p.lowStockThreshold || 20)));
-            } catch (err) {
-                console.error('Failed to fetch dashboard data:', err);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchDashboardData();
+        mountTimeRef.current = performance.now();
+        fetchProductsData();
+        fetchOrdersData();
+        fetchCustomersData();
     }, []);
 
-    const totalRevenue = analytics?.totalRevenue || 0;
-    const activeCustomers = analytics?.activeCustomers || 0;
-    const lowStock = analytics?.lowStockItems || 0;
-    const pendingOrders = analytics?.pendingOrders || 0;
-    const totalItems = analytics?.totalStockQuantity || 0;
-    const productLines = analytics?.totalProducts || 0;
-    const totalValue = analytics?.totalInventoryValue || 0;
-
-    const statCards = [
-        { label: 'Total Revenue', value: `₹${totalRevenue.toLocaleString('en-IN')}`, icon: 'account_balance_wallet', change: 'Current', positive: true, gradient: 'from-primary/20 to-primary/5', border: 'border-primary/20', text: 'text-primary' },
-        { label: 'Active Customers', value: activeCustomers, icon: 'groups', change: 'Current', positive: true, gradient: 'from-green-500/20 to-green-500/5', border: 'border-green-500/20', text: 'text-green-600' },
-        { label: 'Products in Stock', value: productLines, icon: 'inventory_2', change: `${lowStock} low stock`, positive: lowStock === 0, gradient: 'from-blue-500/20 to-blue-500/5', border: 'border-blue-500/20', text: 'text-blue-600' },
-        { label: 'Pending Orders', value: pendingOrders, icon: 'pending_actions', change: 'Needs attention', positive: pendingOrders === 0, gradient: 'from-orange-500/20 to-orange-500/5', border: 'border-orange-500/20', text: 'text-orange-600' },
-    ];
-
-    if (isLoading) {
-        return (
-            <Layout>
-                <div className="flex items-center justify-center min-h-[500px]">
-                    <p className="text-on-surface-variant">Loading dashboard...</p>
-                </div>
-            </Layout>
-        );
-    }
+    // Total page loading metrics
+    useEffect(() => {
+        if (!productsState.isLoading && !ordersState.isLoading && !customersState.isLoading) {
+            const total = performance.now() - mountTimeRef.current;
+            setPerformanceMetrics(m => {
+                if (m.totalTime === null) {
+                    console.log(`[Performance] Dashboard loaded in ${total.toFixed(2)}ms`, {
+                        products: `${m.productsTime?.toFixed(2)}ms`,
+                        orders: `${m.ordersTime?.toFixed(2)}ms`,
+                        customers: `${m.customersTime?.toFixed(2)}ms`,
+                    });
+                    return { ...m, totalTime: total };
+                }
+                return m;
+            });
+        }
+    }, [productsState.isLoading, ordersState.isLoading, customersState.isLoading]);
 
     return (
         <Layout>
@@ -111,9 +123,17 @@ export default function Dashboard() {
 
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative z-10 w-full">
                     <div className="flex-1 min-w-0 pr-4">
-                        <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/70 truncate pb-1">
-                            Dashboard Overview
-                        </h1>
+                        <div className="flex items-center gap-3 flex-wrap">
+                            <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/70 pb-1">
+                                Dashboard Overview
+                            </h1>
+                            {performanceMetrics.totalTime !== null && (
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-xl text-xs font-semibold border border-green-200/50 shadow-sm animate-fade-in-up">
+                                    <span className="material-symbols-outlined text-[14px]">bolt</span>
+                                    {performanceMetrics.totalTime.toFixed(0)}ms {performanceMetrics.totalTime < 25 ? "(Cached)" : ""}
+                                </span>
+                            )}
+                        </div>
                         <p className="text-on-surface-variant mt-2 text-sm md:text-base font-medium">
                             Welcome back! Here's your real-time snapshot of JJ Painting & Hardwares.
                         </p>
@@ -131,31 +151,225 @@ export default function Dashboard() {
                 </div>
             </div>
 
+            {/* Stat Cards Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {statCards.map(card => (
-                    <div key={card.label} className="group relative bg-white/70 backdrop-blur-xl p-6 rounded-2xl border border-gray-200/60 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 overflow-hidden">
-                        <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out`}></div>
-                        
-                        <div className="relative z-10">
-                            <div className="flex justify-between items-start mb-6">
-                                <div className={`w-12 h-12 rounded-xl bg-white border ${card.border} shadow-sm flex items-center justify-center transform group-hover:scale-110 transition-transform duration-500`}>
-                                    <span className={`material-symbols-outlined text-2xl ${card.text}`}>{card.icon}</span>
-                                </div>
-                                <span className={`flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full ${card.positive ? 'bg-green-100/80 text-green-700' : 'bg-orange-100/80 text-orange-700'}`}>
-                                    <span className="material-symbols-outlined text-[14px]">
-                                        {card.positive ? 'trending_up' : 'warning'}
-                                    </span>
-                                    {card.change}
-                                </span>
-                            </div>
-                            <p className="text-xs font-bold text-on-surface-variant/70 uppercase tracking-widest mb-1">{card.label}</p>
-                            <p className="text-3xl font-extrabold text-on-surface tracking-tight">{card.value}</p>
+                {/* Card 1: Total Revenue */}
+                {ordersState.isLoading ? (
+                    <div className="relative bg-white/70 backdrop-blur-xl p-6 rounded-2xl border border-gray-200/60 shadow-sm animate-pulse h-[154px] flex flex-col justify-between">
+                        <div className="flex justify-between items-start">
+                            <div className="w-12 h-12 rounded-xl bg-gray-200"></div>
+                            <div className="w-20 h-6 bg-gray-200 rounded-full"></div>
+                        </div>
+                        <div>
+                            <div className="w-24 h-4 bg-gray-200 rounded mb-2"></div>
+                            <div className="w-28 h-8 bg-gray-200 rounded"></div>
                         </div>
                     </div>
-                ))}
+                ) : ordersState.error ? (
+                    <div className="relative bg-white/70 backdrop-blur-xl p-6 rounded-2xl border border-red-200/60 shadow-sm h-[154px] flex flex-col justify-between">
+                        <div className="flex items-center gap-2 text-red-600">
+                            <span className="material-symbols-outlined">warning</span>
+                            <span className="text-xs font-bold uppercase tracking-wider">Error</span>
+                        </div>
+                        <p className="text-xs text-on-surface-variant font-medium">Total Revenue</p>
+                        <div className="flex justify-between items-center mt-2">
+                            <span className="text-xs text-red-500 font-semibold">Load failed</span>
+                            <button 
+                                onClick={fetchOrdersData} 
+                                className="flex items-center gap-1 px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold rounded-lg border border-red-200 transition-colors"
+                            >
+                                <span className="material-symbols-outlined text-[14px]">refresh</span> Retry
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="group relative bg-white/70 backdrop-blur-xl p-6 rounded-2xl border border-gray-200/60 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 overflow-hidden h-[154px] flex flex-col justify-between">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out"></div>
+                        <div className="relative z-10 flex flex-col justify-between h-full w-full">
+                            <div className="flex justify-between items-start">
+                                <div className="w-12 h-12 rounded-xl bg-white border border-primary/20 shadow-sm flex items-center justify-center transform group-hover:scale-110 transition-transform duration-500">
+                                    <span className="material-symbols-outlined text-2xl text-primary">account_balance_wallet</span>
+                                </div>
+                                <span className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-green-100/80 text-green-700">
+                                    <span className="material-symbols-outlined text-[14px]">trending_up</span>
+                                    Current
+                                </span>
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold text-on-surface-variant/70 uppercase tracking-widest mb-1">Total Revenue</p>
+                                <p className="text-3xl font-extrabold text-on-surface tracking-tight">
+                                    ₹{(ordersState.data.filter(o => o.status === 'Completed').reduce((sum, o) => sum + (o.total || 0), 0)).toLocaleString('en-IN')}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Card 2: Active Customers */}
+                {customersState.isLoading ? (
+                    <div className="relative bg-white/70 backdrop-blur-xl p-6 rounded-2xl border border-gray-200/60 shadow-sm animate-pulse h-[154px] flex flex-col justify-between">
+                        <div className="flex justify-between items-start">
+                            <div className="w-12 h-12 rounded-xl bg-gray-200"></div>
+                            <div className="w-20 h-6 bg-gray-200 rounded-full"></div>
+                        </div>
+                        <div>
+                            <div className="w-24 h-4 bg-gray-200 rounded mb-2"></div>
+                            <div className="w-16 h-8 bg-gray-200 rounded"></div>
+                        </div>
+                    </div>
+                ) : customersState.error ? (
+                    <div className="relative bg-white/70 backdrop-blur-xl p-6 rounded-2xl border border-red-200/60 shadow-sm h-[154px] flex flex-col justify-between">
+                        <div className="flex items-center gap-2 text-red-600">
+                            <span className="material-symbols-outlined">warning</span>
+                            <span className="text-xs font-bold uppercase tracking-wider">Error</span>
+                        </div>
+                        <p className="text-xs text-on-surface-variant font-medium">Active Customers</p>
+                        <div className="flex justify-between items-center mt-2">
+                            <span className="text-xs text-red-500 font-semibold">Load failed</span>
+                            <button 
+                                onClick={fetchCustomersData} 
+                                className="flex items-center gap-1 px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold rounded-lg border border-red-200 transition-colors"
+                            >
+                                <span className="material-symbols-outlined text-[14px]">refresh</span> Retry
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="group relative bg-white/70 backdrop-blur-xl p-6 rounded-2xl border border-gray-200/60 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 overflow-hidden h-[154px] flex flex-col justify-between">
+                        <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out"></div>
+                        <div className="relative z-10 flex flex-col justify-between h-full w-full">
+                            <div className="flex justify-between items-start">
+                                <div className="w-12 h-12 rounded-xl bg-white border border-green-500/20 shadow-sm flex items-center justify-center transform group-hover:scale-110 transition-transform duration-500">
+                                    <span className="material-symbols-outlined text-2xl text-green-600">groups</span>
+                                </div>
+                                <span className="flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-green-100/80 text-green-700">
+                                    <span className="material-symbols-outlined text-[14px]">trending_up</span>
+                                    Current
+                                </span>
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold text-on-surface-variant/70 uppercase tracking-widest mb-1">Active Customers</p>
+                                <p className="text-3xl font-extrabold text-on-surface tracking-tight">{customersState.data.length}</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Card 3: Products in Stock */}
+                {productsState.isLoading ? (
+                    <div className="relative bg-white/70 backdrop-blur-xl p-6 rounded-2xl border border-gray-200/60 shadow-sm animate-pulse h-[154px] flex flex-col justify-between">
+                        <div className="flex justify-between items-start">
+                            <div className="w-12 h-12 rounded-xl bg-gray-200"></div>
+                            <div className="w-20 h-6 bg-gray-200 rounded-full"></div>
+                        </div>
+                        <div>
+                            <div className="w-24 h-4 bg-gray-200 rounded mb-2"></div>
+                            <div className="w-16 h-8 bg-gray-200 rounded"></div>
+                        </div>
+                    </div>
+                ) : productsState.error ? (
+                    <div className="relative bg-white/70 backdrop-blur-xl p-6 rounded-2xl border border-red-200/60 shadow-sm h-[154px] flex flex-col justify-between">
+                        <div className="flex items-center gap-2 text-red-600">
+                            <span className="material-symbols-outlined">warning</span>
+                            <span className="text-xs font-bold uppercase tracking-wider">Error</span>
+                        </div>
+                        <p className="text-xs text-on-surface-variant font-medium">Products in Stock</p>
+                        <div className="flex justify-between items-center mt-2">
+                            <span className="text-xs text-red-500 font-semibold">Load failed</span>
+                            <button 
+                                onClick={fetchProductsData} 
+                                className="flex items-center gap-1 px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold rounded-lg border border-red-200 transition-colors"
+                            >
+                                <span className="material-symbols-outlined text-[14px]">refresh</span> Retry
+                            </button>
+                        </div>
+                    </div>
+                ) : (() => {
+                    const lowStockCount = productsState.data.filter(p => (p.quantity || 0) < (p.lowStockThreshold || 20) && (p.quantity || 0) > 0).length;
+                    const isPositive = lowStockCount === 0;
+                    return (
+                        <div className="group relative bg-white/70 backdrop-blur-xl p-6 rounded-2xl border border-gray-200/60 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 overflow-hidden h-[154px] flex flex-col justify-between">
+                            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out"></div>
+                            <div className="relative z-10 flex flex-col justify-between h-full w-full">
+                                <div className="flex justify-between items-start">
+                                    <div className="w-12 h-12 rounded-xl bg-white border border-blue-500/20 shadow-sm flex items-center justify-center transform group-hover:scale-110 transition-transform duration-500">
+                                        <span className="material-symbols-outlined text-2xl text-blue-600">inventory_2</span>
+                                    </div>
+                                    <span className={`flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full ${isPositive ? 'bg-green-100/80 text-green-700' : 'bg-orange-100/80 text-orange-700'}`}>
+                                        <span className="material-symbols-outlined text-[14px]">
+                                            {isPositive ? 'trending_up' : 'warning'}
+                                        </span>
+                                        {isPositive ? 'Healthy' : `${lowStockCount} low stock`}
+                                    </span>
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-on-surface-variant/70 uppercase tracking-widest mb-1">Products in Stock</p>
+                                    <p className="text-3xl font-extrabold text-on-surface tracking-tight">{productsState.data.length}</p>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })()}
+
+                {/* Card 4: Pending Orders */}
+                {ordersState.isLoading ? (
+                    <div className="relative bg-white/70 backdrop-blur-xl p-6 rounded-2xl border border-gray-200/60 shadow-sm animate-pulse h-[154px] flex flex-col justify-between">
+                        <div className="flex justify-between items-start">
+                            <div className="w-12 h-12 rounded-xl bg-gray-200"></div>
+                            <div className="w-20 h-6 bg-gray-200 rounded-full"></div>
+                        </div>
+                        <div>
+                            <div className="w-24 h-4 bg-gray-200 rounded mb-2"></div>
+                            <div className="w-16 h-8 bg-gray-200 rounded"></div>
+                        </div>
+                    </div>
+                ) : ordersState.error ? (
+                    <div className="relative bg-white/70 backdrop-blur-xl p-6 rounded-2xl border border-red-200/60 shadow-sm h-[154px] flex flex-col justify-between">
+                        <div className="flex items-center gap-2 text-red-600">
+                            <span className="material-symbols-outlined">warning</span>
+                            <span className="text-xs font-bold uppercase tracking-wider">Error</span>
+                        </div>
+                        <p className="text-xs text-on-surface-variant font-medium">Pending Orders</p>
+                        <div className="flex justify-between items-center mt-2">
+                            <span className="text-xs text-red-500 font-semibold">Load failed</span>
+                            <button 
+                                onClick={fetchOrdersData} 
+                                className="flex items-center gap-1 px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold rounded-lg border border-red-200 transition-colors"
+                            >
+                                <span className="material-symbols-outlined text-[14px]">refresh</span> Retry
+                            </button>
+                        </div>
+                    </div>
+                ) : (() => {
+                    const pendingCount = ordersState.data.filter(o => o.status === 'Pending').length;
+                    const isPositive = pendingCount === 0;
+                    return (
+                        <div className="group relative bg-white/70 backdrop-blur-xl p-6 rounded-2xl border border-gray-200/60 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 overflow-hidden h-[154px] flex flex-col justify-between">
+                            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out"></div>
+                            <div className="relative z-10 flex flex-col justify-between h-full w-full">
+                                <div className="flex justify-between items-start">
+                                    <div className="w-12 h-12 rounded-xl bg-white border border-orange-500/20 shadow-sm flex items-center justify-center transform group-hover:scale-110 transition-transform duration-500">
+                                        <span className="material-symbols-outlined text-2xl text-orange-600">pending_actions</span>
+                                    </div>
+                                    <span className={`flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full ${isPositive ? 'bg-green-100/80 text-green-700' : 'bg-orange-100/80 text-orange-700'}`}>
+                                        <span className="material-symbols-outlined text-[14px]">
+                                            {isPositive ? 'trending_up' : 'warning'}
+                                        </span>
+                                        {isPositive ? 'Clear' : 'Needs attention'}
+                                    </span>
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-on-surface-variant/70 uppercase tracking-widest mb-1">Pending Orders</p>
+                                    <p className="text-3xl font-extrabold text-on-surface tracking-tight">{pendingCount}</p>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })()}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Recent Orders Table Component */}
                 <div className="lg:col-span-2">
                     <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden h-full flex flex-col">
                         <div className="px-6 py-5 border-b border-gray-100/80 flex justify-between items-center bg-white/50">
@@ -178,35 +392,75 @@ export default function Dashboard() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50/80">
-                                    {recentOrders.map(o => {
-                                        const customerName = o.customer?.name || 'Unknown';
-                                        return (
-                                        <tr key={o.id || o._id} className="hover:bg-primary/5 transition-colors group cursor-pointer">
-                                            <td className="px-6 py-4">
-                                                <span className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">#{(o.id || o._id || '').substring(0, 6).toUpperCase()}</span>
-                                            </td>
-                                            <td className="px-6 py-4 flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-xs font-bold text-gray-600 border border-white shadow-sm">
-                                                    {customerName.substring(0,2).toUpperCase()}
+                                    {ordersState.isLoading ? (
+                                        [...Array(5)].map((_, idx) => (
+                                            <tr key={idx} className="animate-pulse border-b border-gray-50/80">
+                                                <td className="px-6 py-4">
+                                                    <div className="w-16 h-4 bg-gray-200 rounded"></div>
+                                                </td>
+                                                <td className="px-6 py-4 flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-full bg-gray-200"></div>
+                                                    <div className="w-24 h-4 bg-gray-200 rounded"></div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="w-12 h-4 bg-gray-200 rounded"></div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="w-20 h-6 bg-gray-200 rounded-full"></div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : ordersState.error ? (
+                                        <tr>
+                                            <td colSpan="4" className="p-8 text-center">
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <span className="material-symbols-outlined text-red-500 text-3xl">error</span>
+                                                    <p className="text-sm font-bold text-on-surface">Failed to load recent orders</p>
+                                                    <button 
+                                                        onClick={fetchOrdersData}
+                                                        className="mt-2 flex items-center gap-1 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold rounded-xl transition-all"
+                                                    >
+                                                        <span className="material-symbols-outlined text-[14px]">refresh</span> Retry Loading
+                                                    </button>
                                                 </div>
-                                                <span className="text-sm font-medium text-on-surface">{customerName}</span>
-                                            </td>
-                                            <td className="px-6 py-4 text-sm font-bold text-on-surface">₹{(o.total || 0).toLocaleString('en-IN')}</td>
-                                            <td className="px-6 py-4">
-                                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-                                                    o.status === 'Completed' ? 'bg-green-100/80 text-green-700 border border-green-200/50' : 
-                                                    o.status === 'Pending' ? 'bg-orange-100/80 text-orange-700 border border-orange-200/50' : 
-                                                    'bg-red-100/80 text-red-700 border border-red-200/50'
-                                                }`}>
-                                                    <span className={`w-1.5 h-1.5 rounded-full ${o.status === 'Completed' ? 'bg-green-500' : o.status === 'Pending' ? 'bg-orange-500' : 'bg-red-500'}`}></span>
-                                                    {o.status}
-                                                </span>
                                             </td>
                                         </tr>
-                                    )})}
-                                    {recentOrders.length === 0 && (
-                                        <tr><td colSpan="4" className="p-6 text-center text-on-surface-variant">No recent orders</td></tr>
-                                    )}
+                                    ) : (() => {
+                                        const recentOrders = [...ordersState.data].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+                                        return (
+                                            <>
+                                                {recentOrders.map(o => {
+                                                    const customerName = o.customer?.name || 'Unknown';
+                                                    return (
+                                                    <tr key={o.id || o._id} className="hover:bg-primary/5 transition-colors group cursor-pointer">
+                                                        <td className="px-6 py-4">
+                                                            <span className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">#{(o.id || o._id || '').substring(0, 6).toUpperCase()}</span>
+                                                        </td>
+                                                        <td className="px-6 py-4 flex items-center gap-3">
+                                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-xs font-bold text-gray-600 border border-white shadow-sm">
+                                                                {customerName.substring(0,2).toUpperCase()}
+                                                            </div>
+                                                            <span className="text-sm font-medium text-on-surface">{customerName}</span>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-sm font-bold text-on-surface">₹{(o.total || 0).toLocaleString('en-IN')}</td>
+                                                        <td className="px-6 py-4">
+                                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+                                                                o.status === 'Completed' ? 'bg-green-100/80 text-green-700 border border-green-200/50' : 
+                                                                o.status === 'Pending' ? 'bg-orange-100/80 text-orange-700 border border-orange-200/50' : 
+                                                                'bg-red-100/80 text-red-700 border border-red-200/50'
+                                                            }`}>
+                                                                <span className={`w-1.5 h-1.5 rounded-full ${o.status === 'Completed' ? 'bg-green-500' : o.status === 'Pending' ? 'bg-orange-500' : 'bg-red-500'}`}></span>
+                                                                {o.status}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                )})}
+                                                {recentOrders.length === 0 && (
+                                                    <tr><td colSpan="4" className="p-6 text-center text-on-surface-variant">No recent orders</td></tr>
+                                                )}
+                                            </>
+                                        );
+                                    })()}
                                 </tbody>
                             </table>
                         </div>
@@ -214,71 +468,147 @@ export default function Dashboard() {
                 </div>
 
                 <div className="lg:col-span-1 space-y-8">
+                    {/* Action Required Card */}
                     <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-red-100 shadow-lg shadow-red-500/5 overflow-hidden">
                         <div className="px-6 py-5 border-b border-red-100 bg-red-50/50 flex justify-between items-center">
                             <h2 className="font-bold text-lg text-red-700 flex items-center gap-2">
                                 <span className="material-symbols-outlined">warning</span>
                                 Action Required
                             </h2>
-                            <span className="bg-red-100 text-red-700 text-xs font-extrabold px-2 py-1 rounded-md">{lowStockProducts.length} Items</span>
+                            {productsState.isLoading ? (
+                                <div className="w-12 h-5 bg-red-100 rounded animate-pulse"></div>
+                            ) : productsState.error ? (
+                                <span className="bg-red-100 text-red-700 text-xs font-extrabold px-2 py-1 rounded-md">Error</span>
+                            ) : (() => {
+                                const lowStockProducts = productsState.data.filter(p => (p.quantity || 0) < (p.lowStockThreshold || 20));
+                                return (
+                                    <span className="bg-red-100 text-red-700 text-xs font-extrabold px-2 py-1 rounded-md">{lowStockProducts.length} Items</span>
+                                );
+                            })()}
                         </div>
                         <div className="divide-y divide-gray-50/80 p-2">
-                            {lowStockProducts.slice(0, 4).map(p => (
-                                <div key={p.id || p._id} className="p-4 flex justify-between items-center hover:bg-red-50/30 rounded-xl transition-colors">
-                                    <div className="flex items-start gap-3">
-                                        <div className={`w-2 h-2 mt-2 rounded-full ${p.quantity <= 0 ? 'bg-red-500 animate-pulse' : 'bg-orange-400'}`}></div>
-                                        <div>
-                                            <p className="text-sm font-bold text-on-surface line-clamp-1">{p.name}</p>
-                                            <p className="text-xs text-on-surface-variant mt-0.5">{p.sku}</p>
+                            {productsState.isLoading ? (
+                                [...Array(3)].map((_, idx) => (
+                                    <div key={idx} className="p-4 flex justify-between items-center animate-pulse">
+                                        <div className="flex items-start gap-3">
+                                            <div className="w-2 h-2 mt-2 rounded-full bg-gray-200"></div>
+                                            <div className="space-y-1.5">
+                                                <div className="w-32 h-4 bg-gray-200 rounded"></div>
+                                                <div className="w-16 h-3 bg-gray-200 rounded"></div>
+                                            </div>
                                         </div>
+                                        <div className="w-10 h-6 bg-gray-200 rounded"></div>
                                     </div>
-                                    <div className="text-right pl-3">
-                                        <span className={`block text-lg font-black ${p.quantity <= 0 ? 'text-red-600' : 'text-orange-600'}`}>
-                                            {p.quantity}
-                                        </span>
-                                        <span className="text-[10px] uppercase font-bold text-gray-400">Left</span>
-                                    </div>
+                                ))
+                            ) : productsState.error ? (
+                                <div className="p-8 text-center flex flex-col items-center gap-2">
+                                    <span className="material-symbols-outlined text-red-500 text-2xl">error</span>
+                                    <p className="text-xs text-on-surface-variant font-medium">Failed to load low stock items</p>
+                                    <button 
+                                        onClick={fetchProductsData}
+                                        className="mt-1 flex items-center gap-1 px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold rounded-lg border border-red-200 transition-colors"
+                                    >
+                                        <span className="material-symbols-outlined text-[14px]">refresh</span> Retry
+                                    </button>
                                 </div>
-                            ))}
-                            {lowStockProducts.length === 0 && (
-                                <div className="p-8 text-center flex flex-col items-center gap-3">
-                                    <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600">
-                                        <span className="material-symbols-outlined text-2xl">check_circle</span>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-bold text-on-surface">Inventory Healthy</p>
-                                        <p className="text-xs text-on-surface-variant mt-1">All products are well stocked.</p>
-                                    </div>
-                                </div>
-                            )}
+                            ) : (() => {
+                                const lowStockProducts = productsState.data.filter(p => (p.quantity || 0) < (p.lowStockThreshold || 20));
+                                return (
+                                    <>
+                                        {lowStockProducts.slice(0, 4).map(p => (
+                                            <div key={p.id || p._id} className="p-4 flex justify-between items-center hover:bg-red-50/30 rounded-xl transition-colors">
+                                                <div className="flex items-start gap-3">
+                                                    <div className={`w-2 h-2 mt-2 rounded-full ${p.quantity <= 0 ? 'bg-red-500 animate-pulse' : 'bg-orange-400'}`}></div>
+                                                    <div>
+                                                        <p className="text-sm font-bold text-on-surface line-clamp-1">{p.name}</p>
+                                                        <p className="text-xs text-on-surface-variant mt-0.5">{p.sku}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right pl-3">
+                                                    <span className={`block text-lg font-black ${p.quantity <= 0 ? 'text-red-600' : 'text-orange-600'}`}>
+                                                        {p.quantity}
+                                                    </span>
+                                                    <span className="text-[10px] uppercase font-bold text-gray-400">Left</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {lowStockProducts.length === 0 && (
+                                            <div className="p-8 text-center flex flex-col items-center gap-3">
+                                                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                                                    <span className="material-symbols-outlined text-2xl">check_circle</span>
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-bold text-on-surface">Inventory Healthy</p>
+                                                    <p className="text-xs text-on-surface-variant mt-1">All products are well stocked.</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </>
+                                );
+                            })()}
                         </div>
                     </div>
 
+                    {/* Inventory Summary Card */}
                     <div className="bg-gradient-to-br from-surface-container to-white rounded-2xl border border-outline-variant/30 shadow-sm p-6 relative overflow-hidden">
                         <div className="absolute -right-10 -bottom-10 opacity-5">
                             <span className="material-symbols-outlined text-[150px]">inventory</span>
                         </div>
                         <h2 className="font-bold text-lg text-on-surface mb-6 relative z-10">Inventory Summary</h2>
-                        <div className="space-y-4 relative z-10">
-                            <div className="flex justify-between items-center p-3 rounded-xl bg-white/60 border border-gray-100">
-                                <span className="text-sm font-medium text-on-surface-variant flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-[16px]">category</span> Product Lines
-                                </span>
-                                <span className="text-sm font-black text-on-surface bg-gray-100 px-2.5 py-1 rounded-md">{productLines}</span>
+                        
+                        {productsState.isLoading ? (
+                            <div className="space-y-4 animate-pulse relative z-10">
+                                <div className="flex justify-between items-center p-3 rounded-xl bg-white/60 border border-gray-100">
+                                    <div className="w-24 h-4 bg-gray-200 rounded"></div>
+                                    <div className="w-8 h-6 bg-gray-200 rounded"></div>
+                                </div>
+                                <div className="flex justify-between items-center p-3 rounded-xl bg-white/60 border border-gray-100">
+                                    <div className="w-20 h-4 bg-gray-200 rounded"></div>
+                                    <div className="w-12 h-6 bg-gray-200 rounded"></div>
+                                </div>
+                                <div className="flex justify-between items-center p-4 rounded-xl bg-gray-100/50 mt-2">
+                                    <div className="w-24 h-4 bg-gray-200 rounded"></div>
+                                    <div className="w-20 h-6 bg-gray-200 rounded"></div>
+                                </div>
                             </div>
-                            <div className="flex justify-between items-center p-3 rounded-xl bg-white/60 border border-gray-100">
-                                <span className="text-sm font-medium text-on-surface-variant flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-[16px]">boxes</span> Total Units
-                                </span>
-                                <span className="text-sm font-black text-on-surface bg-gray-100 px-2.5 py-1 rounded-md">{totalItems.toLocaleString('en-IN')}</span>
+                        ) : productsState.error ? (
+                            <div className="p-8 text-center flex flex-col items-center gap-2 relative z-10">
+                                <span className="material-symbols-outlined text-red-500 text-2xl">error</span>
+                                <p className="text-xs text-on-surface-variant font-medium">Failed to load inventory stats</p>
+                                <button 
+                                    onClick={fetchProductsData}
+                                    className="mt-1 flex items-center gap-1 px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold rounded-lg border border-red-200 transition-colors"
+                                >
+                                    <span className="material-symbols-outlined text-[14px]">refresh</span> Retry
+                                </button>
                             </div>
-                            <div className="flex justify-between items-center p-4 rounded-xl bg-primary/5 border border-primary/10 mt-2">
-                                <span className="text-sm font-bold text-primary flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-[18px]">account_balance</span> Total Value
-                                </span>
-                                <span className="text-lg font-black text-primary">₹{totalValue.toLocaleString('en-IN')}</span>
-                            </div>
-                        </div>
+                        ) : (() => {
+                            const productLines = productsState.data.length;
+                            const totalItems = productsState.data.reduce((sum, p) => sum + (p.quantity || 0), 0);
+                            const totalValue = productsState.data.reduce((sum, p) => sum + ((p.quantity || 0) * (p.price || 0)), 0);
+                            return (
+                                <div className="space-y-4 relative z-10">
+                                    <div className="flex justify-between items-center p-3 rounded-xl bg-white/60 border border-gray-100">
+                                        <span className="text-sm font-medium text-on-surface-variant flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-[16px]">category</span> Product Lines
+                                        </span>
+                                        <span className="text-sm font-black text-on-surface bg-gray-100 px-2.5 py-1 rounded-md">{productLines}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center p-3 rounded-xl bg-white/60 border border-gray-100">
+                                        <span className="text-sm font-medium text-on-surface-variant flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-[16px]">boxes</span> Total Units
+                                        </span>
+                                        <span className="text-sm font-black text-on-surface bg-gray-100 px-2.5 py-1 rounded-md">{totalItems.toLocaleString('en-IN')}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center p-4 rounded-xl bg-primary/5 border border-primary/10 mt-2">
+                                        <span className="text-sm font-bold text-primary flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-[18px]">account_balance</span> Total Value
+                                        </span>
+                                        <span className="text-lg font-black text-primary">₹{totalValue.toLocaleString('en-IN')}</span>
+                                    </div>
+                                </div>
+                            );
+                        })()}
                     </div>
                 </div>
             </div>

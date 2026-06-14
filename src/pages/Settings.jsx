@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { useStore } from '../store';
+import api from '../api/client';
 
 export default function Settings() {
     const navigate = useNavigate();
@@ -14,47 +15,25 @@ export default function Settings() {
 
     const handleSaveProfile = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:5005/api/v1/auth/profile', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-                },
-                body: JSON.stringify({
-                    name: localProfile.name,
-                    email: localProfile.email,
-                    company: localProfile.company
-                })
+            // M-06: Use centralized api client (no hardcoded URLs)
+            await api.put('/auth/profile', {
+                name: localProfile.name,
+                email: localProfile.email,
+                company: localProfile.company,
             });
-
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.message || 'Failed to save profile');
-            }
-
             alert('Profile saved successfully!');
-            // Ideally, we'd update global state here, but simple reload or alert is fine for now
-            // window.location.reload(); 
         } catch (error) {
-            console.error('Error saving profile:', error);
             alert(`Error: ${error.message}`);
         }
     };
 
     const handleReset = async () => {
-        if(window.confirm('Are you sure you want to completely clear all application data (including backend database)? This action cannot be undone.')) {
+        if (window.confirm('Are you sure you want to completely clear all application data (including backend database)? This action cannot be undone.')) {
             try {
-                const token = localStorage.getItem('token');
-                await fetch('http://localhost:5005/api/v1/settings/factory-reset', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-                    }
-                });
+                // M-06: Use centralized api client (no hardcoded URLs)
+                await api.post('/settings/factory-reset');
             } catch (error) {
-                console.error('Failed to reset backend data:', error);
+                alert(`Reset failed: ${error.message}`);
             }
             localStorage.clear();
             window.location.reload();

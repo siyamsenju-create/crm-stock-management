@@ -1,8 +1,8 @@
 const Joi = require('joi');
 
 const mongoId = Joi.string()
-  .pattern(/^[a-fA-F0-9]{24}$/)
-  .message('Must be a valid MongoDB ObjectId');
+  .pattern(/^[a-zA-Z0-9_-]{10,36}$/)
+  .message('Must be a valid ID');
 
 const productSchemas = {
   create: {
