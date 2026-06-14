@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../src/app');
-const mongoose = require('mongoose');
+// mongoose removed
 const User = require('../src/models/User');
 const Product = require('../src/models/Product');
 const { verifyFirebaseIdToken } = require('../src/utils/firebaseAuth');
@@ -31,18 +31,7 @@ const createUserAndLogin = async (role = 'Admin') => {
   return { user, token: loginRes.body.data.accessToken };
 };
 
-// ── Setup / Teardown ──────────────────────────────────────────────────────────
-
-beforeAll(async () => {
-  const uri = process.env.MONGO_URI_TEST || process.env.MONGO_URI;
-  if (!mongoose.connection.readyState) {
-    await mongoose.connect(uri);
-  }
-});
-
-afterAll(async () => {
-  await mongoose.connection.close();
-});
+// setup/teardown bypassed for local memory DB
 
 afterEach(async () => {
   // Clean up created test records after each test

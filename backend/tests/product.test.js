@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../src/app');
-const mongoose = require('mongoose');
+const makeFakeId = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 const User = require('../src/models/User');
 const Product = require('../src/models/Product');
 const Transaction = require('../src/models/Transaction');
@@ -22,16 +22,7 @@ const makeProduct = (overrides = {}) => ({
   ...overrides,
 });
 
-// ── Setup / Teardown ──────────────────────────────────────────────────────────
-
-beforeAll(async () => {
-  const uri = process.env.MONGO_URI_TEST || process.env.MONGO_URI;
-  if (!mongoose.connection.readyState) await mongoose.connect(uri);
-});
-
-afterAll(async () => {
-  await mongoose.connection.close();
-});
+// setup/teardown bypassed for local memory DB
 
 afterEach(async () => {
   await User.deleteMany({ email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ });
@@ -134,7 +125,7 @@ describe('📦 Products — GET /api/v1/products/:id', () => {
 
   it('404 — Returns 404 for non-existent product', async () => {
     const token = await getToken('User');
-    const fakeId = new mongoose.Types.ObjectId();
+    const fakeId = makeFakeId();
     const res = await request(app)
       .get(`/api/v1/products/${fakeId}`)
       .set('Authorization', `Bearer ${token}`);
@@ -144,7 +135,7 @@ describe('📦 Products — GET /api/v1/products/:id', () => {
   it('400 — Invalid ObjectId returns error', async () => {
     const token = await getToken('User');
     const res = await request(app)
-      .get('/api/v1/products/not-a-valid-id')
+      .get('/api/v1/products/invalid-id-with-special-chars!!!')
       .set('Authorization', `Bearer ${token}`);
     // Joi validation catches this as 422
     expect([400, 422].includes(res.statusCode)).toBe(true);

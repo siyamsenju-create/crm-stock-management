@@ -12,11 +12,10 @@ const authSchemas = {
         'string.email': 'Please provide a valid email address',
         'any.required': 'Email is required',
       }),
-      password: Joi.string().min(6).max(72).required().messages({
-        'string.min': 'Password must be at least 6 characters',
+      password: Joi.string().min(8).max(72).required().messages({
+        'string.min': 'Password must be at least 8 characters',
         'any.required': 'Password is required',
       }),
-      role: Joi.string().valid('Admin', 'Manager', 'User').default('User'),
     }),
   },
 
@@ -45,16 +44,22 @@ const authSchemas = {
       name: Joi.string().trim().min(2).max(80).optional(),
       email: Joi.string().trim().email().lowercase().optional(),
       company: Joi.string().trim().allow('', null).optional(),
-      role: Joi.string().valid('Admin', 'Manager', 'User').optional(),
+      // NOTE: 'role' is intentionally excluded — role changes must go through a
+      // dedicated admin endpoint. Allowing self-promotion here is a privilege
+      // escalation vulnerability (H-01 in security audit).
       language: Joi.string().trim().optional(),
       timezone: Joi.string().trim().optional(),
-      password: Joi.string().min(6).max(72).optional(),
+      // Require current password when setting a new one (H-01)
+      currentPassword: Joi.string().min(1).optional(),
+      password: Joi.string().min(8).max(72).optional(),
       notifications: Joi.object({
         email: Joi.boolean().optional(),
         push: Joi.boolean().optional(),
         sms: Joi.boolean().optional()
       }).optional()
-    }).min(1), // Require at least one field to be updated
+    })
+    .min(1) // Require at least one field to be updated
+    .and('password', 'currentPassword'), // Both required together if either is present
   },
 
   googleLogin: {

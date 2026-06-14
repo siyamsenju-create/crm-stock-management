@@ -18,7 +18,6 @@ export const useStore = create(
 
             login: async (email, password) => {
                 const response = await api.post('/auth/login', { email, password });
-                console.log('[login] backend response:', response);
                 if (response.success && response.data) {
                     const { accessToken, ...userData } = response.data;
                     get().setToken(accessToken);
@@ -30,11 +29,7 @@ export const useStore = create(
             },
 
             loginWithGoogle: async (idToken) => {
-                console.log('[STORE] loginWithGoogle called');
-                console.log('[STORE] token length:', idToken?.length);
-                console.log('[loginWithGoogle] sending Firebase ID token to backend...');
                 const response = await api.post('/auth/google', { idToken });
-                console.log('[loginWithGoogle] backend response:', response);
                 if (response.success && response.data) {
                     const { accessToken, ...userData } = response.data;
                     get().setToken(accessToken);

@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../src/app');
-const mongoose = require('mongoose');
+const makeFakeId = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 const User = require('../src/models/User');
 const Product = require('../src/models/Product');
 const Transaction = require('../src/models/Transaction');
@@ -27,16 +27,7 @@ const createProduct = async (token, quantity = 100) => {
   return res.body.data;
 };
 
-// ── Setup / Teardown ──────────────────────────────────────────────────────────
-
-beforeAll(async () => {
-  const uri = process.env.MONGO_URI_TEST || process.env.MONGO_URI;
-  if (!mongoose.connection.readyState) await mongoose.connect(uri);
-});
-
-afterAll(async () => {
-  await mongoose.connection.close();
-});
+// setup/teardown bypassed for local memory DB
 
 afterEach(async () => {
   await User.deleteMany({ email: /^test\./ });
@@ -105,7 +96,7 @@ describe('🔄 Transactions — POST /api/v1/transactions', () => {
 
   it('404 — rejects transaction for non-existent product', async () => {
     const token = await getToken('Admin');
-    const fakeId = new mongoose.Types.ObjectId();
+    const fakeId = makeFakeId();
     const res = await request(app)
       .post('/api/v1/transactions')
       .set('Authorization', `Bearer ${token}`)
@@ -137,7 +128,7 @@ describe('🔄 Transactions — POST /api/v1/transactions', () => {
 
   it('401 — rejects unauthenticated request', async () => {
     const res = await request(app).post('/api/v1/transactions').send({
-      productId: new mongoose.Types.ObjectId(),
+      productId: makeFakeId(),
       type: 'IN',
       quantity: 10,
     });

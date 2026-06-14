@@ -1,20 +1,54 @@
 const Product = require('../models/Product');
 const Transaction = require('../models/Transaction');
+const Order = require('../models/Order');
+const Customer = require('../models/Customer');
+const asyncHandler = require('../utils/asyncHandler');
+const { sendSuccess } = require('../utils/apiResponse');
+const logger = require('../utils/logger');
 
-// @desc    Clear all database collections (except users)
-// @route   POST /api/v1/settings/factory-reset
-// @access  Public / Private (depending on auth middleware in route)
-exports.factoryReset = async (req, res, next) => {
-  try {
-    // Delete all products and transactions
-    await Product.deleteMany({});
-    await Transaction.deleteMany({});
-    
-    res.status(200).json({
-      success: true,
-      message: 'Factory reset successful. All data cleared.'
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+/**
+ * @desc    Hard-delete all business data (products, transactions, orders, customers).
+ *          Users are intentionally preserved.
+ * @route   POST /api/v1/settings/factory-reset
+ * @access  Private — Admin only
+ */
+exports.factoryReset = asyncHandler(async (req, res) => {
+  // ── Audit trail ─────────────────────────────────────────────────────────────
+  // This action is destructive and irreversible; always log who triggered it.
+  logger.warn('FACTORY RESET INITIATED', {
+    triggeredBy: {
+      userId: req.user._id,
+      email: req.user.email,
+      role: req.user.role,
+    },
+    ip: req.ip,
+    requestId: req.id,
+    timestamp: new Date().toISOString(),
+  });
+
+  const [products, transactions, orders, customers] = await Promise.all([
+    Product.deleteMany({}),
+    Transaction.deleteMany({}),
+    Order.deleteMany({}),
+    Customer.deleteMany({}),
+  ]);
+
+  logger.warn('FACTORY RESET COMPLETED', {
+    deletedCounts: {
+      products: products.deletedCount,
+      transactions: transactions.deletedCount,
+      orders: orders.deletedCount,
+      customers: customers.deletedCount,
+    },
+    triggeredBy: req.user._id,
+  });
+
+  sendSuccess(res, 200, 'Factory reset successful. All business data has been cleared.', {
+    deletedCounts: {
+      products: products.deletedCount,
+      transactions: transactions.deletedCount,
+      orders: orders.deletedCount,
+      customers: customers.deletedCount,
+    },
+  });
+});
