@@ -1,6 +1,7 @@
 const request = require('supertest');
 const app = require('../src/app');
-const makeFakeId = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+const crypto = require('crypto');
+const makeFakeId = () => crypto.randomUUID();
 const User = require('../src/models/User');
 const Product = require('../src/models/Product');
 const Transaction = require('../src/models/Transaction');

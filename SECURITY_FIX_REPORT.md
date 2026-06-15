@@ -96,7 +96,7 @@ The following secrets were found in the root `.env` and have been **replaced wit
 | Secret | Service | Where to Rotate | Old Value (Prefix) |
 |--------|---------|-----------------|-------------------|
 | **Neon DB Password** | Neon PostgreSQL | [Neon Console](https://console.neon.tech) → Settings → Reset Password | `npg_GdIB6g0qvLPQ` |
-| **Firebase API Key** | Firebase | [Firebase Console](https://console.firebase.google.com) → Project Settings → Your Apps → Regenerate | `AIzaSyC5zW9Owbco...` |
+| **Firebase API Key** | Firebase | [Firebase Console](https://console.firebase.google.com) → Project Settings → Your Apps → Regenerate | `[REDACTED]` |
 | **Supabase Publishable Key** | Supabase | [Supabase Dashboard](https://app.supabase.com) → Settings → API → Regenerate | `sb_publishable_Va47E...` |
 
 > [!CAUTION]

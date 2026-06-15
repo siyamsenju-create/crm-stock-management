@@ -1,5 +1,6 @@
 const admin = require('firebase-admin');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 let db;
 if (process.env.NODE_ENV !== 'test') {
@@ -306,7 +307,7 @@ class InMemoryCollection {
 
   async create(data) {
     const mergedData = { ...this.defaults, ...data };
-    const id = mergedData._id || mergedData.id || Math.random().toString(36).substring(2, 15);
+    const id = mergedData._id || mergedData.id || crypto.randomUUID();
     const doc = {
       ...mergedData,
       _id: id,

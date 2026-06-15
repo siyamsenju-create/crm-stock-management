@@ -111,7 +111,7 @@ VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_Va47EGOGrUgPTO6ClRU_rw_Nm77BQMN
 
 DATABASE_URL="postgresql://neondb_owner:npg_GdIB6g0qvLPQ@ep-wandering-lab-..."
 
-VITE_FIREBASE_API_KEY="AIzaSyC5zW9OwbcoqFh34SllcZq_NUrMFRx_iLo"
+VITE_FIREBASE_API_KEY="[REDACTED]"
 VITE_FIREBASE_PROJECT_ID="crm-project-management-f21f3"
 ```
 
