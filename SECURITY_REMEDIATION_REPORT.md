@@ -9,9 +9,9 @@
 
 ## 1. Executive Summary
 
-This report documents the security remediation actions taken following the exposure of the Firebase API key `AIzaSyC5zW9OwbcoqFh34SllcZq_NUrMFRx_iLo` in the CRM Stock Management repository. 
+This report documents the security remediation actions taken following the exposure of a Firebase API key in the CRM Stock Management repository. 
 
-The leaked key was rotated to a newly generated key (`AIzaSyBRHxe9X3AZQxIwpDsxdRVvzQ7pt0eGJek`), the local environment configuration (`.env`) was updated, and all historical plain text references of the exposed key in documentation and reports were redacted. A clean client build was compiled and verified.
+The leaked key was rotated to a newly generated key (configured in the local `.env`), the local environment configuration (`.env`) was updated, and all historical plain text references of the exposed key in documentation and reports were redacted. A clean client build was compiled and verified.
 
 ---
 
@@ -21,8 +21,8 @@ The following actions were taken to address the security vulnerability:
 
 ### A. Environment Configuration Updates
 * **Target File:** [.env](file:///Users/siyammeshak/Downloads/crm-stock-management/.env)
-* **Change:** The value for `VITE_FIREBASE_API_KEY` was updated to the new key `AIzaSyBRHxe9X3AZQxIwpDsxdRVvzQ7pt0eGJek`.
-* **Security Control:** The `.env` file is excluded from Git tracking via `.gitignore` (Line 16), ensuring that neither the old leaked key nor the new key is ever committed.
+* **Change:** The value for `VITE_FIREBASE_API_KEY` was updated to the new key.
+* **Security Control:** The `.env` file is excluded from Git tracking via `.gitignore` (Line 16), ensuring that neither the old leaked key nor the new key is committed to the repository.
 
 ### B. Environment Template Check
 * **Target File:** [.env.example](file:///Users/siyammeshak/Downloads/crm-stock-management/.env.example)
@@ -30,7 +30,7 @@ The following actions were taken to address the security vulnerability:
 
 ### C. Documentation & Report Sanitization
 All historical markdown reports generated during audits that contained the leaked API key as a finding were cleaned up to prevent scanner alerts and eliminate active exposure:
-* **[SECURITY_AUDIT_REPORT.md](file:///Users/siyammeshak/Downloads/crm-stock-management/SECURITY_AUDIT_REPORT.md)**: Redacted `AIzaSyC5zW9OwbcoqFh34SllcZq_NUrMFRx_iLo` with `[REDACTED]`.
+* **[SECURITY_AUDIT_REPORT.md](file:///Users/siyammeshak/Downloads/crm-stock-management/SECURITY_AUDIT_REPORT.md)**: Redacted the exposed key with `[REDACTED]`.
 * **[SECURITY_FIX_REPORT.md](file:///Users/siyammeshak/Downloads/crm-stock-management/SECURITY_FIX_REPORT.md)**: Redacted prefix `AIzaSyC5zW9Owbco...` with `[REDACTED]`.
 * **[SECURITY_AUDIT_REPORT_V2.md](file:///Users/siyammeshak/Downloads/crm-stock-management/SECURITY_AUDIT_REPORT_V2.md)**: Redacted all references of the old key to `[REDACTED]`.
 * **[PRODUCTION_READINESS_REPORT.md](file:///Users/siyammeshak/Downloads/crm-stock-management/PRODUCTION_READINESS_REPORT.md)**: Redacted all references of the old key to `[REDACTED]`.
@@ -53,7 +53,7 @@ git grep "AIza"
 ### Result:
 * **Tracked files containing "AIza":** None.
 * **Untracked/Gitignored source files containing "AIza":** Only the local `.env` configuration file (which contains the new API key and is ignored).
-* **Old leaked key `AIzaSyC5zW9OwbcoqFh34SllcZq_NUrMFRx_iLo` presence:** 0 matches across the entire repository.
+* **Old leaked key presence:** 0 matches across the entire repository.
 
 ---
 
